@@ -1,0 +1,39 @@
+{
+  "env": {
+    "browser": true,
+    "jquery": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "jquery"
+  ],
+  "rules": {
+    "indent": ["error", 2],
+    "camelcase": "error",
+    "comma-spacing": "error",
+    "comma-style": "error",
+    "eqeqeq": "error",
+    "no-var": "error",
+    "semi": "error",
+    "space-before-blocks": "error",
+    "space-in-parens": "error",
+    "space-infix-ops": "error",
+    "key-spacing": "error",
+    "brace-style": "error",
+    "curly": "error",
+    "no-multiple-empty-lines": "error",
+    "no-mixed-spaces-and-tabs": "error"
+
+  }
+}
