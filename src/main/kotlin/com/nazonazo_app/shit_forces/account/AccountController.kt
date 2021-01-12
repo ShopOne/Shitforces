@@ -1,10 +1,10 @@
 package com.nazonazo_app.shit_forces.account
 
-import com.google.gson.Gson
-import com.nazonazo_app.shit_forces.HttpResponseClass
+import com.nazonazo_app.shit_forces.EmptyResponse
 import com.nazonazo_app.shit_forces.session.SessionService
+import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
-import javax.servlet.http.HttpServletRequest
+import org.springframework.web.server.ResponseStatusException
 import javax.servlet.http.HttpServletResponse
 
 @RestController
@@ -15,33 +15,29 @@ class AccountController(private val accountService: AccountService,
         headers = ["Content-Type=application/json"],
         method = [RequestMethod.POST])
     fun createAccountResponse(@RequestBody requestAccount: RequestAccount,
-                              httpServletResponse: HttpServletResponse): String {
+                              httpServletResponse: HttpServletResponse): AccountInfo {
         val account = accountService.createAccount(requestAccount)
-        if (account != null) sessionService.createNewSession(account.name, httpServletResponse)
+            ?: throw ResponseStatusException(HttpStatus.CONFLICT)
 
-        val request = HttpResponseClass(account != null, Gson().toJson(account))
-        return Gson().toJson(request)
+        sessionService.createNewSession(account.name, httpServletResponse)
+
+        return account
     }
 
 
     @PostMapping("api/login",
         headers = ["Content-Type=application/json"])
     fun loginAccountResponse(@RequestBody requestAccount: RequestAccount,
-                     httpServletResponse: HttpServletResponse): String {
+                     httpServletResponse: HttpServletResponse): EmptyResponse {
         val result = accountService.loginAccount(requestAccount, httpServletResponse)
-        val response = HttpResponseClass(result)
-        return Gson().toJson(response)
+        if (!result) throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        return EmptyResponse()
     }
 
     @GetMapping("api/account/{accountName}")
-    fun getAccountByNameResponse(@PathVariable("accountName") accountName: String): String {
-        val rawAccount = accountService.getAccountByName(accountName)
-        val responseAccount = if(rawAccount != null) ResponseAccount(rawAccount.name, rawAccount.rating)
-        else null
-
-        val response = HttpResponseClass(responseAccount != null, Gson().toJson(responseAccount))
-        return Gson().toJson(response)
+    fun getAccountByNameResponse(@PathVariable("accountName") accountName: String): ResponseAccount {
+        val account = accountService.getAccountByName(accountName)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        return ResponseAccount(account.name, account.rating)
     }
-
-
 }
