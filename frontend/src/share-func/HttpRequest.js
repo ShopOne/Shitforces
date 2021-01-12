@@ -54,20 +54,6 @@
  * @type {Number} indexOfContest - コンテストの何番目の問題か
  */
 
-/***
- *
- * @return {Object}
- */
-function getJsonOrScalarVal(str) {
-  let res;
-  try {
-    res = JSON.parse(str);
-  } catch (e) {
-    res = str;
-  }
-  return res;
-}
-
 /**
  * @return Promise<Object>
  */
@@ -94,11 +80,10 @@ async function httpRequest(fetchTo, method, params) {
       return response.text();
     })
     .then((val) => {
-      const jsObject = JSON.parse(val.toString());
-      if(jsObject.result === true && 'statement' in jsObject) {
-        return getJsonOrScalarVal(jsObject.statement);
-      } else {
-        throw Error(`response object error${val}`);
+      try{
+        return JSON.parse(val);
+      }catch{
+        throw Error("Json String Error");
       }
     });
 }
