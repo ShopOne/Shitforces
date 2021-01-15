@@ -1,7 +1,7 @@
 package com.nazonazo_app.shit_forces.account
 
 import com.nazonazo_app.shit_forces.EmptyResponse
-import com.nazonazo_app.shit_forces.session.SessionService
+import com.nazonazo_app.shit_forces.session.SharedSessionService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
@@ -9,7 +9,8 @@ import javax.servlet.http.HttpServletResponse
 
 @RestController
 class AccountController(private val accountService: AccountService,
-                        private val sessionService: SessionService) {
+                        private val sharedAccountService: SharedAccountService,
+                        private val sharedSessionService: SharedSessionService) {
 
     @RequestMapping("api/signup",
         headers = ["Content-Type=application/json"],
@@ -19,7 +20,7 @@ class AccountController(private val accountService: AccountService,
         val account = accountService.createAccount(requestAccount)
             ?: throw ResponseStatusException(HttpStatus.CONFLICT)
 
-        sessionService.createNewSession(account.name, httpServletResponse)
+        sharedSessionService.createNewSession(account.name, httpServletResponse)
 
         return account
     }
@@ -36,7 +37,7 @@ class AccountController(private val accountService: AccountService,
 
     @GetMapping("api/account/{accountName}")
     fun getAccountByNameResponse(@PathVariable("accountName") accountName: String): ResponseAccount {
-        val account = accountService.getAccountByName(accountName)
+        val account = sharedAccountService.getAccountByName(accountName)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         return ResponseAccount(account.name, account.rating)
     }

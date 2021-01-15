@@ -1,14 +1,13 @@
 package com.nazonazo_app.shit_forces.submission
 
 import com.nazonazo_app.shit_forces.contest.ContestInfo
-import com.nazonazo_app.shit_forces.problem.ProblemInfo
-import com.nazonazo_app.shit_forces.problem.ProblemService
+import com.nazonazo_app.shit_forces.problem.SharedProblemService
 import org.springframework.stereotype.Service
 import java.sql.Timestamp
 
 @Service
-class SubmissionService(val submissionRepository: SubmissionRepository,
-                        val problemService: ProblemService){
+class SharedSubmissionService(private val submissionRepository: SubmissionRepository,
+                              private val sharedProblemService: SharedProblemService){
 
     private fun specialJudge(answers: List<String>, statement: String): Boolean {
         var res = false
@@ -21,7 +20,7 @@ class SubmissionService(val submissionRepository: SubmissionRepository,
     }
 
     fun getContestSubmission(contest: ContestInfo): List<SubmissionInfo> =
-        submissionRepository.findContestSubmission(contest.startTime, contest.endTime)
+        submissionRepository.findContestSubmission(contest.name)
 
     fun getContestSubmissionInTime(contest: ContestInfo): List<SubmissionInfo> =
         submissionRepository.findContestSubmissionInTime(contest.name, contest.startTime, contest.endTime)
@@ -30,7 +29,7 @@ class SubmissionService(val submissionRepository: SubmissionRepository,
         submissionRepository.findSubmissions(accountName, contestName)
     fun submitAnswer(indexOfContest: Int, contestName: String, statement: String, submitAccountName: String): SubmissionInfo? =
         try {
-            val problem = problemService.getContestProblemByNameAndIndex(contestName, indexOfContest)
+            val problem = sharedProblemService.getContestProblemByNameAndIndex(contestName, indexOfContest)
                 ?: throw Error("問題が見つかりません")
 
             //TODO: インタラクティブにいずれ対応

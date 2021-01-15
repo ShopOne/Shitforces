@@ -37,10 +37,10 @@ class SubmissionRepository(val jdbcTemplate: JdbcTemplate) {
             WHERE contestName = ? AND ? <= submitTime  AND submitTime < ? ORDER BY indexOfContest, submitTime
         """, rowMapper, contestName, startTime, endTime)
     }
-    fun findContestSubmission(startTime: Timestamp, endTime: Timestamp): List<SubmissionInfo> {
+    fun findContestSubmission(contestName: String): List<SubmissionInfo> {
         return jdbcTemplate.query("""
             SELECT contestName, accountName, indexOfContest, statement, submitTime, result FROM submissionInfo 
-            WHERE  ? <= submitTime  AND submitTime < ? ORDER BY indexOfContest, submitTime
-        """, rowMapper, startTime, endTime)
+            WHERE  contestName = ?
+        """, rowMapper, contestName)
     }
 }

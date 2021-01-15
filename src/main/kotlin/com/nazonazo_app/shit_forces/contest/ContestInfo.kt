@@ -1,9 +1,6 @@
 package com.nazonazo_app.shit_forces.contest
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.nazonazo_app.shit_forces.problem.ProblemInfo
 import java.sql.Timestamp
-import java.util.*
 
 data class ContestInfo(
         val shortName: String,

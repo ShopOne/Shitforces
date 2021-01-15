@@ -11,7 +11,7 @@ const val ACCOUNT_NAME_COOKIE_KEY = "_sforce_account_name"
 const val SESSION_ID_COOKIE_KEY = "_sforce_login_session"
 
 @Service
-class SessionService(val sessionRepository: SessionRepository){
+class SharedSessionService(private val sessionRepository: SessionRepository){
     fun createCookie(key: String, value: String, expirationDate: Date) : Cookie {
         val cookie = Cookie(key, value)
         //一週間 変更する際はsessionRepositoryのgetExpirationDate()も

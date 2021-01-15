@@ -2,7 +2,7 @@ package com.nazonazo_app.shit_forces.contest
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.nazonazo_app.shit_forces.problem.ResponseProblemInfo
-import com.nazonazo_app.shit_forces.session.SessionService
+import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.RequestSubmission
 import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import org.springframework.http.HttpStatus
@@ -13,7 +13,8 @@ import javax.servlet.http.HttpServletRequest
 const val ONE_PAGE_SIZE = 20
 @RestController
 class ContestController(val contestService: ContestService,
-                        val sessionService: SessionService) {
+                        val sharedContestService: SharedContestService,
+                        val sharedSessionService: SharedSessionService) {
     data class RequestContest @JsonCreator constructor(val shortName: String, val name: String,
                                                        val startTime: Float, val endTime: Float, val rated: Boolean)
 
@@ -22,8 +23,8 @@ class ContestController(val contestService: ContestService,
     fun getContestRankingResponse(@RequestParam("shortContestName") shortContestName: String,
                           @RequestParam(value="page") page: Int,
                                                       httpServletRequest: HttpServletRequest): RequestRanking {
-        val sessionAccountName = sessionService.getSessionAccountName(httpServletRequest)
-        return contestService.getContestRanking(shortContestName, page, sessionAccountName)
+        val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
+        return sharedContestService.getContestRanking(shortContestName, page, sessionAccountName)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
