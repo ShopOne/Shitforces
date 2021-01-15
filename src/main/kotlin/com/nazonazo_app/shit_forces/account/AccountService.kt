@@ -1,13 +1,13 @@
 package com.nazonazo_app.shit_forces.account
 
-import com.nazonazo_app.shit_forces.session.SessionService
+import com.nazonazo_app.shit_forces.session.SharedSessionService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import javax.servlet.http.HttpServletResponse
 
 @Service
 class AccountService(val accountInfoRepository: AccountInfoRepository,
-                     val sessionService: SessionService){
+                     val sharedSessionService: SharedSessionService){
 
     private fun hashPassword(password: String): String {
         val bcrypt = BCryptPasswordEncoder()
@@ -40,15 +40,6 @@ class AccountService(val accountInfoRepository: AccountInfoRepository,
         if(!isSamePassword(requestAccount.name, requestAccount.password)) {
             false
         } else {
-            sessionService.createNewSession(requestAccount.name, servletResponse) != null
+            sharedSessionService.createNewSession(requestAccount.name, servletResponse) != null
         }
-
-    fun getAccountByName(accountName: String): AccountInfo? {
-        return try {
-            accountInfoRepository.findByAccountName(accountName)
-        } catch (e: Error) {
-            print(e)
-            null
-        }
-    }
 }

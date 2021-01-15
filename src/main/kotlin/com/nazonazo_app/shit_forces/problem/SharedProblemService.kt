@@ -4,7 +4,7 @@ import org.springframework.stereotype.Service
 import javax.servlet.http.HttpServletRequest
 
 @Service
-class ProblemService(val problemRepository: ProblemRepository) {
+class SharedProblemService(private val problemRepository: ProblemRepository) {
     fun getProblemsByContestName(contestName: String) : List<ProblemInfo> {
         return try{
             return problemRepository.findByContestName(contestName)
