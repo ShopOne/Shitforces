@@ -9,7 +9,8 @@ data class ContestInfo(
         val startTime: Timestamp,
         val endTime: Timestamp,
         val contestType: String,
-        val rated: Boolean) {
+        val rated: Boolean
+) {
     val unixStartTime: Long = startTime.time
 }
 data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,

@@ -1,6 +1,5 @@
 package com.nazonazo_app.shit_forces.problem
 
-import com.nazonazo_app.shit_forces.contest.ContestInfo
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository

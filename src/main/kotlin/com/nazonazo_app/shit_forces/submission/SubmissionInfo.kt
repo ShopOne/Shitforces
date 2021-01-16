@@ -1,6 +1,5 @@
 package com.nazonazo_app.shit_forces.submission
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import java.sql.Timestamp
 class SubmissionInfo(
     val contestName: String,

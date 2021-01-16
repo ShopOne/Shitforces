@@ -10,13 +10,15 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 class AccountController(private val accountService: AccountService,
                         private val sharedAccountService: SharedAccountService,
-                        private val sharedSessionService: SharedSessionService) {
+                        private val sharedSessionService: SharedSessionService
+) {
 
     @RequestMapping("api/signup",
         headers = ["Content-Type=application/json"],
         method = [RequestMethod.POST])
     fun createAccountResponse(@RequestBody requestAccount: RequestAccount,
-                              httpServletResponse: HttpServletResponse): AccountInfo {
+                              httpServletResponse: HttpServletResponse
+    ): AccountInfo {
         val account = accountService.createAccount(requestAccount)
             ?: throw ResponseStatusException(HttpStatus.CONFLICT)
 
@@ -29,7 +31,8 @@ class AccountController(private val accountService: AccountService,
     @PostMapping("api/login",
         headers = ["Content-Type=application/json"])
     fun loginAccountResponse(@RequestBody requestAccount: RequestAccount,
-                     httpServletResponse: HttpServletResponse): EmptyResponse {
+                             httpServletResponse: HttpServletResponse
+    ): EmptyResponse {
         val result = accountService.loginAccount(requestAccount, httpServletResponse)
         if (!result) throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
         return EmptyResponse()

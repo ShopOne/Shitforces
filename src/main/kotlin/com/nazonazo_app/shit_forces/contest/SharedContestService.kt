@@ -9,7 +9,8 @@ import java.sql.Timestamp
 @Service
 class SharedContestService(private val contestRepository: ContestRepository,
                            private val sharedProblemService: SharedProblemService,
-                           private val sharedSubmissionService: SharedSubmissionService){
+                           private val sharedSubmissionService: SharedSubmissionService
+){
     fun getSolvedProblemOnContest(contest: ContestInfo): List<Pair<Int,Int>>{
         val contestProblemNum = sharedProblemService.getProblemsByContestName(contest.name).size
         val solvedProblems = MutableList(contestProblemNum) {Pair(0, 0)}
@@ -24,7 +25,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
             }
         return solvedProblems.toList()
     }
-    private fun getContestRankByICPC(contest: ContestInfo): List<ContestRankingAccountInfo>{
+    private fun getContestRankByICPC(contest: ContestInfo): List<ContestRankingAccountInfo> {
         val submissionList = sharedSubmissionService.getContestSubmissionInTime(contest)
         val accountSubmitTime: MutableMap<String, MutableMap<Int, Timestamp>> = mutableMapOf()
         val ranking = mutableListOf<ContestRankingAccountInfo>()
@@ -58,7 +59,8 @@ class SharedContestService(private val contestRepository: ContestRepository,
     }
     fun getContestRanking(shortContestName: String,
                           page: Int?,
-                          requestAccountName : String?): RequestRanking? {
+                          requestAccountName : String?
+    ): RequestRanking? {
         return try{
             val contest = contestRepository.findByShortName(shortContestName)?: throw Error("コンテストが見つかりません")
             //現在はICPC形式のみ
