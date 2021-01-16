@@ -7,7 +7,8 @@ import java.sql.Timestamp
 
 @Service
 class SharedSubmissionService(private val submissionRepository: SubmissionRepository,
-                              private val sharedProblemService: SharedProblemService){
+                              private val sharedProblemService: SharedProblemService
+){
 
     private fun specialJudge(answers: List<String>, statement: String): Boolean {
         var res = false
@@ -27,7 +28,9 @@ class SharedSubmissionService(private val submissionRepository: SubmissionReposi
 
     fun getSubmissionOfAccount(accountName: String, contestName: String): List<SubmissionInfo> =
         submissionRepository.findSubmissions(accountName, contestName)
-    fun submitAnswer(indexOfContest: Int, contestName: String, statement: String, submitAccountName: String): SubmissionInfo? =
+    fun submitAnswer(indexOfContest: Int, contestName: String,
+                     statement: String, submitAccountName: String
+    ): SubmissionInfo? =
         try {
             val problem = sharedProblemService.getContestProblemByNameAndIndex(contestName, indexOfContest)
                 ?: throw Error("問題が見つかりません")

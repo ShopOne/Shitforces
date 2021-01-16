@@ -4,9 +4,9 @@ data class AccountInfo(
     val name: String,
     val rating: Int,
     val passwordHash: String,
-    private val auth: String) {
-
-    val authority = when(auth) {
+    private val auth: String
+    ) {
+    val authority = when (auth) {
         "ADMINISTER" -> AccountAuthority.ADMINISTER
         else -> AccountAuthority.GENERAL
     }

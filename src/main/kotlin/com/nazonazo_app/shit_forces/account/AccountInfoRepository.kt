@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
-    private val rowMapper = RowMapper<AccountInfo> { rs, _ ->
+    private val rowMapper = RowMapper { rs, _ ->
         AccountInfo(rs.getString("name"), rs.getInt("rating"), rs.getString("passwordHash"),
             rs.getString("permission"))
     }

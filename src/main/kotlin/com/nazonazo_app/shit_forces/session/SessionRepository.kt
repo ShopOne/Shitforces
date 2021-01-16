@@ -37,7 +37,7 @@ class SessionRepository(private val jdbcTemplate: JdbcTemplate) {
         expirationDate.add(SessionData.SESSION_LIFE_CALENDAR, 1)
         return Timestamp(expirationDate.time.time)
     }
-    fun addNewSession(name: String, sessionId: String) : SessionData?{
+    fun addNewSession(name: String, sessionId: String) : SessionData? {
         deleteDeadSession()
         val nowSession = findByName(name)
         if (nowSession === null) {

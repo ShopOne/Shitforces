@@ -1,6 +1,5 @@
 package com.nazonazo_app.shit_forces.contest
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.nazonazo_app.shit_forces.problem.ResponseProblemInfo
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.RequestSubmission
@@ -14,15 +13,17 @@ const val ONE_PAGE_SIZE = 20
 @RestController
 class ContestController(val contestService: ContestService,
                         val sharedContestService: SharedContestService,
-                        val sharedSessionService: SharedSessionService) {
-    data class RequestContest @JsonCreator constructor(val shortName: String, val name: String,
-                                                       val startTime: Float, val endTime: Float, val rated: Boolean)
+                        val sharedSessionService: SharedSessionService
+                        ) {
+    data class RequestContest constructor(val shortName: String, val name: String,
+                                          val startTime: Float, val endTime: Float, val rated: Boolean)
 
     //今はICPC形式のみの用意 のちのち変える
     @GetMapping("api/get-contestRanking")
     fun getContestRankingResponse(@RequestParam("shortContestName") shortContestName: String,
-                          @RequestParam(value="page") page: Int,
-                                                      httpServletRequest: HttpServletRequest): RequestRanking {
+                                  @RequestParam(value="page") page: Int,
+                                  httpServletRequest: HttpServletRequest
+    ): RequestRanking {
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
         return sharedContestService.getContestRanking(shortContestName, page, sessionAccountName)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -49,19 +50,21 @@ class ContestController(val contestService: ContestService,
     fun getAccountSubmissionOfContestResponse(@RequestParam("accountName") accountName: String,
                              @RequestParam("shortContestName") shortContestName: String,
                              httpServletRequest: HttpServletRequest
-    ): List<SubmissionInfo>{
+    ): List<SubmissionInfo> {
         return contestService.getAccountSubmissionOfContest(accountName, shortContestName, httpServletRequest)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
     @PostMapping("api/post-submission", headers = ["Content-Type=application/json"])
     fun submitAnswerResponse(@RequestBody requestSubmission: RequestSubmission,
-                             httpServletRequest: HttpServletRequest): SubmissionInfo{
+                             httpServletRequest: HttpServletRequest
+    ): SubmissionInfo {
         return contestService.submitAnswerToContest(requestSubmission, httpServletRequest)
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
     }
     @GetMapping("/api/problemsInfo")
     fun getContestProblemsResponse(@RequestParam("shortContestName") shortContestName: String,
-                           httpServletRequest: HttpServletRequest): List<ResponseProblemInfo>{
+                                   httpServletRequest: HttpServletRequest
+    ): List<ResponseProblemInfo> {
         val problems = contestService.getContestProblems(shortContestName, httpServletRequest)
         return problems?.map{
             ResponseProblemInfo(it.contestName, it.point, it.statement, it.indexOfContest)
