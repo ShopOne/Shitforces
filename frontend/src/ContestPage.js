@@ -1,5 +1,5 @@
-import React  from "react";
-import {Button, Tab, Tabs, Form, Pagination, Table, Badge} from "react-bootstrap";
+import React from "react";
+import {Button, Tab, Tabs, Form, Table, Badge} from "react-bootstrap";
 import {
   getContestInfo,
   getContestProblems,
@@ -10,6 +10,7 @@ import {
 import PropTypes from 'prop-types';
 import './ContestPage.css';
 import getCookieArray from "./share-func/GetCookieArray";
+import PagingElement from "./share-element/PagingElement";
 
 // URL: /contest/$shortContestName
 function createEnglishIndex(index, num) {
@@ -42,7 +43,7 @@ function RankingTable(props) {
      * @param {ranking} account.ranking - このアカウントの現在順位
      * @param {Number} account.penalty - ペナルティ
      */
-    return props.rankingList.map(account => {
+    return props.rankingList.map((account, idx) => {
       const probElement = [];
       let sumScore = 0;
       for(let i = 0; i < problemsNum ; i++) {
@@ -54,7 +55,7 @@ function RankingTable(props) {
         }
       }
       return (
-        <tr key={account.accountName}>
+        <tr key={account.accountName + idx}>
           <td>{account.ranking}</td>
           <td>{account.accountName}</td>
           <td>{sumScore}</td>
@@ -85,40 +86,63 @@ RankingTable.propTypes = {
   rankingList: PropTypes.array,
   problems: PropTypes.array
 };
-function SubmissionTable(props) {
-  const tableBody = () => {
+class SubmissionTable extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      displaySubmissions: []
+    };
+    this.SUBMISSIONS_IN_ONE_PAGE = 5;
+    this.pageNum = Math.ceil(props.submissions.length / this.SUBMISSIONS_IN_ONE_PAGE);
+    this.changeDisplaySubmissions = this.changeDisplaySubmissions.bind(this);
+    this.changeDisplaySubmissions(0);
+  }
+
+  changeDisplaySubmissions(page) {
+    const newSubmissions = this.props.submissions.filter((_, idx) =>
+      page * this.SUBMISSIONS_IN_ONE_PAGE <= idx && idx < (page + 1) * this.SUBMISSIONS_IN_ONE_PAGE);
+    this.setState({
+      displaySubmissions: newSubmissions
+    });
+  }
+  tableBody() {
     /**
      * @param {Object} submit - 提出情報
      * @param {String} submit.statement - 提出した際の答案
      * @param {String} submit.result - 提出結果
      * @param {String} submit.submitTime - 提出時間のフォーマット済の文字列
      */
-    return props.submissions.map((submit, idx) => {
+    return this.state.displaySubmissions.map((submit, idx) => {
       return(
         <tr key={idx}>
-          <td>{createEnglishIndex(submit.indexOfContest, props.problemNum)}</td>
+          <td>{createEnglishIndex(submit.indexOfContest, this.props.problemNum)}</td>
           <td>{submit.statement}</td>
           <td>{submit.result}</td>
           <td>{submit.submitTime}</td>
         </tr>
       );
     });
-  };
-  return (
-    <Table striped bordered hover>
-      <thead>
-        <tr>
-          <th>問題</th>
-          <th>提出</th>
-          <th>結果</th>
-          <th>提出時間</th>
-        </tr>
-      </thead>
-      <tbody>
-        {tableBody()}
-      </tbody>
-    </Table>
-  );
+  }
+  render() {
+    return (
+      <div>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>問題</th>
+              <th>提出</th>
+              <th>結果</th>
+              <th>提出時間</th>
+            </tr>
+          </thead>
+          <tbody>
+            {this.tableBody()}
+          </tbody>
+        </Table>
+        <PagingElement pageNum={this.pageNum} pageChanged={this.changeDisplaySubmissions}/>
+      </div>
+    );
+  }
 }
 SubmissionTable.propTypes = {
   submissions: PropTypes.array,
@@ -168,8 +192,8 @@ class RankingElement extends React.Component {
       attendNum: 0,
       rankingList: [],
     };
+    this.ACCOUNTS_IN_ONE_PAGE = 1;
     this.getRanking = this.getRanking.bind(this);
-    this.changePage = this.changePage.bind(this);
   }
   getRanking(page) {
     if (page === undefined) {
@@ -188,36 +212,8 @@ class RankingElement extends React.Component {
     this.getRanking();
   }
 
-  createPagination() {
-    const pageSize = 20;
-    //切り上げ
-    const pageCount = Math.ceil(this.state.attendNum / pageSize);
-    const items = [];
-    for (let i = 0; i < pageCount ; i++) {
-      items.push(
-        <Pagination.Item
-          key={i}
-          active={ i === this.state.page}>
-          {i + 1}
-        </Pagination.Item>
-      );
-    }
-    return items;
-  }
-
-  changePage(event) {
-    const nextPage = event.target.text;
-    if (nextPage === undefined) {
-      return;
-    }
-    this.setState({
-      page: nextPage - 1
-    });
-    this.getRanking(nextPage - 1);
-  }
-
   render() {
-    const pagination = this.createPagination();
+    const pageNum = Math.ceil(this.state.attendNum / this.ACCOUNTS_IN_ONE_PAGE);
     let rankingTable = <div/>;
     if (this.state.rankingList !== []) {
       rankingTable = <RankingTable problems={this.props.problems} rankingList={this.state.rankingList} />;
@@ -230,7 +226,7 @@ class RankingElement extends React.Component {
       <div>
         <p>{myRank}</p>
         {rankingTable}
-        <Pagination onClick={this.changePage}>{pagination}</Pagination>
+        <PagingElement pageNum={pageNum} pageChanged={this.getRanking}/>
       </div>
     );
   }
@@ -271,7 +267,7 @@ class ProblemsTab extends React.Component {
           <Button type={"primary"} onClick={this.submitAnswer}>提出</Button>
         </div>
       );
-    } else {
+    } else if(this.state.submissions.length > 0) {
       return (
         <SubmissionTable submissions={this.state.submissions} problemNum={this.props.problems.length}/>
       );
