@@ -17,9 +17,8 @@ class ContestService(private val contestRepository: ContestRepository,
                      private val sharedSessionService: SharedSessionService,
                      private val sharedAccountService: SharedAccountService,
                      private val sharedProblemService: SharedProblemService,
-                     private val sharedSubmissionService: SharedSubmissionService) {
-
-
+                     private val sharedSubmissionService: SharedSubmissionService
+) {
     private fun isAbleToSubmit(sessionAccount: AccountInfo, contest: ContestInfo): Boolean{
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return contest.startTime <= nowTimeStamp ||

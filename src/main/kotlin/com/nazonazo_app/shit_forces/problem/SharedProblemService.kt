@@ -1,7 +1,6 @@
 package com.nazonazo_app.shit_forces.problem
 
 import org.springframework.stereotype.Service
-import javax.servlet.http.HttpServletRequest
 
 @Service
 class SharedProblemService(private val problemRepository: ProblemRepository) {

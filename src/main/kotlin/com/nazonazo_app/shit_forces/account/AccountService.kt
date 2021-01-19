@@ -14,7 +14,7 @@ class AccountService(val accountInfoRepository: AccountInfoRepository,
         return bcrypt.encode(password)
     }
 
-    private fun isSamePassword(name: String, password: String): Boolean{
+    private fun isSamePassword(name: String, password: String): Boolean {
         val savedPasswordHash = accountInfoRepository.findByAccountName(name)?.passwordHash
         return BCryptPasswordEncoder().matches(password, savedPasswordHash)
     }
