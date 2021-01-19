@@ -192,7 +192,7 @@ class RankingElement extends React.Component {
       attendNum: 0,
       rankingList: [],
     };
-    this.ACCOUNTS_IN_ONE_PAGE = 1;
+    this.ACCOUNTS_IN_ONE_PAGE = 20;
     this.getRanking = this.getRanking.bind(this);
   }
   getRanking(page) {
