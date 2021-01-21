@@ -241,6 +241,7 @@ class ProblemsTab extends React.Component {
     this.getSubmitFormOrHistory = this.getSubmitFormOrHistory.bind(this);
     this.submitAnswer = this.submitAnswer.bind(this);
     this.getProblemTabList = this.getProblemTabList.bind(this);
+    this.selectTab = this.selectTab.bind(this);
     this.mySubmissionKey = "mySubmit";
     this.state = {
       key: this.mySubmissionKey,
@@ -312,6 +313,12 @@ class ProblemsTab extends React.Component {
       );
     });
   }
+  selectTab(key) {
+    this.setState({comment: "", key: key});
+    if (this.answerInput.current) {
+      this.answerInput.current.value = "";
+    }
+  }
   render() {
     if (this.props.problems === []) {
       return <div/>;
@@ -325,7 +332,7 @@ class ProblemsTab extends React.Component {
         {submissionBudge}
         <Tabs
           activeKey={this.state.key}
-          onSelect={(k) => this.setState({comment: "", key: k})}
+          onSelect={this.selectTab}
           submissions={this.state.submissions}>
           {this.getProblemTabList()}
           <Tab
