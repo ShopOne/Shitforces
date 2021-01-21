@@ -196,7 +196,7 @@ class RankingElement extends React.Component {
     this.getRanking = this.getRanking.bind(this);
   }
   getRanking(page) {
-    if (page === undefined) {
+    if (typeof(page) !== "number") {
       page = this.state.page;
     }
     getRankingInfo(page, getShortContestName())
@@ -227,6 +227,7 @@ class RankingElement extends React.Component {
         <p>{myRank}</p>
         {rankingTable}
         <PagingElement pageNum={pageNum} pageChanged={this.getRanking}/>
+        <input type={"image"} src={window.location.origin + "/reload.png"} alt={"再読込"} onClick={this.getRanking}/>
       </div>
     );
   }
