@@ -110,7 +110,7 @@ class SubmissionTable extends React.Component {
      * @param {Object} submit - 提出情報
      * @param {String} submit.statement - 提出した際の答案
      * @param {String} submit.result - 提出結果
-     * @param {String} submit.submitTime - 提出時間のフォーマット済の文字列
+     * @param {String} submit.submitTimeAMPM - 提出時間のフォーマット済の文字列
      */
     return this.state.displaySubmissions.map((submit, idx) => {
       return(
@@ -118,7 +118,7 @@ class SubmissionTable extends React.Component {
           <td>{createEnglishIndex(submit.indexOfContest, this.props.problemNum)}</td>
           <td>{submit.statement}</td>
           <td>{submit.result}</td>
-          <td>{submit.submitTime}</td>
+          <td>{submit.submitTimeAMPM}</td>
         </tr>
       );
     });
@@ -360,8 +360,8 @@ export class ContestPage extends React.Component {
         this.setState({
           contestName: contest.name,
           statement: contest.statement,
-          startTime: contest.startTime,
-          endTime: contest.endTime
+          startTime: contest.startTimeAMPM,
+          endTime: contest.endTimeAMPM
         });
         return getContestProblems(getShortContestName());
       })

@@ -1,5 +1,6 @@
 package com.nazonazo_app.shit_forces.contest
 
+import com.nazonazo_app.shit_forces.Utils
 import java.sql.Timestamp
 
 data class ContestInfo(
@@ -12,6 +13,8 @@ data class ContestInfo(
         val rated: Boolean
 ) {
     val unixStartTime: Long = startTime.time
+    val startTimeAMPM: String = Utils().formatTimestamp(startTime)
+    val endTimeAMPM: String = Utils().formatTimestamp(endTime)
 }
 data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,
                           val acceptedList: List<Pair<Int, Int>>,

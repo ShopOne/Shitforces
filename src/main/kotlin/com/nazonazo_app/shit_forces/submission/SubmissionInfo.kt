@@ -1,5 +1,6 @@
 package com.nazonazo_app.shit_forces.submission
 
+import com.nazonazo_app.shit_forces.Utils
 import java.sql.Timestamp
 class SubmissionInfo(
     val contestName: String,
@@ -7,8 +8,9 @@ class SubmissionInfo(
     val accountName: String,
     val statement: String,
     val submitTime: Timestamp,
-    val result: SubmissionResult
-)
+    val result: SubmissionResult) {
+    val submitTimeAMPM = Utils().formatTimestamp(submitTime)
+}
 enum class SubmissionResult(val state: String) {
     ACCEPTED("ACCEPTED"),
     WRONG_ANSWER("WRONG_ANSWER"),
