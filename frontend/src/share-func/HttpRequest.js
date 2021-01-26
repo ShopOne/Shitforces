@@ -16,7 +16,7 @@
 /***
  * @class RankingInfo
  * @type {Object}
- * @property {Number} attendAccountNum - 参加者数
+ * @property {Number} partAccountNum - 参加者数
  * @property {Array} rankingList - 順位表
  * @property {Number} requestAccountRank - リクエストしたユーザーの順位
  */

@@ -18,7 +18,7 @@ data class ContestInfo(
 }
 data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,
                           val acceptedList: List<Pair<Int, Int>>,
-                          val attendAccountNum: Int,
+                          val partAccountNum: Int,
                           val requestAccountRank: Int?)
 data class ContestRankingAccountInfo(val accountName: String,
                                      val score: Int,
