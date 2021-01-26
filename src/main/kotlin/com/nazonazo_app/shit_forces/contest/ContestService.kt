@@ -8,7 +8,9 @@ import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.RequestSubmission
 import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.sql.Timestamp
 import javax.servlet.http.HttpServletRequest
 
@@ -19,7 +21,7 @@ class ContestService(private val contestRepository: ContestRepository,
                      private val sharedProblemService: SharedProblemService,
                      private val sharedSubmissionService: SharedSubmissionService
 ) {
-    private fun isAbleToSubmit(sessionAccount: AccountInfo, contest: ContestInfo): Boolean{
+    private fun haveAuthOfSubmit(sessionAccount: AccountInfo, contest: ContestInfo): Boolean{
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return contest.startTime <= nowTimeStamp ||
                 sessionAccount.authority == AccountInfo.AccountAuthority.ADMINISTER
@@ -60,32 +62,36 @@ class ContestService(private val contestRepository: ContestRepository,
         contestRepository.findByShortName(shortContestName)
 
     fun submitAnswerToContest(requestSubmission: RequestSubmission,
-                              httpServletRequest: HttpServletRequest): SubmissionInfo? {
-        return try {
-            val contest = getContestInfoByShortName(requestSubmission.shortContestName)
-                ?: throw Error("コンテストが見つかりません")
+                              httpServletRequest: HttpServletRequest): SubmissionInfo {
+        val contest = getContestInfoByShortName(requestSubmission.shortContestName)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
-            val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
-                ?: throw Error("アカウントが不正です")
+        val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
 
-            val account = sharedAccountService.getAccountByName(accountName)
-                ?: throw Error("アカウントが不正です")
+        val account = sharedAccountService.getAccountByName(accountName)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
 
-            if (!isAbleToSubmit(account, contest)) {
-                throw Error("提出権限がありません")
-            }
-
-            val reg = Regex(":")
-            if (reg.containsMatchIn(requestSubmission.statement)) {
-                throw Error("不正な文字が含まれています")
-            }
-            sharedSubmissionService.submitAnswer(requestSubmission.indexOfContest, contest.name,
-                requestSubmission.statement, account.name)
-
-        } catch (e: Error) {
-            print(e)
-            null
+        if (!haveAuthOfSubmit(account, contest)) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
         }
+        val latestSubmit = sharedSubmissionService.getSubmissionOfAccount(accountName, contest.name)
+            .maxBy { it.submitTime }
+
+        val nowTime = Timestamp(System.currentTimeMillis())
+
+        if (latestSubmit != null && nowTime.time - latestSubmit.submitTime.time <= SUBMIT_INTERVAL_TIME) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+
+        val reg = Regex(":")
+        if (reg.containsMatchIn(requestSubmission.statement)) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        return sharedSubmissionService.submitAnswer(requestSubmission.indexOfContest, contest.name,
+            requestSubmission.statement, account.name)
+            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
+
     }
 
     fun getContestProblems(shortContestName: String,

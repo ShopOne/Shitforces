@@ -75,7 +75,7 @@ async function httpRequest(fetchTo, method, params) {
   return await fetch(fetchTo, initState)
     .then(response => {
       if (!response.ok) {
-        throw new Error("サーバー接続の際にエラーが発生しました");
+        throw new Error(response.status.toString());
       }
       return response.text();
     })
