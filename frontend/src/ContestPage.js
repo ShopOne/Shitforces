@@ -165,7 +165,7 @@ function RankingElement(props) {
     <div>
       <p>{myRank}</p>
       {rankingTable}
-      <PagingElement pageNum={pageNum} pageChanged={getRanking}/>
+      <PagingElement pageNum={pageNum} pageChanged={getRanking} reloadButton={true}/>
     </div>
   );
 }

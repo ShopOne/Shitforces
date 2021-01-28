@@ -12,13 +12,14 @@ export default class PagingElement extends React.Component {
   }
   clicked(event) {
     const newPage = parseInt(event.target.text) - 1;
-    if (isNaN(newPage)) {
-      return;
+    let loadPage = this.state.page;
+    if (!isNaN(newPage)) {
+      this.setState({
+        page: newPage
+      });
+      loadPage = newPage;
     }
-    this.setState({
-      page: newPage
-    });
-    this.props.pageChanged(newPage);
+    this.props.pageChanged(loadPage);
   }
   render() {
     const items = [];
@@ -29,14 +30,25 @@ export default class PagingElement extends React.Component {
         </Pagination.Item>
       );
     }
+    let reloadButton = <div/>;
+    if (this.props.reloadButton === true) {
+      reloadButton =
+        <button
+          type={"submit"}
+          onClick={this.clicked}>
+          <img src={window.location.origin + "/reload.png"} alt={"再読込"}/>
+        </button>;
+    }
     return (
       <div>
         <Pagination>{items}</Pagination>
+        {reloadButton}
       </div>
     );
   }
 }
 PagingElement.propTypes = {
   pageNum: PropTypes.number,
-  pageChanged: PropTypes.func
+  pageChanged: PropTypes.func,
+  reloadButton: PropTypes.bool
 };
