@@ -17,6 +17,7 @@ class ShitforcesApplication {
             statement VARCHAR(500) NOT NULL,
 			startTime TIMESTAMP NOT NULL,
             endTime   TIMESTAMP NOT NULL,
+            contestType VARCHAR(20) NOT NULL,
             rated     BOOLEAN NOT NULL,
             UNIQUE(name)
 		)""")

@@ -9,12 +9,17 @@ data class ContestInfo(
         val statement: String,
         val startTime: Timestamp,
         val endTime: Timestamp,
-        val contestType: String,
+        val contestType: ContestType,
         val rated: Boolean
 ) {
     val unixStartTime: Long = startTime.time
     val startTimeAMPM: String = Utils().formatTimestamp(startTime)
     val endTimeAMPM: String = Utils().formatTimestamp(endTime)
+    enum class ContestType(val textName: String) {
+        ICPC("ICPC"),
+        ATCODER("AtCoder"),
+        INVALID("INVALID")
+    }
 }
 data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,
                           val acceptedList: List<Pair<Int, Int>>,
