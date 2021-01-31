@@ -11,6 +11,7 @@ import PropTypes from 'prop-types';
 import './ContestPage.css';
 import getCookieArray from "./share-func/GetCookieArray";
 import PagingElement from "./share-element/PagingElement";
+const KEY_OF_MY_SUBMISSIONS = "mySubmit";
 
 // URL: /contest/$shortContestName
 function createEnglishIndex(index, num) {
@@ -175,17 +176,24 @@ RankingElement.propTypes = {
 function ProblemsTab(props) {
   const answerInput = React.createRef();
   const [comment, setComment] = useState("");
-  const tabOfMySubmit = "mySubmit";
-  const [key, setKey] = useState(tabOfMySubmit);
+  const [key, setKey] = useState(KEY_OF_MY_SUBMISSIONS);
   const [changeColor, setChangeColor] = useState(true);
   const [firstTabRender, setFirstTabRender] = useState(false);
+  const [nowSubmissions, setNowSubmission] = useState([]);
   const TAB_ID = 'tabId';
 
   useEffect(() => {
     const getSubmitResultArray = () => {
+      //初期化時はprops、そうでない場合nowSubmissionsが新しい値 更新されている場合、要素数が多い
+      let useSubmissions;
+      if (nowSubmissions.length < props.submissions.length) {
+        useSubmissions = props.submissions;
+      } else {
+        useSubmissions = nowSubmissions;
+      }
       const tryingArray = new Array(props.problems.length);
       tryingArray.fill("NO_SUB");
-      props.submissions.map(submit => {
+      useSubmissions.map(submit => {
         if (submit.result === "ACCEPTED") {
           tryingArray[submit.indexOfContest] = "ACCEPTED";
         } else if (submit.result === "WRONG_ANSWER") {
@@ -217,6 +225,10 @@ function ProblemsTab(props) {
     setColor();
     setChangeColor(false);
     setFirstTabRender(false);
+    //初期化時のみ
+    if (nowSubmissions.length === 0) {
+      setNowSubmission(props.submissions);
+    }
   }, [changeColor, firstTabRender]);
 
   if (props.problems.length === 0 && props.submissions.length === 0) {
@@ -227,7 +239,7 @@ function ProblemsTab(props) {
   }
 
   const getElement = () => {
-    if (key !== tabOfMySubmit) {
+    if (key !== KEY_OF_MY_SUBMISSIONS) {
       return (
         <div>
           <Form.Label>答え</Form.Label>
@@ -237,7 +249,7 @@ function ProblemsTab(props) {
       );
     } else{
       return (
-        <SubmissionTable submissions={props.submissions} problemNum={props.problems.length}/>
+        <SubmissionTable submissions={nowSubmissions} problemNum={props.problems.length}/>
       );
     }
   };
@@ -253,6 +265,9 @@ function ProblemsTab(props) {
     setComment("");
     postSubmission(getShortContestName(), key, answerInput.current.value)
       .then((submitResult) => {
+        const newSubmissions = nowSubmissions.slice();
+        newSubmissions.unshift(submitResult);
+        setNowSubmission(newSubmissions);
         setComment(submitResult.result);
       })
       .catch((e) => {
@@ -289,8 +304,7 @@ function ProblemsTab(props) {
       <Tabs
         id={TAB_ID}
         activeKey={key}
-        onSelect={selectTab}
-        submissions={props.submissions}>
+        onSelect={selectTab}>
         {getProblemTabList()}
         <Tab
           eventKey={"mySubmit"} key={"mySubmit"} title={"自分の提出"}>
