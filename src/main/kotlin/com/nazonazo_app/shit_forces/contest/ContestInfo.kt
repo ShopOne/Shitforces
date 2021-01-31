@@ -22,7 +22,7 @@ data class ContestInfo(
     }
 }
 data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,
-                          val acceptedList: List<Pair<Int, Int>>,
+                          val acPerSubmit: List<Pair<Int, Int>>,
                           val partAccountNum: Int,
                           val requestAccountRank: Int?)
 data class ContestRankingAccountInfo(val accountName: String,

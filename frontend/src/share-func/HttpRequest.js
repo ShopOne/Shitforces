@@ -19,6 +19,7 @@
  * @property {Number} partAccountNum - 参加者数
  * @property {Array} rankingList - 順位表
  * @property {Number} requestAccountRank - リクエストしたユーザーの順位
+ * @property {Array} acPerSubmit - AC/Submitの数 .firstにAC人数、.secondに提出人数
  */
 
 /***

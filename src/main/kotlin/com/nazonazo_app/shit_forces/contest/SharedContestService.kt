@@ -14,17 +14,18 @@ class SharedContestService(private val contestRepository: ContestRepository,
 ){
     fun getSolvedProblemOnContest(contest: ContestInfo): List<Pair<Int,Int>>{
         val contestProblemNum = sharedProblemService.getProblemsByContestName(contest.name).size
-        val solvedProblems = MutableList(contestProblemNum) {Pair(0, 0)}
         val submissionList = sharedSubmissionService.getContestSubmissionInTime(contest)
+        val submitAccounts = Array<MutableSet<String>>(contestProblemNum){ mutableSetOf() }
+        val acceptAccounts = Array<MutableSet<String>>(contestProblemNum){ mutableSetOf() }
         submissionList
             .filter { contest.startTime <= it.submitTime  && it.submitTime <= contest.endTime}
             .forEach {
-                val pair = solvedProblems[it.indexOfContest]
-                solvedProblems[it.indexOfContest] = Pair(pair.first + 1,
-                    if (it.result == SubmissionResult.ACCEPTED) pair.second + 1
-                    else pair.second)
+                submitAccounts[it.indexOfContest].add(it.accountName)
+                if (it.result == SubmissionResult.ACCEPTED) acceptAccounts[it.indexOfContest].add(it.accountName)
             }
-        return solvedProblems.toList()
+        return submitAccounts.mapIndexed{ index, acNum ->
+            Pair(acceptAccounts[index].size, acNum.size)
+        }
     }
     private fun getContestRankByICPC(submissionList: List<SubmissionInfo>, startTime: Long): List<ContestRankingAccountInfo> {
         val accountSubmitTime = getAccountSubmissionTime(submissionList)

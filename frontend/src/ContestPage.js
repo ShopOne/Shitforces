@@ -32,7 +32,9 @@ function RankingTable(props) {
   const problemTr = () => {
     const items = [];
     for(let i = 0; i < problemsNum ; i++) {
-      items.push(<th>{createEnglishIndex(i, problemsNum)}</th>);
+      items.push(<th>
+        {`${createEnglishIndex(i, problemsNum)} (${props.acPerSubmit[i].first} / ${props.acPerSubmit[i].second})`}
+      </th>);
     }
     return items;
   };
@@ -85,6 +87,7 @@ function RankingTable(props) {
 }
 RankingTable.propTypes = {
   rankingList: PropTypes.array,
+  acPerSubmit: PropTypes.array,
   problems: PropTypes.array
 };
 function SubmissionTable(props) {
@@ -138,12 +141,13 @@ function SubmissionTable(props) {
 }
 SubmissionTable.propTypes = {
   submissions: PropTypes.array,
-  problemNum: PropTypes.number
+  problemNum: PropTypes.number,
 };
 function RankingElement(props) {
   const [partNum, setPartNum] = useState(0);
   const [rankingList, setRankingList] = useState([]);
   const [accountRank, setAccountRank] = useState();
+  const [acPerSubmit, setAcPerSubmit] = useState([]);
   const ACCOUNTS_IN_ONE_PAGE = 20;
   const getRanking = (newPage) => {
     getRankingInfo(newPage, getShortContestName())
@@ -151,13 +155,13 @@ function RankingElement(props) {
         setPartNum(rankingInfo.partAccountNum);
         setRankingList(rankingInfo.rankingList);
         setAccountRank(rankingInfo.requestAccountRank);
+        setAcPerSubmit(rankingInfo.acPerSubmit);
       });
   };
   useEffect(() => {
     getRanking(0);
   }, []);
   const pageNum = Math.ceil(partNum / ACCOUNTS_IN_ONE_PAGE);
-  const rankingTable = <RankingTable problems={props.problems} rankingList={rankingList} />;
   let myRank = "";
   if (accountRank) {
     myRank = `順位: ${accountRank}`;
@@ -165,7 +169,7 @@ function RankingElement(props) {
   return (
     <div>
       <p>{myRank}</p>
-      {rankingTable}
+      <RankingTable problems={props.problems} rankingList={rankingList} acPerSubmit={acPerSubmit}/>
       <PagingElement pageNum={pageNum} pageChanged={getRanking} reloadButton={true}/>
     </div>
   );
@@ -208,6 +212,7 @@ function ProblemsTab(props) {
       const submitResult = getSubmitResultArray();
       props.problems.map((_, index) => {
         const element = document.getElementById(TAB_ID + "-tab-" + index);
+        element.classList.remove("bg-success", "text-white", "bg-warning");
         if (submitResult) {
           switch(submitResult[index]) {
           case "ACCEPTED":
@@ -234,7 +239,8 @@ function ProblemsTab(props) {
   if (props.problems.length === 0 && props.submissions.length === 0) {
     return <div/>;
     // 最初の色つけタイミングのみこの様に処理する必要がある
-  } else if (props.problems.length !== 0 && props.submissions.length !== 0 && !firstTabRender) {
+  } else if (!firstTabRender &&
+    ((props.problems.length !== 0 && props.submissions.length !== 0) || nowSubmissions.length !== 0)) {
     setFirstTabRender(true);
   }
 
@@ -285,7 +291,9 @@ function ProblemsTab(props) {
       const problemTitle = createEnglishIndex(index, props.problems.size);
       return (
         <Tab
-          eventKey={index} key={problem.indexOfContest} title={problemTitle}>
+          eventKey={index}
+          key={problem.indexOfContest}
+          title={problemTitle}>
           <p>{problem.statement}</p>
         </Tab>
       );
@@ -318,7 +326,7 @@ function ProblemsTab(props) {
 ProblemsTab.propTypes = {
   problems: PropTypes.array,
   submissions: PropTypes.array,
-  contestName: PropTypes.string
+  contestName: PropTypes.string,
 };
 
 
