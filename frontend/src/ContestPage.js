@@ -28,6 +28,9 @@ function getShortContestName() {
   return splitPath.slice(-1)[0];
 }
 function RankingTable(props) {
+  if (props.problems.length !== props.acPerSubmit.length) {
+    return <div/>;
+  }
   const problemsNum = props.problems.length;
   const problemTr = () => {
     const items = [];
@@ -147,6 +150,7 @@ function RankingElement(props) {
   const [partNum, setPartNum] = useState(0);
   const [rankingList, setRankingList] = useState([]);
   const [accountRank, setAccountRank] = useState();
+  const [nowRankingVersion, setNowRankingVersion] = useState(0);
   const [acPerSubmit, setAcPerSubmit] = useState([]);
   const ACCOUNTS_IN_ONE_PAGE = 20;
   const getRanking = (newPage) => {
@@ -158,6 +162,10 @@ function RankingElement(props) {
         setAcPerSubmit(rankingInfo.acPerSubmit);
       });
   };
+  if (nowRankingVersion !== props.rankingVersion) {
+    setNowRankingVersion(props.rankingVersion);
+    getRanking(0);
+  }
   useEffect(() => {
     getRanking(0);
   }, []);
@@ -175,7 +183,8 @@ function RankingElement(props) {
   );
 }
 RankingElement.propTypes = {
-  problems: this.props.problems
+  problems: PropTypes.array,
+  rankingVersion: PropTypes.number
 };
 function ProblemsTab(props) {
   const answerInput = React.createRef();
@@ -184,6 +193,7 @@ function ProblemsTab(props) {
   const [changeColor, setChangeColor] = useState(true);
   const [firstTabRender, setFirstTabRender] = useState(false);
   const [nowSubmissions, setNowSubmission] = useState([]);
+  const [rankingVersion, setRankingVersion] = useState(0);
   const TAB_ID = 'tabId';
 
   useEffect(() => {
@@ -275,6 +285,8 @@ function ProblemsTab(props) {
         newSubmissions.unshift(submitResult);
         setNowSubmission(newSubmissions);
         setComment(submitResult.result);
+        // RankingElement再読込のため、バージョニング
+        setRankingVersion(rankingVersion + 1);
       })
       .catch((e) => {
         if (e.message === "403") {
@@ -320,6 +332,7 @@ function ProblemsTab(props) {
       </Tabs>
       {getElement()}
       <p>{comment}</p>
+      <RankingElement problems={props.problems} rankingVersion={rankingVersion}/>
     </div>
   );
 }
@@ -370,7 +383,6 @@ export function ContestPage() {
         problems={problems}
         contestName={contestName}
         submissions={submissions}/>
-      <RankingElement problems={problems}/>
     </div>
   );
 }
