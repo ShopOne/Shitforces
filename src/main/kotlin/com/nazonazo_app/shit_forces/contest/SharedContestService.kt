@@ -1,5 +1,6 @@
 package com.nazonazo_app.shit_forces.contest
 
+import com.nazonazo_app.shit_forces.problem.ProblemInfo
 import com.nazonazo_app.shit_forces.problem.SharedProblemService
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
 import com.nazonazo_app.shit_forces.submission.SubmissionInfo
@@ -44,12 +45,17 @@ class SharedContestService(private val contestRepository: ContestRepository,
         }
         return ranking
     }
-    private fun getContestRankByAtCoder(submissionList: List<SubmissionInfo>, startTime: Long): List<ContestRankingAccountInfo> {
+    private fun getContestRankByAtCoder(problemsInfo: List<ProblemInfo>,
+                                        submissionList: List<SubmissionInfo>,
+                                        startTime: Long
+    ): List<ContestRankingAccountInfo> {
         val accountSubmitTime = getAccountSubmissionTime(submissionList)
         val ranking = mutableListOf<ContestRankingAccountInfo>()
         accountSubmitTime.forEach{
-            val penalty = ((it.value.maxBy { submit -> submit.value.time }?.value?.time ?: startTime) - startTime) / (1000 * 10.0)
-            ranking.add(ContestRankingAccountInfo(it.key, it.value.size, (penalty).toInt(), it.value.toList(), null))
+            val penalty = ((it.value.maxBy { submit -> submit.value.time }?.value?.time ?: startTime) - startTime) / 1000.0
+            var score = 0
+            it.value.forEach{submit -> score += problemsInfo[submit.key].point!!}
+            ranking.add(ContestRankingAccountInfo(it.key, score, (penalty).toInt(), it.value.toList(), null))
         }
         ranking.sortWith(rankingComparator())
         for ( idx in 0 until ranking.size) {
@@ -62,7 +68,8 @@ class SharedContestService(private val contestRepository: ContestRepository,
             .filter { it.result == SubmissionResult.ACCEPTED }
             .filter { contest.startTime <= it.submitTime && it.submitTime <= contest.endTime }
     }
-    private fun getAccountSubmissionTime(submissionList: List<SubmissionInfo>): Map<String, MutableMap<Int, Timestamp>> {
+    // Map<アカウント名, Map<問題番号,時間>>
+    private fun getAccountSubmissionTime(submissionList: List<SubmissionInfo>): Map<String, Map<Int, Timestamp>> {
         val accountSubmitTime: MutableMap<String, MutableMap<Int, Timestamp>> = mutableMapOf()
         submissionList
             .forEach {
@@ -89,9 +96,10 @@ class SharedContestService(private val contestRepository: ContestRepository,
         return try{
             val contest = contestRepository.findByShortName(shortContestName)?: throw Error("コンテストが見つかりません")
             val submissionList = getValidSubmissionInContest(contest)
+            val contestProblems = sharedProblemService.getProblemsByContestName(contest.name)
             val rankingList = when(contest.contestType) {
                 ContestInfo.ContestType.ICPC -> getContestRankByICPC(submissionList, contest.startTime.time)
-                ContestInfo.ContestType.ATCODER -> getContestRankByAtCoder(submissionList, contest.startTime.time)
+                ContestInfo.ContestType.ATCODER -> getContestRankByAtCoder(contestProblems, submissionList, contest.startTime.time)
                 else -> throw Error("不正なコンテスト形式です")
             }
             val solvedProblems = getSolvedProblemOnContest(contest)
