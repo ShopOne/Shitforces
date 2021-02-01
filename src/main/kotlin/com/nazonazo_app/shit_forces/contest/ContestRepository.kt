@@ -13,11 +13,11 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             else -> ContestInfo.ContestType.INVALID
         }
         ContestInfo(rs.getString("shortName"), rs.getString("name"), rs.getString("statement"),
-                rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), contestType, rs.getBoolean("rated"))
+                rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"), contestType, rs.getBoolean("rated"))
     }
     fun findByShortName(shortName: String): ContestInfo? {
         val contest =  jdbcTemplate.query("""
-            SELECT shortName, name, statement, startTime, endTime, contestType, rated
+            SELECT shortName, name, statement, startTime, endTime, penalty, contestType, rated
              FROM contestInfo WHERE shortName = (?)""", rowMapper, shortName)
         return if (contest.isEmpty()) {
             null
@@ -26,7 +26,7 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         }
     }
     fun findByName(contestName: String): ContestInfo? {
-        val contest =  jdbcTemplate.query("""SELECT shortName, name, statement, startTime, endTime, contestType, rated 
+        val contest =  jdbcTemplate.query("""SELECT shortName, name, statement, startTime, endTime, penalty, contestType, rated 
             FROM contestInfo WHERE name = (?)""", rowMapper, contestName)
         return if (contest.isEmpty()) {
             null
@@ -36,7 +36,7 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
     }
     fun findLatestContest(contestNum: Int): List<ContestInfo>? {
         return jdbcTemplate.query("""
-            SELECT shortName, name, statement, startTime, endTime, contestType, rated FROM contestInfo ORDER BY startTime desc"""
+            SELECT shortName, name, statement, startTime, endTime, contestType, rated , penalty FROM contestInfo ORDER BY startTime desc"""
             , rowMapper)
     }
     fun addContest(contestInfo: ContestInfo): ContestInfo? {

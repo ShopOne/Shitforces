@@ -136,7 +136,7 @@ class ContestService(private val contestRepository: ContestRepository,
             }
             val contest = ContestInfo(requestContest.shortName, requestContest.name, "",
                 Timestamp(requestContest.startTime.toLong()), Timestamp(requestContest.endTime.toLong()),
-                ContestInfo.ContestType.ICPC, requestContest.rated)
+                0, ContestInfo.ContestType.ICPC, requestContest.rated)
 
             contestRepository.addContest(contest)
         }catch (e: Error) {

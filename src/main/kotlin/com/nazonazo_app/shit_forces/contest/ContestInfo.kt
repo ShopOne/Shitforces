@@ -9,6 +9,7 @@ data class ContestInfo(
         val statement: String,
         val startTime: Timestamp,
         val endTime: Timestamp,
+        val penalty: Int,
         val contestType: ContestType,
         val rated: Boolean
 ) {
@@ -28,5 +29,5 @@ data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,
 data class ContestRankingAccountInfo(val accountName: String,
                                      val score: Int,
                                      val penalty: Int,
-                                     val acceptList: List<Pair<Int, Timestamp>>,
+                                     val acceptList: List<Int>,
                                      var ranking: Int?)

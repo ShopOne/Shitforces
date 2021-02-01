@@ -45,7 +45,7 @@ function RankingTable(props) {
     /**
      * @param {Object} account - 順位表に表示するためのアカウント情報
      * @param {String} account.accountName
-     * @param {Array} account.acceptList - ACした問題リスト firstには問題インデックス、secondには時間
+     * @param {Array} account.acceptList - ACした問題リスト
      * @param {ranking} account.ranking - このアカウントの現在順位
      * @param {Number} account.score
      * @param {Number} account.penalty
@@ -53,7 +53,7 @@ function RankingTable(props) {
     return props.rankingList.map((account, idx) => {
       const probElement = [];
       for(let i = 0; i < problemsNum ; i++) {
-        if (account.acceptList.some(ac => ac.first === i)) {
+        if (account.acceptList.some(ac => ac === i)) {
           probElement.push(<td>AC</td>);
         } else {
           probElement.push(<td> </td>);

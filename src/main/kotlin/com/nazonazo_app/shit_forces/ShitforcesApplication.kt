@@ -18,6 +18,7 @@ class ShitforcesApplication {
 			startTime TIMESTAMP NOT NULL,
             endTime   TIMESTAMP NOT NULL,
             contestType VARCHAR(20) NOT NULL,
+            penalty   INT DEFAULT 0 ,
             rated     BOOLEAN NOT NULL,
             UNIQUE(name)
 		)""")
