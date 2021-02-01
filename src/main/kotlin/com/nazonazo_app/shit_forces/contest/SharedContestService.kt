@@ -38,7 +38,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
             var penaResult = 0
             val acceptList = mutableListOf<Int>()
             it.value.forEachIndexed{index, penaltyOfIt ->
-                if (penalty != -1) {
+                if (penaltyOfIt != -1) {
                     score += problemsInfo[index].point!!
                     penaResult += penaltyOfIt
                     acceptList.add(index)
