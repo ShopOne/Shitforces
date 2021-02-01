@@ -305,6 +305,7 @@ function ProblemsTab(props) {
           eventKey={index}
           key={problem.indexOfContest}
           title={problemTitle}>
+          <h6>{"point: " + problem.point}</h6>
           <p>{problem.statement}</p>
         </Tab>
       );
