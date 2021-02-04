@@ -78,5 +78,14 @@ task<NpmTask>("buildReact") {
 }
 val processResources by tasks.existing(ProcessResources::class)
 processResources {
-    dependsOn("buildReact")
+    var buildFront = true
+    if (project.hasProperty("args")) {
+        val args = project.properties["args"] as? String
+        if (args?.split("""\s+""".toRegex())?.find{ it == "--only-back-end"} != null){
+            buildFront = false
+        }
+    }
+    if (buildFront) {
+        dependsOn("buildReact")
+    }
 }
