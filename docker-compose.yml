@@ -15,9 +15,12 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - .:/app
-      - /app/.gradle
-      - /app/build
+      - ./gradle:/app/gradle
+      - ./src:/app/src
+      - ./build.gradle.kts:/app/build.gradle.kts
+      - ./gradlew:/app/gradlew
+      - ./settings.gradle.kts:/app/settings.gradle.kts
+      - ./system.properties:/app/system.properties
     working_dir: /app
     environment:
       DATABASE_URL: "jdbc:postgresql://db:5432/db"
