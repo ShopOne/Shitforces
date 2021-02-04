@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import javax.servlet.http.HttpServletResponse
 
+@CrossOrigin
 @RestController
 class AccountController(private val accountService: AccountService,
                         private val sharedAccountService: SharedAccountService,

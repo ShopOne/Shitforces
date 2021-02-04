@@ -1,0 +1,45 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: db
+      POSTGRES_PASSWORD: password
+      POSTGRES_USER: shop_one
+  backend:
+    image: gradle:jdk11
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./gradle:/app/gradle
+      - ./src:/app/src
+      - ./build.gradle.kts:/app/build.gradle.kts
+      - ./gradlew:/app/gradlew
+      - ./settings.gradle.kts:/app/settings.gradle.kts
+      - ./system.properties:/app/system.properties
+    working_dir: /app
+    environment:
+      DATABASE_URL: "jdbc:postgresql://db:5432/db"
+      DATABASE_PASSWORD: password
+      DATABASE_USER: shop_one
+    command: ./gradlew bootRun -Pargs="--only-back-end"
+    depends_on:
+      - db
+  frontend:
+    image: node:12
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    environment:
+      PORT: "3000"
+      REACT_APP_BACKEND_URL: "http://localhost:8080"
+    command: sh -c 'npm install && npm start'
+volumes:
+  postgres-data:

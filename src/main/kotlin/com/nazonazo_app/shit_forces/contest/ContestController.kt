@@ -11,6 +11,8 @@ import javax.servlet.http.HttpServletRequest
 
 const val ONE_PAGE_SIZE = 20
 const val SUBMIT_INTERVAL_TIME = 10 * 1000
+
+@CrossOrigin
 @RestController
 class ContestController(val contestService: ContestService,
                         val sharedContestService: SharedContestService,

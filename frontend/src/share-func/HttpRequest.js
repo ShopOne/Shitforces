@@ -59,6 +59,9 @@
  * @return Promise<Object>
  */
 async function httpRequest(fetchTo, method, params) {
+  if (process?.env?.REACT_APP_BACKEND_URL !== undefined) {
+    fetchTo = process.env.REACT_APP_BACKEND_URL + fetchTo;
+  }
   let initState = undefined;
   if (method === "GET" || method === 'HEAD') {
     if (params !== undefined) {
@@ -144,7 +147,7 @@ export function getAccountInformation(accountName) {
  * @returns {Promise<Array<ContestInfo>>}
  */
 export function getLatestContests() {
-  return httpRequest("api/latest-contestsInfo", "GET");
+  return httpRequest("/api/latest-contestsInfo", "GET");
 }
 
 /**
