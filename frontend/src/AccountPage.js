@@ -1,22 +1,23 @@
-import React from "react";
 import PropTypes from 'prop-types';
-import  {getAccountInformation} from "./share-func/HttpRequest";
-import {Button} from "react-bootstrap";
-import getCookieArray from "./share-func/GetCookieArray";
-
+import React from 'react';
+import { Button } from 'react-bootstrap';
+import getCookieArray from './share-func/GetCookieArray';
+import { getAccountInformation } from './share-func/HttpRequest';
 
 // URL: /account/$accountName
 
 function AccountInformationBody(props) {
   const logOutAccount = () => {
     document.cookie = `_sforce_account_name=; max-age=0; path=/`;
-    window.location.href = "/";
+    window.location.href = '/';
   };
   const getLogOutButtonIfMyAccount = () => {
     const cookieArray = getCookieArray();
-    if (cookieArray["_sforce_account_name"] === props.name) {
+    if (cookieArray['_sforce_account_name'] === props.name) {
       return (
-        <Button variant={"primary"} onClick={logOutAccount}>ログアウト</Button>
+        <Button variant={'primary'} onClick={logOutAccount}>
+          ログアウト
+        </Button>
       );
     }
   };
@@ -29,7 +30,7 @@ function AccountInformationBody(props) {
   );
 }
 function AccountNotFound() {
-  return(
+  return (
     <div>
       <p>アカウントが見つかりませんでした</p>
     </div>
@@ -37,15 +38,15 @@ function AccountNotFound() {
 }
 AccountInformationBody.propTypes = {
   rating: PropTypes.number,
-  name: PropTypes.string
+  name: PropTypes.string,
 };
 
 export default class AccountPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: "",
-      rating: ""
+      name: '',
+      rating: '',
     };
   }
   componentDidMount() {
@@ -53,33 +54,34 @@ export default class AccountPage extends React.Component {
   }
 
   getAccount() {
-    const splitUrl = window.location.href.split("/");
+    const splitUrl = window.location.href.split('/');
     const accountName = splitUrl[splitUrl.length - 1];
     getAccountInformation(accountName)
-      .then(account => {
+      .then((account) => {
         this.setState({
           name: account.name,
-          rating: account.rating
+          rating: account.rating,
         });
       })
       .catch(() => {
         this.setState({
-          name: "",
-          rating: ""
+          name: '',
+          rating: '',
         });
       });
   }
   render() {
     let page;
-    if (this.state.name !== "" && this.state.rating !== "") {
-      page = <AccountInformationBody name={this.state.name} rating={this.state.rating}/>;
+    if (this.state.name !== '' && this.state.rating !== '') {
+      page = (
+        <AccountInformationBody
+          name={this.state.name}
+          rating={this.state.rating}
+        />
+      );
     } else {
       page = <AccountNotFound />;
     }
-    return (
-      <div>
-        {page}
-      </div>
-    );
+    return <div>{page}</div>;
   }
 }

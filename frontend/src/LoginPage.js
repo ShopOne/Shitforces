@@ -1,15 +1,18 @@
-import React from "react";
-import SubmitAccountInfo from "./share-element/SubmitAccountInfo";
+import React from 'react';
+import SubmitAccountInfo from './share-element/SubmitAccountInfo';
 // URL: /login
 
 export default class LoginPage extends React.Component {
   render() {
-    return(
+    return (
       <div>
         <SubmitAccountInfo
-          fetchTo={"/api/login"}
-          successText={"ログインに成功しました"}
-          failedText={"ログインに失敗しました。メールアドレスかパスワードが間違っています"}/>
+          fetchTo={'/api/login'}
+          successText={'ログインに成功しました'}
+          failedText={
+            'ログインに失敗しました。メールアドレスかパスワードが間違っています'
+          }
+        />
       </div>
     );
   }
