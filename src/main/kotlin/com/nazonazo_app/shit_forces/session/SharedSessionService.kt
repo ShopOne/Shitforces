@@ -2,6 +2,7 @@ package com.nazonazo_app.shit_forces.session
 
 import org.apache.commons.lang3.RandomStringUtils
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.*
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
@@ -11,6 +12,7 @@ const val ACCOUNT_NAME_COOKIE_KEY = "_sforce_account_name"
 const val SESSION_ID_COOKIE_KEY = "_sforce_login_session"
 
 @Service
+@Transactional
 class SharedSessionService(private val sessionRepository: SessionRepository) {
     fun createCookie(key: String, value: String, expirationDate: Date) : Cookie {
         val cookie = Cookie(key, value)

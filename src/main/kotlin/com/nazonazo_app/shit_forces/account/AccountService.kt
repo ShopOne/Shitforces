@@ -3,8 +3,10 @@ package com.nazonazo_app.shit_forces.account
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import javax.servlet.http.HttpServletResponse
 
+@Transactional
 @Service
 class AccountService(val accountInfoRepository: AccountInfoRepository,
                      val sharedSessionService: SharedSessionService){
