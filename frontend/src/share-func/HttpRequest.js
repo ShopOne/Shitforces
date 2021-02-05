@@ -63,31 +63,31 @@ async function httpRequest(fetchTo, method, params) {
     fetchTo = process.env.REACT_APP_BACKEND_URL + fetchTo;
   }
   let initState = undefined;
-  if (method === "GET" || method === 'HEAD') {
+  if (method === 'GET' || method === 'HEAD') {
     if (params !== undefined) {
-      fetchTo += "?" + new URLSearchParams(params);
+      fetchTo += '?' + new URLSearchParams(params);
     }
   } else {
     initState = {
       method: method,
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json',
       },
-      body: params
+      body: params,
     };
   }
   return await fetch(fetchTo, initState)
-    .then(response => {
+    .then((response) => {
       if (!response.ok) {
         throw new Error(response.status.toString());
       }
       return response.text();
     })
     .then((val) => {
-      try{
+      try {
         return JSON.parse(val);
-      }catch{
-        throw Error("Json String Error");
+      } catch {
+        throw Error('Json String Error');
       }
     });
 }
@@ -103,9 +103,9 @@ export function postSubmission(shortContestName, indexOfContest, statement) {
   const param = {
     shortContestName: shortContestName,
     indexOfContest: indexOfContest,
-    statement: statement
+    statement: statement,
   };
-  return httpRequest("/api/post-submission", "POST", JSON.stringify(param));
+  return httpRequest('/api/post-submission', 'POST', JSON.stringify(param));
 }
 
 /***
@@ -116,9 +116,9 @@ export function postSubmission(shortContestName, indexOfContest, statement) {
  *
  */
 export function getRankingInfo(page, shortContestName) {
-  return httpRequest("/api/get-contestRanking", "GET", {
+  return httpRequest('/api/get-contestRanking', 'GET', {
     shortContestName: shortContestName,
-    page: page
+    page: page,
   });
 }
 
@@ -128,9 +128,9 @@ export function getRankingInfo(page, shortContestName) {
  */
 export function getContestInfo(shortContestName) {
   const param = {
-    shortContestName: shortContestName
+    shortContestName: shortContestName,
   };
-  return httpRequest("/api/contestInfo", "GET", param);
+  return httpRequest('/api/contestInfo', 'GET', param);
 }
 
 /***
@@ -139,15 +139,15 @@ export function getContestInfo(shortContestName) {
  * @returns {Promise<Object>}
  */
 export function getAccountInformation(accountName) {
-  const fetchTo = "/api/account/"  + accountName;
-  return httpRequest(fetchTo, "GET");
+  const fetchTo = '/api/account/' + accountName;
+  return httpRequest(fetchTo, 'GET');
 }
 
 /**
  * @returns {Promise<Array<ContestInfo>>}
  */
 export function getLatestContests() {
-  return httpRequest("/api/latest-contestsInfo", "GET");
+  return httpRequest('/api/latest-contestsInfo', 'GET');
 }
 
 /**
@@ -159,9 +159,9 @@ export function getLatestContests() {
 export function getSubmission(shortContestName, accountName) {
   const param = {
     shortContestName: shortContestName,
-    accountName: accountName
+    accountName: accountName,
   };
-  return httpRequest("/api/get-submission", "GET", param);
+  return httpRequest('/api/get-submission', 'GET', param);
 }
 
 /**
@@ -171,9 +171,9 @@ export function getSubmission(shortContestName, accountName) {
  */
 export function getContestProblems(shortContestName) {
   const param = {
-    shortContestName: shortContestName
+    shortContestName: shortContestName,
   };
-  return httpRequest("/api/problemsInfo", "GET", param);
+  return httpRequest('/api/problemsInfo', 'GET', param);
 }
 
 /**
@@ -185,9 +185,9 @@ export function getContestProblems(shortContestName) {
  */
 export function postAccountInformation(fetchTo, accountName, password) {
   const jsonBody = JSON.stringify({
-    "name": accountName,
-    "password": btoa(accountName + ":" + password),
+    name: accountName,
+    password: btoa(accountName + ':' + password),
   });
-  return httpRequest(fetchTo, "POST", jsonBody);
+  return httpRequest(fetchTo, 'POST', jsonBody);
 }
 export default httpRequest;
