@@ -22,8 +22,8 @@ class ContestController(val contestService: ContestService,
                                           val startTime: Float, val endTime: Float, val rated: Boolean)
 
     //今はICPC形式のみの用意 のちのち変える
-    @GetMapping("api/get-contestRanking")
-    fun getContestRankingResponse(@RequestParam("shortContestName") shortContestName: String,
+    @GetMapping("api/contests/{short_contest_name}/ranking")
+    fun getContestRankingResponse(@PathVariable("short_contest_name") shortContestName: String,
                                   @RequestParam(value="page") page: Int,
                                   httpServletRequest: HttpServletRequest
     ): RequestRanking {
@@ -32,39 +32,41 @@ class ContestController(val contestService: ContestService,
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
-    @GetMapping("api/contestInfo")
-    fun getContestInfoByShortNameResponse(@RequestParam("shortContestName") shortName: String):ContestInfo {
+    @GetMapping("api/contests/{short_contest_name}")
+    fun getContestInfoByShortNameResponse(@PathVariable("short_contest_name") shortName: String):ContestInfo {
         return contestService.getContestInfoByShortName(shortName)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
-    @GetMapping("api/latest-contestsInfo")
-    fun getLatestContestsInfoResponse(@RequestParam("contestNum") contestNum: Int?):List<ContestInfo> {
+    @GetMapping("api/contests/latest")
+    fun getLatestContestsInfoResponse(@RequestParam("contest_num") contestNum: Int?):List<ContestInfo> {
         return contestService.getLatestContestsInfo(contestNum)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
-    @PostMapping("api/add-contest", headers = ["Content-Type=application/json"])
+    /*
+    @PostMapping("api/contests/", headers = ["Content-Type=application/json"])
     fun addContestResponse(@RequestBody requestContest: RequestContest):ContestInfo {
         return contestService.addContest(requestContest)
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
     }
+     */
 
-    @GetMapping("api/get-submission")
-    fun getAccountSubmissionOfContestResponse(@RequestParam("accountName") accountName: String,
-                             @RequestParam("shortContestName") shortContestName: String,
-                             httpServletRequest: HttpServletRequest
+    @GetMapping("api/submissions/{account_name}")
+    fun getAccountSubmissionOfContestResponse(@PathVariable("account_name") accountName: String,
+                                              @RequestParam("short_contest_name") shortContestName: String,
+                                              httpServletRequest: HttpServletRequest
     ): List<SubmissionInfo> {
         return contestService.getAccountSubmissionOfContest(accountName, shortContestName, httpServletRequest)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
-    @PostMapping("api/post-submission", headers = ["Content-Type=application/json"])
+    @PostMapping("api/submissions", headers = ["Content-Type=application/json"])
     fun submitAnswerResponse(@RequestBody requestSubmission: RequestSubmission,
                              httpServletRequest: HttpServletRequest
     ): SubmissionInfo {
         return contestService.submitAnswerToContest(requestSubmission, httpServletRequest)
     }
-    @GetMapping("/api/problemsInfo")
-    fun getContestProblemsResponse(@RequestParam("shortContestName") shortContestName: String,
+    @GetMapping("api/contests/{short_contest_name}/problems")
+    fun getContestProblemsResponse(@PathVariable("short_contest_name") shortContestName: String,
                                    httpServletRequest: HttpServletRequest
     ): List<ResponseProblemInfo> {
         val problems = contestService.getContestProblems(shortContestName, httpServletRequest)

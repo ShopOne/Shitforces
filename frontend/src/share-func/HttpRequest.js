@@ -105,7 +105,7 @@ export function postSubmission(shortContestName, indexOfContest, statement) {
     indexOfContest: indexOfContest,
     statement: statement,
   };
-  return httpRequest('/api/post-submission', 'POST', JSON.stringify(param));
+  return httpRequest('/api/submissions', 'POST', JSON.stringify(param));
 }
 
 /***
@@ -116,8 +116,7 @@ export function postSubmission(shortContestName, indexOfContest, statement) {
  *
  */
 export function getRankingInfo(page, shortContestName) {
-  return httpRequest('/api/get-contestRanking', 'GET', {
-    shortContestName: shortContestName,
+  return httpRequest(`/api/contests/${shortContestName}/ranking`, 'GET', {
     page: page,
   });
 }
@@ -127,10 +126,7 @@ export function getRankingInfo(page, shortContestName) {
  * @return {Promise<ContestInfo>}
  */
 export function getContestInfo(shortContestName) {
-  const param = {
-    shortContestName: shortContestName,
-  };
-  return httpRequest('/api/contestInfo', 'GET', param);
+  return httpRequest(`/api/contests/${shortContestName}`, 'GET');
 }
 
 /***
@@ -147,7 +143,7 @@ export function getAccountInformation(accountName) {
  * @returns {Promise<Array<ContestInfo>>}
  */
 export function getLatestContests() {
-  return httpRequest('/api/latest-contestsInfo', 'GET');
+  return httpRequest('/api/contests/latest', 'GET');
 }
 
 /**
@@ -158,10 +154,9 @@ export function getLatestContests() {
  */
 export function getSubmission(shortContestName, accountName) {
   const param = {
-    shortContestName: shortContestName,
-    accountName: accountName,
+    short_contest_name: shortContestName
   };
-  return httpRequest('/api/get-submission', 'GET', param);
+  return httpRequest(`/api/submissions/${accountName}`, 'GET', param);
 }
 
 /**
@@ -170,10 +165,7 @@ export function getSubmission(shortContestName, accountName) {
  * @returns {Promise<Array<ProblemInfo>>}
  */
 export function getContestProblems(shortContestName) {
-  const param = {
-    shortContestName: shortContestName,
-  };
-  return httpRequest('/api/problemsInfo', 'GET', param);
+  return httpRequest(`/api/contests/${shortContestName}/problems`, 'GET');
 }
 
 /**
