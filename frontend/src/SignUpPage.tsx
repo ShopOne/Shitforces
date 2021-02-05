@@ -1,7 +1,8 @@
 import React from 'react';
-import SubmitAccountInfo from './share-element/SubmitAccountInfo';
+import { SubmitAccountInfo } from './share-element/SubmitAccountInfo';
+
 // URL: /sighup
-export default class SignUpPage extends React.Component {
+export class SignUpPage extends React.Component {
   render() {
     return (
       <div>

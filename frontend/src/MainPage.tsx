@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import { getLatestContests } from './share-func/HttpRequest';
 
 // URL: /
-function ContestCard(props) {
+function ContestCard(props: any) {
   const contest = props.contest;
   return (
     <Card>
@@ -18,11 +18,13 @@ function ContestCard(props) {
     </Card>
   );
 }
+
 ContestCard.propTypes = {
   contest: PropTypes.object,
 };
-class ContestList extends React.Component {
-  constructor(props) {
+
+class ContestList extends React.Component<any, any> {
+  constructor(props: any) {
     super(props);
     this.state = {
       contests: null,
@@ -39,7 +41,7 @@ class ContestList extends React.Component {
   render() {
     let contestCards = <div />;
     if (this.state.contests !== null) {
-      contestCards = this.state.contests.map((contest) => {
+      contestCards = this.state.contests.map((contest: any) => {
         return <ContestCard contest={contest} key={contest.name} />;
       });
     }
@@ -48,7 +50,8 @@ class ContestList extends React.Component {
     );
   }
 }
-export default class MainPage extends React.Component {
+
+export class MainPage extends React.Component {
   render() {
     return <ContestList />;
   }
