@@ -1,7 +1,9 @@
 package com.nazonazo_app.shit_forces.account
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
+@Transactional
 @Service
 class SharedAccountService(private val accountInfoRepository: AccountInfoRepository) {
     fun getAccountByName(accountName: String): AccountInfo? {

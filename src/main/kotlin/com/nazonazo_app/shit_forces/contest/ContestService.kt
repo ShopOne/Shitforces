@@ -10,11 +10,13 @@ import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.sql.Timestamp
 import javax.servlet.http.HttpServletRequest
 
 @Service
+@Transactional
 class ContestService(private val contestRepository: ContestRepository,
                      private val sharedSessionService: SharedSessionService,
                      private val sharedAccountService: SharedAccountService,

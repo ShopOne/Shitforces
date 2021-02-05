@@ -6,8 +6,10 @@ import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
 import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import com.nazonazo_app.shit_forces.submission.SubmissionResult
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class SharedContestService(private val contestRepository: ContestRepository,
                            private val sharedProblemService: SharedProblemService,
                            private val sharedSubmissionService: SharedSubmissionService

@@ -1,8 +1,10 @@
 package com.nazonazo_app.shit_forces.problem
 
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
+@Transactional
 class SharedProblemService(private val problemRepository: ProblemRepository) {
     fun getProblemsByContestName(contestName: String) : List<ProblemInfo> {
         return try{
