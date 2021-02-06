@@ -1,5 +1,5 @@
 import React from 'react';
-import { SubmitAccountInfo } from './share-element/SubmitAccountInfo';
+import { SubmitAccountInfo } from '../components/SubmitAccountInfo';
 
 // URL: /login
 

@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
-import { getCookieArray } from './share-func/GetCookieArray';
-import { getAccountInformation } from './share-func/HttpRequest';
+import { getCookieArray } from '../functions/GetCookieArray';
+import { getAccountInformation } from '../functions/HttpRequest';
 
 // URL: /account/$accountName
 

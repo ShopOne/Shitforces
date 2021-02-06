@@ -1,15 +1,15 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Button, Tab, Tabs, Form, Table } from 'react-bootstrap';
-import { PagingElement } from './share-element/PagingElement';
-import { getCookieArray } from './share-func/GetCookieArray';
+import { PagingElement } from '../components/PagingElement';
+import { getCookieArray } from '../functions/GetCookieArray';
 import {
   getContestInfo,
   getContestProblems,
   getRankingInfo,
   getSubmission,
   postSubmission,
-} from './share-func/HttpRequest';
+} from '../functions/HttpRequest';
 import './ContestPage.css';
 
 const KEY_OF_MY_SUBMISSIONS = 'mySubmit';

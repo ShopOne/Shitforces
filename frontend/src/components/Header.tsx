@@ -1,8 +1,7 @@
 import React from 'react';
 import { Nav, Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import './index.css';
-import { getCookieArray } from './share-func/GetCookieArray';
+import { getCookieArray } from '../functions/GetCookieArray';
 
 export const Header: React.FC = () => {
   let rightHeader;
