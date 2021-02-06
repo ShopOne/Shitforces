@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import './index.css';
 import { Card } from 'react-bootstrap';
@@ -7,8 +7,12 @@ import { Link } from 'react-router-dom';
 import { getLatestContests } from './share-func/HttpRequest';
 
 // URL: /
-function ContestCard(props: any) {
-  const contest = props.contest;
+
+interface ContestCardProps {
+  contest: any;
+}
+
+const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
   return (
     <Card>
       <Link to={`/contest/${contest.shortName}`}>
@@ -17,42 +21,34 @@ function ContestCard(props: any) {
       <Card.Text>{`Type: ${contest.contestType} ${contest.startTime} ~ ${contest.endTime}`}</Card.Text>
     </Card>
   );
-}
+};
 
 ContestCard.propTypes = {
   contest: PropTypes.object,
 };
 
-class ContestList extends React.Component<any, any> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      contests: null,
-    };
-  }
-  componentDidMount() {
+const ContestList: React.FC = () => {
+  const [contests, setContests] = useState<any>(null);
+
+  useEffect(() => {
     getLatestContests().then((contests) => {
-      this.setState({
-        contests: contests,
-      });
+      setContests(contests);
+    });
+  }, []);
+
+  let contestCards = <div />;
+
+  if (contests !== null) {
+    contestCards = contests.map((contest: any) => {
+      return <ContestCard contest={contest} key={contest.name} />;
     });
   }
 
-  render() {
-    let contestCards = <div />;
-    if (this.state.contests !== null) {
-      contestCards = this.state.contests.map((contest: any) => {
-        return <ContestCard contest={contest} key={contest.name} />;
-      });
-    }
-    return (
-      <div>{contestCards ? <div>{contestCards}</div> : <p>loading...</p>}</div>
-    );
-  }
-}
+  return (
+    <div>{contestCards ? <div>{contestCards}</div> : <p>loading...</p>}</div>
+  );
+};
 
-export class MainPage extends React.Component {
-  render() {
-    return <ContestList />;
-  }
-}
+export const MainPage: React.FC = () => {
+  return <ContestList />;
+};
