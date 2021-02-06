@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom';
 import './index.css';
 import { getCookieArray } from './share-func/GetCookieArray';
 
-export function Header() {
+export const Header: React.FC = () => {
   let rightHeader;
   const cookieArray = getCookieArray();
+
   if (cookieArray['_sforce_account_name']) {
     const name = cookieArray['_sforce_account_name'];
     rightHeader = (
@@ -28,14 +29,15 @@ export function Header() {
       </div>
     );
   }
+
   return (
-    <Navbar bg="dark" variant={'dark'}>
-      <Nav className={'mr-auto'}>
-        <Nav.Link href={'/'}>
+    <Navbar bg="dark" variant="dark">
+      <Nav className="mr-auto">
+        <Nav.Link href="/">
           <Navbar.Brand>Shitforces</Navbar.Brand>
         </Nav.Link>
       </Nav>
       {rightHeader}
     </Navbar>
   );
-}
+};
