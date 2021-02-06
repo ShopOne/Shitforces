@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { useCallback, useRef } from 'react';
 import { Button, Form } from 'react-bootstrap';
-import { isValidAccountNameOrPassWord } from '../share-func/AccountInfoSubmitValidation';
-import { postAccountInformation } from '../share-func/HttpRequest';
+import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
+import { postAccountInformation } from '../functions/HttpRequest';
 
 const TEXT_TERM =
   'アルファベット、数字、-_から成る、4字以上20字以下の文字列を入力して下さい。';

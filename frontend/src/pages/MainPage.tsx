@@ -1,10 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import './App.css';
-import './index.css';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { getLatestContests } from './share-func/HttpRequest';
+import { getLatestContests } from '../functions/HttpRequest';
 
 // URL: /
 
