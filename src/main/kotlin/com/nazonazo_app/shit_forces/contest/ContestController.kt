@@ -1,5 +1,7 @@
 package com.nazonazo_app.shit_forces.contest
 
+import com.nazonazo_app.shit_forces.account.AccountInfo
+import com.nazonazo_app.shit_forces.account.SharedAccountService
 import com.nazonazo_app.shit_forces.problem.ResponseProblemInfo
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.RequestSubmission
@@ -16,6 +18,7 @@ const val SUBMIT_INTERVAL_TIME = 10 * 1000
 @RestController
 class ContestController(val contestService: ContestService,
                         val sharedContestService: SharedContestService,
+                        val sharedAccountService: SharedAccountService,
                         val sharedSessionService: SharedSessionService
                         ) {
     data class RequestContest constructor(val shortName: String, val name: String,
@@ -73,6 +76,20 @@ class ContestController(val contestService: ContestService,
         return problems?.map{
             ResponseProblemInfo(it.contestName, it.point, it.statement, it.indexOfContest)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
+    }
+    @PostMapping("api/contests/{short_contest_name}/new-rating")
+    fun updateRatingByContestResultResponse(@PathVariable("short_contest_name") shortContestName: String,
+                                            httpServletRequest: HttpServletRequest) {
+
+        val contestInfo = contestService.getContestInfoByName(shortContestName)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
+            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        val requestAccount = sharedAccountService.getAccountByName(accountName)
+        if (requestAccount?.authority != AccountInfo.AccountAuthority.ADMINISTER) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        }
+        contestService.updateRating(contestInfo)
     }
 
 }

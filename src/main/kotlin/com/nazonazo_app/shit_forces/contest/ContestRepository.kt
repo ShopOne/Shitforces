@@ -13,11 +13,11 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             else -> ContestInfo.ContestType.INVALID
         }
         ContestInfo(rs.getString("shortName"), rs.getString("name"), rs.getString("statement"),
-                rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"), contestType, rs.getBoolean("rated"))
+                rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"), rs.getInt("ratedBound"), contestType)
     }
     fun findByShortName(shortName: String): ContestInfo? {
         val contest =  jdbcTemplate.query("""
-            SELECT shortName, name, statement, startTime, endTime, penalty, contestType, rated
+            SELECT shortName, name, statement, startTime, endTime, penalty, contestType, ratedBound
              FROM contestInfo WHERE shortName = (?)""", rowMapper, shortName)
         return if (contest.isEmpty()) {
             null
@@ -26,7 +26,8 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         }
     }
     fun findByName(contestName: String): ContestInfo? {
-        val contest =  jdbcTemplate.query("""SELECT shortName, name, statement, startTime, endTime, penalty, contestType, rated 
+        val contest =  jdbcTemplate.query("""
+            SELECT shortName, name, statement, startTime, endTime, penalty, contestType, ratedBond 
             FROM contestInfo WHERE name = (?)""", rowMapper, contestName)
         return if (contest.isEmpty()) {
             null
@@ -36,12 +37,10 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
     }
     fun findLatestContest(contestNum: Int): List<ContestInfo>? {
         return jdbcTemplate.query("""
-            SELECT shortName, name, statement, startTime, endTime, contestType, rated , penalty FROM contestInfo ORDER BY startTime desc"""
-            , rowMapper)
+            SELECT shortName, name, statement, startTime, endTime, contestType, ratedBound , penalty 
+            FROM contestInfo ORDER BY startTime desc""", rowMapper)
     }
     fun addContest(contestInfo: ContestInfo): ContestInfo? {
-        jdbcTemplate.update("""INSERT INTO contestInfo(name, startTIme, endTime) VALUES ( ?, ?, ? )""",
-                contestInfo.name, contestInfo.startTime, contestInfo.endTime)
-        return findByName(contestInfo.name)
+        return TODO("add contest")
     }
 }

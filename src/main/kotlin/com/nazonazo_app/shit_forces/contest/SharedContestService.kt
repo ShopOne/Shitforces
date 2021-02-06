@@ -33,6 +33,19 @@ class SharedContestService(private val contestRepository: ContestRepository,
             Pair(acceptAccounts[index].size, acNum.size)
         }
     }
+    private fun setRankingOfInfo(ranking: MutableList<ContestRankingAccountInfo>): List<ContestRankingAccountInfo> {
+        ranking.sortWith(rankingComparator())
+        var rank = 1
+        for ( idx in ranking.indices) {
+            if (idx == 0 ||
+                ranking[idx-1].score != ranking[idx].score ||
+                ranking[idx-1].penalty != ranking[idx].penalty) {
+                rank = idx + 1
+            }
+            ranking[idx].ranking = rank
+        }
+        return ranking.toList()
+    }
     private fun getContestRankByICPC(problemsInfo: List<ProblemInfo>,
                                      submissionList: List<SubmissionInfo>,
                                      penalty: Int,
@@ -54,13 +67,9 @@ class SharedContestService(private val contestRepository: ContestRepository,
                 score,
                 penaResult,
                 acceptProblem,
-                null))
+                -1))
         }
-        ranking.sortWith(rankingComparator())
-        for ( idx in 0 until ranking.size) {
-            ranking[idx].ranking = idx + 1
-        }
-        return ranking
+        return setRankingOfInfo(ranking)
     }
     private fun getContestRankByAtCoder(problemsInfo: List<ProblemInfo>,
                                         submissionList: List<SubmissionInfo>,
@@ -84,13 +93,9 @@ class SharedContestService(private val contestRepository: ContestRepository,
                 score,
                 it.penaltyOfWrong + latestSubmit,
                 acceptProblem,
-                null))
+                -1))
         }
-        ranking.sortWith(rankingComparator())
-        for ( idx in 0 until ranking.size) {
-            ranking[idx].ranking = idx + 1
-        }
-        return ranking
+        return setRankingOfInfo(ranking)
     }
     private fun getAccountsAcceptInfo(submissionList: List<SubmissionInfo>,
                                                      problemNum: Int,

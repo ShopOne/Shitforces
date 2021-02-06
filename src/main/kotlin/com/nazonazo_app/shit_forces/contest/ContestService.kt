@@ -14,12 +14,15 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.sql.Timestamp
 import javax.servlet.http.HttpServletRequest
+import kotlin.math.ln
+import kotlin.math.pow
 
 @Service
 @Transactional
 class ContestService(private val contestRepository: ContestRepository,
                      private val sharedSessionService: SharedSessionService,
                      private val sharedAccountService: SharedAccountService,
+                     private val sharedContestService: SharedContestService,
                      private val sharedProblemService: SharedProblemService,
                      private val sharedSubmissionService: SharedSubmissionService
 ) {
@@ -131,19 +134,81 @@ class ContestService(private val contestRepository: ContestRepository,
         }
 
     fun addContest(requestContest: ContestController.RequestContest):ContestInfo? {
-        return try{
-            if (contestRepository.findByName(requestContest.name) != null ||
-                    contestRepository.findByShortName(requestContest.shortName) != null) {
-                throw  Error("短縮名か名前が重複しています")
+        return TODO("add contest")
+    }
+    class ParticipantInfo(
+        val name: String,
+        val rank: Int,
+        val innerRating: Int,
+        val partNum: Int,
+        val rating: Int
+    )
+    private fun calcInnerPerformance(rank: Int, participants: List<ParticipantInfo>): Double {
+        val ratingLimit = 10000.0
+        var high = ratingLimit
+        var low = -ratingLimit
+        val binarySearchTime = 100
+        repeat(binarySearchTime) {
+            val mid = (high + low) / 2
+            var sum = 0.0
+            participants.forEach {
+                sum += 1.0 / (1 + 6.0.pow(mid - it.innerRating) / 400.0)
             }
-            val contest = ContestInfo(requestContest.shortName, requestContest.name, "",
-                Timestamp(requestContest.startTime.toLong()), Timestamp(requestContest.endTime.toLong()),
-                0, ContestInfo.ContestType.ICPC, requestContest.rated)
-
-            contestRepository.addContest(contest)
-        }catch (e: Error) {
-            print(e)
-            return null
+            if (sum < rank - 0.5) {
+                high = mid
+            } else {
+                low = mid
+            }
         }
+        return high
+    }
+    private fun calcPerfAndUpdateRating(contestName: String, participants: List<ParticipantInfo>, ratedBound: Int) {
+        val performances = mutableListOf<Double>()
+        val innerPerformances = mutableListOf<Double>()
+        participants.forEach{
+            val perf = calcInnerPerformance(it.rank, participants)
+            val realPerf = perf.coerceAtMost(ratedBound + 400.0)
+            performances.add(perf)
+            innerPerformances.add(realPerf)
+        }
+
+        participants.forEachIndexed{ index, it ->
+            val newRating: Double
+            val newInnerRating: Double
+            val perf = performances[index]
+            val innerPerf = innerPerformances[index]
+            val f = {x: Double -> 2.0.pow(x / 800.0) }
+            val g = {x: Double -> 800 * ln(x) / ln(2.0) }
+            if (it.partNum == 0) {
+                newRating = perf
+                newInnerRating = innerPerf
+            } else {
+                newRating = g(0.9 * f(it.rating.toDouble()) + 0.1 * f(perf))
+                newInnerRating = 0.9 * it.innerRating.toDouble() + 0.1 * innerPerf
+            }
+            sharedAccountService.updateAccountRating(contestName, it.name,
+                newRating.toInt(), newInnerRating.toInt(), perf.toInt())
+        }
+    }
+    fun updateRating(contestInfo: ContestInfo) {
+
+        val contestResult = sharedContestService.getContestRanking(contestInfo.shortName, null, null)
+            ?.rankingList ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
+        val participants = mutableListOf<ParticipantInfo>()
+        contestResult.forEach{
+            val accountInfo = sharedAccountService.getAccountByName(it.accountName)
+            if (accountInfo != null && accountInfo.rating <= contestInfo.ratedBound) {
+                var innerRating = accountInfo.innerRating
+                if (accountInfo.partNum == 0) {
+                    innerRating = contestInfo.ratedBound / 2
+                }
+                participants.add(ParticipantInfo(accountInfo.name,
+                    it.ranking,
+                    innerRating,
+                    accountInfo.partNum,
+                    accountInfo.rating))
+            }
+        }
+        calcPerfAndUpdateRating(contestInfo.name, participants, contestInfo.ratedBound)
     }
 }
