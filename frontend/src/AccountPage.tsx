@@ -54,7 +54,7 @@ const AccountNotFound: React.FC = () => {
 
 export const AccountPage: React.FC = () => {
   const [name, setName] = useState('');
-  const [rating, setRating] = useState(0);
+  const [rating, setRating] = useState<number | null>(null);
 
   const getAccount = useCallback(() => {
     const splitUrl = window.location.href.split('/');
@@ -66,7 +66,7 @@ export const AccountPage: React.FC = () => {
       })
       .catch(() => {
         setName('');
-        setRating(0);
+        setRating(null);
       });
   }, []);
 
@@ -76,7 +76,7 @@ export const AccountPage: React.FC = () => {
 
   let page;
 
-  if (name !== '' && rating !== 0) {
+  if (name !== '' && rating !== null) {
     page = <AccountInformationBody name={name} rating={rating} />;
   } else {
     page = <AccountNotFound />;
