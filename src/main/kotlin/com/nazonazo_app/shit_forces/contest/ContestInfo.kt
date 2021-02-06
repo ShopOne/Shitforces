@@ -10,8 +10,8 @@ data class ContestInfo(
         val startTime: Timestamp,
         val endTime: Timestamp,
         val penalty: Int,
-        val contestType: ContestType,
-        val rated: Boolean
+        val ratedBound: Int,
+        val contestType: ContestType
 ) {
     val unixStartTime: Long = startTime.time
     val startTimeAMPM: String = Utils().formatTimestamp(startTime)
@@ -30,4 +30,4 @@ data class ContestRankingAccountInfo(val accountName: String,
                                      val score: Int,
                                      val penalty: Int,
                                      val acceptList: List<Int>,
-                                     var ranking: Int?)
+                                     var ranking: Int)

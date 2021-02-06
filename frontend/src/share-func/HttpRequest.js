@@ -31,7 +31,7 @@
  * @property {String} startTimeAMPM - コンテスト開始時間のフォーマット済文字列
  * @property {String} endTimeAMPM - コンテスト終了時間のフォーマット済文字列
  * @property {String} contestType - コンテスト形式 ICPC,AtCoder形式など
- * @property {Boolean} rated
+ * @property {Number} ratedBound  - rated上限 -1ならばunrated
  * @property {Number} unixStartTime - Unix時間でのコンテスト開始時間
  */
 

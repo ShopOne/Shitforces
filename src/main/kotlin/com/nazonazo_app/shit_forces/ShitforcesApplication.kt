@@ -18,6 +18,7 @@ class ShitforcesApplication {
 			startTime TIMESTAMP NOT NULL,
             endTime   TIMESTAMP NOT NULL,
             contestType VARCHAR(20) NOT NULL,
+            ratedBound INT NOT NULL DEFAULT -1,
             penalty   INT DEFAULT 0 ,
             rated     BOOLEAN NOT NULL,
             UNIQUE(name)
@@ -27,10 +28,19 @@ class ShitforcesApplication {
     fun createAccountInfoDataBase(jdbcTemplate: JdbcTemplate) = CommandLineRunner {
         jdbcTemplate.execute("""CREATE TABLE IF NOT EXISTS accountInfo (
 				name         VARCHAR(20)    PRIMARY KEY,
-				rating	     INT NOT NULL,
+				rating	     INT NOT NULL DEFAULT 0,
+                innerRating  INT NOT NULL DEFAULT 0,
 				passwordHash VARCHAR NOT NULL,
                 permission   VARCHAR(15)
 		)""")
+        jdbcTemplate.execute("""CREATE TABLE IF NOT EXISTS accountRatingChangeHistory(
+                accountName           VARCHAR(20)  NOT NULL,
+                contestName           VARCHAR(30)  NOT NULL,
+                indexOfParticipation  INT          NOT NULL,
+                newRating             INT          NOT NULL,
+                prevRating            INT          NOT NULL,
+                performance           INT          NOT NULL
+        )""")
     }
     @Bean
     fun createSessionInfoDataBase(jdbcTemplate: JdbcTemplate) = CommandLineRunner {

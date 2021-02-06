@@ -3,6 +3,8 @@ package com.nazonazo_app.shit_forces.account
 data class AccountInfo(
     val name: String,
     val rating: Int,
+    val innerRating: Int,
+    val partNum: Int,
     val passwordHash: String,
     private val auth: String
     ) {
@@ -16,6 +18,14 @@ data class AccountInfo(
         ADMINISTER("ADMINISTER")
     }
 }
+data class AccountRatingChangeHistory(
+    val accountName: String,
+    val contestName: String,
+    val indexOfParticipation: Int,
+    val prevRating: Int,
+    val newRating: Int,
+    val performance: Int
+)
 data class RequestAccount(
     val name: String,
     val password: String

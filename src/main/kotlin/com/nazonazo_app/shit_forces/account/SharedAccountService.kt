@@ -14,4 +14,11 @@ class SharedAccountService(private val accountInfoRepository: AccountInfoReposit
             null
         }
     }
+    fun updateAccountRating(contestName: String,
+                            accountName: String,
+                            rating: Int,
+                            innerRating: Int,
+                            performance: Int
+    )
+            = accountInfoRepository.updateRating(contestName, accountName, rating, innerRating, performance)
 }
