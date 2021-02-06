@@ -1,23 +1,41 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Button, Form } from 'react-bootstrap';
-import isValidAccountNameOrPassWord from '../share-func/AccountInfoSubmitValidation';
+import { isValidAccountNameOrPassWord } from '../share-func/AccountInfoSubmitValidation';
 import { postAccountInformation } from '../share-func/HttpRequest';
 const TEXT_TERM =
   'アルファベット、数字、-_から成る、4字以上20字以下の文字列を入力して下さい。';
 
-export default class SubmitAccountInfo extends React.Component {
-  constructor(props) {
+interface SubmitAccountInfoProps {
+  failedText: string;
+  fetchTo: string;
+  successText: string;
+}
+
+export class SubmitAccountInfo extends React.Component<SubmitAccountInfoProps> {
+  static propTypes = {
+    fetchTo: PropTypes.string,
+    successText: PropTypes.string,
+    failedText: PropTypes.string,
+  };
+
+  private accountNameInput: React.RefObject<HTMLInputElement>;
+  private passwordInput: React.RefObject<HTMLInputElement>;
+
+  constructor(props: SubmitAccountInfoProps) {
     super(props);
     this.submitMethod = this.submitMethod.bind(this);
     this.accountNameInput = React.createRef();
     this.passwordInput = React.createRef();
   }
+
   submitMethod() {
-    const accountName = this.accountNameInput.current.value;
-    const password = this.passwordInput.current.value;
+    const accountName = this.accountNameInput.current?.value;
+    const password = this.passwordInput.current?.value;
     if (
       !(
+        accountName &&
+        password &&
         isValidAccountNameOrPassWord(accountName) &&
         isValidAccountNameOrPassWord(password)
       )
@@ -34,6 +52,7 @@ export default class SubmitAccountInfo extends React.Component {
         });
     }
   }
+
   render() {
     return (
       <div>
@@ -55,8 +74,3 @@ export default class SubmitAccountInfo extends React.Component {
     );
   }
 }
-SubmitAccountInfo.propTypes = {
-  fetchTo: PropTypes.string,
-  successText: PropTypes.string,
-  failedText: PropTypes.string,
-};

@@ -58,7 +58,11 @@
 /**
  * @return Promise<Object>
  */
-async function httpRequest(fetchTo, method, params) {
+export async function httpRequest(
+  fetchTo: string,
+  method: string,
+  params?: any
+) {
   if (process?.env?.REACT_APP_BACKEND_URL !== undefined) {
     fetchTo = process.env.REACT_APP_BACKEND_URL + fetchTo;
   }
@@ -99,7 +103,11 @@ async function httpRequest(fetchTo, method, params) {
  * @param {String} statement
  * @returns {Promise<SubmissionResult>}
  */
-export function postSubmission(shortContestName, indexOfContest, statement) {
+export function postSubmission(
+  shortContestName: string,
+  indexOfContest: string,
+  statement: string
+) {
   const param = {
     shortContestName: shortContestName,
     indexOfContest: indexOfContest,
@@ -115,7 +123,7 @@ export function postSubmission(shortContestName, indexOfContest, statement) {
  * @returns {Promise<RankingInfo>}  rankingInfo
  *
  */
-export function getRankingInfo(page, shortContestName) {
+export function getRankingInfo(page: number, shortContestName: string) {
   return httpRequest(`/api/contests/${shortContestName}/ranking`, 'GET', {
     page: page,
   });
@@ -125,7 +133,7 @@ export function getRankingInfo(page, shortContestName) {
  * @param {String} shortContestName - コンテスト短縮名(urlの名前)
  * @return {Promise<ContestInfo>}
  */
-export function getContestInfo(shortContestName) {
+export function getContestInfo(shortContestName: string) {
   return httpRequest(`/api/contests/${shortContestName}`, 'GET');
 }
 
@@ -134,7 +142,7 @@ export function getContestInfo(shortContestName) {
  * @param {String} accountName
  * @returns {Promise<Object>}
  */
-export function getAccountInformation(accountName) {
+export function getAccountInformation(accountName: string) {
   const fetchTo = '/api/account/' + accountName;
   return httpRequest(fetchTo, 'GET');
 }
@@ -152,9 +160,9 @@ export function getLatestContests() {
  * @param {String} accountName
  * @returns {Promise<SubmissionInfo>}
  */
-export function getSubmission(shortContestName, accountName) {
+export function getSubmission(shortContestName: string, accountName: string) {
   const param = {
-    short_contest_name: shortContestName
+    short_contest_name: shortContestName,
   };
   return httpRequest(`/api/submissions/${accountName}`, 'GET', param);
 }
@@ -164,7 +172,7 @@ export function getSubmission(shortContestName, accountName) {
  * @param {String} shortContestName
  * @returns {Promise<Array<ProblemInfo>>}
  */
-export function getContestProblems(shortContestName) {
+export function getContestProblems(shortContestName: string) {
   return httpRequest(`/api/contests/${shortContestName}/problems`, 'GET');
 }
 
@@ -175,11 +183,14 @@ export function getContestProblems(shortContestName) {
  * @param password
  * @returns {Promise<Null>}
  */
-export function postAccountInformation(fetchTo, accountName, password) {
+export function postAccountInformation(
+  fetchTo: string,
+  accountName: string,
+  password: string
+) {
   const jsonBody = JSON.stringify({
     name: accountName,
     password: btoa(accountName + ':' + password),
   });
   return httpRequest(fetchTo, 'POST', jsonBody);
 }
-export default httpRequest;

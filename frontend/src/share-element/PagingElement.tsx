@@ -1,8 +1,28 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Pagination } from 'react-bootstrap';
-export default class PagingElement extends React.Component {
-  constructor(props) {
+
+interface PagingElementProps {
+  pageNum: number;
+  pageChanged(page: number): void;
+  reloadButton?: boolean;
+}
+
+interface PagingElementState {
+  page: number;
+}
+
+export class PagingElement extends React.Component<
+  PagingElementProps,
+  PagingElementState
+> {
+  static propTypes = {
+    pageNum: PropTypes.number,
+    pageChanged: PropTypes.func,
+    reloadButton: PropTypes.bool,
+  };
+
+  constructor(props: PagingElementProps) {
     super(props);
     this.props.pageChanged(0);
     this.state = {
@@ -10,7 +30,8 @@ export default class PagingElement extends React.Component {
     };
     this.clicked = this.clicked.bind(this);
   }
-  clicked(event) {
+
+  clicked(event: any) {
     const newPage = parseInt(event.target.text) - 1;
     let loadPage = this.state.page;
     if (!isNaN(newPage)) {
@@ -21,6 +42,7 @@ export default class PagingElement extends React.Component {
     }
     this.props.pageChanged(loadPage);
   }
+
   render() {
     const items = [];
     for (let i = 0; i < this.props.pageNum; i++) {
@@ -50,8 +72,3 @@ export default class PagingElement extends React.Component {
     );
   }
 }
-PagingElement.propTypes = {
-  pageNum: PropTypes.number,
-  pageChanged: PropTypes.func,
-  reloadButton: PropTypes.bool,
-};

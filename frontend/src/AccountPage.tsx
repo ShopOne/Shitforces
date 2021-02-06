@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Button } from 'react-bootstrap';
-import getCookieArray from './share-func/GetCookieArray';
+import { getCookieArray } from './share-func/GetCookieArray';
 import { getAccountInformation } from './share-func/HttpRequest';
 
 // URL: /account/$accountName
 
-function AccountInformationBody(props) {
+function AccountInformationBody(props: any) {
   const logOutAccount = () => {
     document.cookie = `_sforce_account_name=; max-age=0; path=/`;
     window.location.href = '/';
@@ -41,8 +41,8 @@ AccountInformationBody.propTypes = {
   name: PropTypes.string,
 };
 
-export default class AccountPage extends React.Component {
-  constructor(props) {
+export class AccountPage extends React.Component<any, any> {
+  constructor(props: any) {
     super(props);
     this.state = {
       name: '',

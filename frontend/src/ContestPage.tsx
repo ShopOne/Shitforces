@@ -1,8 +1,8 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Button, Tab, Tabs, Form, Table } from 'react-bootstrap';
-import PagingElement from './share-element/PagingElement';
-import getCookieArray from './share-func/GetCookieArray';
+import { PagingElement } from './share-element/PagingElement';
+import { getCookieArray } from './share-func/GetCookieArray';
 import {
   getContestInfo,
   getContestProblems,
@@ -15,7 +15,7 @@ import './ContestPage.css';
 const KEY_OF_MY_SUBMISSIONS = 'mySubmit';
 
 // URL: /contest/$shortContestName
-function createEnglishIndex(index, num) {
+function createEnglishIndex(index: number, num: number) {
   const ALPHABETS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   const ALPHABETS_NUM = 26;
   let res = ALPHABETS[index % ALPHABETS_NUM];
@@ -28,7 +28,7 @@ function getShortContestName() {
   const splitPath = window.location.pathname.split('/');
   return splitPath.slice(-1)[0];
 }
-function RankingTable(props) {
+function RankingTable(props: any) {
   if (props.problems.length !== props.acPerSubmit.length) {
     return <div />;
   }
@@ -55,10 +55,10 @@ function RankingTable(props) {
      * @param {Number} account.score
      * @param {Number} account.penalty
      */
-    return props.rankingList.map((account, idx) => {
+    return props.rankingList.map((account: any, idx: number) => {
       const probElement = [];
       for (let i = 0; i < problemsNum; i++) {
-        if (account.acceptList.some((ac) => ac === i)) {
+        if (account.acceptList.some((ac: any) => ac === i)) {
           probElement.push(<td>AC</td>);
         } else {
           probElement.push(<td> </td>);
@@ -95,16 +95,16 @@ RankingTable.propTypes = {
   acPerSubmit: PropTypes.array,
   problems: PropTypes.array,
 };
-function SubmissionTable(props) {
-  const [displaySubmissions, setDisplaySubmissions] = useState([]);
+function SubmissionTable(props: any) {
+  const [displaySubmissions, setDisplaySubmissions] = useState<any>([]);
   if (props.submissions.length === 0) {
     return <div />;
   }
   const SUBMISSIONS_IN_ONE_PAGE = 5;
   const pageNum = Math.ceil(props.submissions.length / SUBMISSIONS_IN_ONE_PAGE);
-  const changeDisplaySubmissions = (page) => {
+  const changeDisplaySubmissions = (page: any) => {
     const newSubmissions = props.submissions.filter(
-      (_, idx) =>
+      (_: any, idx: number) =>
         page * SUBMISSIONS_IN_ONE_PAGE <= idx &&
         idx < (page + 1) * SUBMISSIONS_IN_ONE_PAGE
     );
@@ -117,7 +117,7 @@ function SubmissionTable(props) {
      * @param {String} submit.result - 提出結果
      * @param {String} submit.submitTimeAMPM - 提出時間のフォーマット済の文字列
      */
-    return displaySubmissions.map((submit, idx) => {
+    return displaySubmissions.map((submit: any, idx: number) => {
       return (
         <tr key={idx}>
           <td key={idx + 'idx'}>
@@ -151,14 +151,14 @@ SubmissionTable.propTypes = {
   submissions: PropTypes.array,
   problemNum: PropTypes.number,
 };
-function RankingElement(props) {
+function RankingElement(props: any) {
   const [partNum, setPartNum] = useState(0);
   const [rankingList, setRankingList] = useState([]);
   const [accountRank, setAccountRank] = useState();
   const [nowRankingVersion, setNowRankingVersion] = useState(0);
   const [acPerSubmit, setAcPerSubmit] = useState([]);
   const ACCOUNTS_IN_ONE_PAGE = 20;
-  const getRanking = (newPage) => {
+  const getRanking = (newPage: any) => {
     getRankingInfo(newPage, getShortContestName()).then((rankingInfo) => {
       setPartNum(rankingInfo.partAccountNum);
       setRankingList(rankingInfo.rankingList);
@@ -198,13 +198,13 @@ RankingElement.propTypes = {
   problems: PropTypes.array,
   rankingVersion: PropTypes.number,
 };
-function ProblemsTab(props) {
-  const answerInput = React.createRef();
+function ProblemsTab(props: any) {
+  const answerInput = React.createRef<HTMLInputElement>();
   const [comment, setComment] = useState('');
   const [key, setKey] = useState(KEY_OF_MY_SUBMISSIONS);
   const [changeColor, setChangeColor] = useState(true);
   const [firstTabRender, setFirstTabRender] = useState(false);
-  const [nowSubmissions, setNowSubmission] = useState([]);
+  const [nowSubmissions, setNowSubmission] = useState<any[]>([]);
   const [rankingVersion, setRankingVersion] = useState(0);
   const TAB_ID = 'tabId';
 
@@ -219,7 +219,7 @@ function ProblemsTab(props) {
       }
       const tryingArray = new Array(props.problems.length);
       tryingArray.fill('NO_SUB');
-      useSubmissions.map((submit) => {
+      useSubmissions.map((submit: any) => {
         if (submit.result === 'ACCEPTED') {
           tryingArray[submit.indexOfContest] = 'ACCEPTED';
         } else if (submit.result === 'WRONG_ANSWER') {
@@ -232,18 +232,18 @@ function ProblemsTab(props) {
     };
     const setColor = () => {
       const submitResult = getSubmitResultArray();
-      props.problems.map((_, index) => {
+      props.problems.map((_: any, index: number) => {
         const element = document.getElementById(TAB_ID + '-tab-' + index);
-        element.classList.remove('bg-success', 'text-white', 'bg-warning');
+        element?.classList.remove('bg-success', 'text-white', 'bg-warning');
         if (submitResult) {
           switch (submitResult[index]) {
             case 'ACCEPTED':
-              element.classList.add('bg-success');
-              element.classList.add('text-white');
+              element?.classList.add('bg-success');
+              element?.classList.add('text-white');
               break;
             case 'WRONG_ANSWER':
-              element.classList.add('bg-warning');
-              element.classList.add('text-white');
+              element?.classList.add('bg-warning');
+              element?.classList.add('text-white');
               break;
           }
         }
@@ -290,11 +290,11 @@ function ProblemsTab(props) {
     }
   };
   const submitAnswer = () => {
-    if (answerInput.current.value === '') {
+    if (answerInput.current?.value === '') {
       setComment('答えが空です');
       return;
     }
-    if (answerInput.current.value.indexOf(':') !== -1) {
+    if (answerInput.current?.value.indexOf(':') !== -1) {
       setComment(': を含む答えは提出できません');
       return;
     }
@@ -319,7 +319,7 @@ function ProblemsTab(props) {
       });
   };
   const getProblemTabList = () => {
-    return props.problems.map((problem, index) => {
+    return props.problems.map((problem: any, index: any) => {
       const problemTitle = createEnglishIndex(index, props.problems.size);
       return (
         <Tab eventKey={index} key={problem.indexOfContest} title={problemTitle}>
@@ -329,7 +329,7 @@ function ProblemsTab(props) {
       );
     });
   };
-  const selectTab = (key) => {
+  const selectTab = (key: any) => {
     setComment('');
     setChangeColor(true);
     setKey(key);

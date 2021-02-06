@@ -2,9 +2,9 @@ import React from 'react';
 import { Nav, Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import './index.css';
-import getCookieArray from './share-func/GetCookieArray';
+import { getCookieArray } from './share-func/GetCookieArray';
 
-export default function Header() {
+export function Header() {
   let rightHeader;
   const cookieArray = getCookieArray();
   if (cookieArray['_sforce_account_name']) {
@@ -20,10 +20,10 @@ export default function Header() {
     rightHeader = (
       <div>
         <Link to={'/signup'}>
-          <Navbar.Brand variant={'primary'}>SignUp</Navbar.Brand>
+          <Navbar.Brand>SignUp</Navbar.Brand>
         </Link>
         <Link to={'/login'}>
-          <Navbar.Brand variant={'primary'}>Login</Navbar.Brand>
+          <Navbar.Brand>Login</Navbar.Brand>
         </Link>
       </div>
     );

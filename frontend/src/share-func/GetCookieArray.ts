@@ -1,5 +1,5 @@
-export default function getCookieArray() {
-  const arr = [];
+export function getCookieArray() {
+  const arr: any = [];
   if (document.cookie !== '') {
     const tmp = document.cookie.split('; ');
     for (let i = 0; i < tmp.length; i++) {
