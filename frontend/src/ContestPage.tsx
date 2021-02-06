@@ -15,6 +15,7 @@ import './ContestPage.css';
 const KEY_OF_MY_SUBMISSIONS = 'mySubmit';
 
 // URL: /contest/$shortContestName
+
 function createEnglishIndex(index: number, num: number) {
   const ALPHABETS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
   const ALPHABETS_NUM = 26;
@@ -24,28 +25,42 @@ function createEnglishIndex(index: number, num: number) {
   }
   return res;
 }
+
 function getShortContestName() {
   const splitPath = window.location.pathname.split('/');
   return splitPath.slice(-1)[0];
 }
-function RankingTable(props: any) {
-  if (props.problems.length !== props.acPerSubmit.length) {
+
+interface RankingTableProps {
+  acPerSubmit: any[];
+  problems: any[];
+  rankingList: any[];
+}
+
+const RankingTable: React.FC<RankingTableProps> = ({
+  acPerSubmit,
+  problems,
+  rankingList,
+}) => {
+  if (problems.length !== acPerSubmit.length) {
     return <div />;
   }
-  const problemsNum = props.problems.length;
+
+  const problemsNum = problems.length;
   const problemTr = () => {
     const items = [];
     for (let i = 0; i < problemsNum; i++) {
       items.push(
         <th>
-          {`${createEnglishIndex(i, problemsNum)} (${
-            props.acPerSubmit[i].first
-          } / ${props.acPerSubmit[i].second})`}
+          {`${createEnglishIndex(i, problemsNum)} (${acPerSubmit[i].first} / ${
+            acPerSubmit[i].second
+          })`}
         </th>
       );
     }
     return items;
   };
+
   const rankingInfo = () => {
     /**
      * @param {Object} account - 順位表に表示するためのアカウント情報
@@ -55,7 +70,7 @@ function RankingTable(props: any) {
      * @param {Number} account.score
      * @param {Number} account.penalty
      */
-    return props.rankingList.map((account: any, idx: number) => {
+    return rankingList.map((account: any, idx: number) => {
       const probElement = [];
       for (let i = 0; i < problemsNum; i++) {
         if (account.acceptList.some((ac: any) => ac === i)) {
@@ -75,6 +90,7 @@ function RankingTable(props: any) {
       );
     });
   };
+
   return (
     <Table striped bordered hover>
       <thead>
@@ -89,27 +105,40 @@ function RankingTable(props: any) {
       <tbody>{rankingInfo()}</tbody>
     </Table>
   );
-}
-RankingTable.propTypes = {
-  rankingList: PropTypes.array,
-  acPerSubmit: PropTypes.array,
-  problems: PropTypes.array,
 };
-function SubmissionTable(props: any) {
+
+RankingTable.propTypes = {
+  acPerSubmit: PropTypes.array.isRequired,
+  problems: PropTypes.array.isRequired,
+  rankingList: PropTypes.array.isRequired,
+};
+
+interface SubmissionTableProps {
+  problemNum: number;
+  submissions: any[];
+}
+
+const SubmissionTable: React.FC<SubmissionTableProps> = ({
+  problemNum,
+  submissions,
+}) => {
   const [displaySubmissions, setDisplaySubmissions] = useState<any>([]);
-  if (props.submissions.length === 0) {
+
+  if (submissions.length === 0) {
     return <div />;
   }
+
   const SUBMISSIONS_IN_ONE_PAGE = 5;
-  const pageNum = Math.ceil(props.submissions.length / SUBMISSIONS_IN_ONE_PAGE);
+  const pageNum = Math.ceil(submissions.length / SUBMISSIONS_IN_ONE_PAGE);
   const changeDisplaySubmissions = (page: any) => {
-    const newSubmissions = props.submissions.filter(
+    const newSubmissions = submissions.filter(
       (_: any, idx: number) =>
         page * SUBMISSIONS_IN_ONE_PAGE <= idx &&
         idx < (page + 1) * SUBMISSIONS_IN_ONE_PAGE
     );
     setDisplaySubmissions(newSubmissions);
   };
+
   const createTableBody = () => {
     /**
      * @param {Object} submit - 提出情報
@@ -121,7 +150,7 @@ function SubmissionTable(props: any) {
       return (
         <tr key={idx}>
           <td key={idx + 'idx'}>
-            {createEnglishIndex(submit.indexOfContest, props.problemNum)}
+            {createEnglishIndex(submit.indexOfContest, problemNum)}
           </td>
           <td key={idx + 'stm'}>{submit.statement}</td>
           <td key={idx + 'res'}>{submit.result}</td>
@@ -130,6 +159,7 @@ function SubmissionTable(props: any) {
       );
     });
   };
+
   return (
     <div>
       <Table striped bordered hover>
@@ -146,18 +176,29 @@ function SubmissionTable(props: any) {
       <PagingElement pageNum={pageNum} pageChanged={changeDisplaySubmissions} />
     </div>
   );
-}
-SubmissionTable.propTypes = {
-  submissions: PropTypes.array,
-  problemNum: PropTypes.number,
 };
-function RankingElement(props: any) {
+
+SubmissionTable.propTypes = {
+  problemNum: PropTypes.number.isRequired,
+  submissions: PropTypes.array.isRequired,
+};
+
+interface RankingElementProps {
+  problems: any[];
+  rankingVersion: number;
+}
+
+const RankingElement: React.FC<RankingElementProps> = ({
+  problems,
+  rankingVersion,
+}) => {
   const [partNum, setPartNum] = useState(0);
   const [rankingList, setRankingList] = useState([]);
   const [accountRank, setAccountRank] = useState();
   const [nowRankingVersion, setNowRankingVersion] = useState(0);
   const [acPerSubmit, setAcPerSubmit] = useState([]);
   const ACCOUNTS_IN_ONE_PAGE = 20;
+
   const getRanking = (newPage: any) => {
     getRankingInfo(newPage, getShortContestName()).then((rankingInfo) => {
       setPartNum(rankingInfo.partAccountNum);
@@ -166,23 +207,27 @@ function RankingElement(props: any) {
       setAcPerSubmit(rankingInfo.acPerSubmit);
     });
   };
-  if (nowRankingVersion !== props.rankingVersion) {
-    setNowRankingVersion(props.rankingVersion);
+
+  if (nowRankingVersion !== rankingVersion) {
+    setNowRankingVersion(rankingVersion);
     getRanking(0);
   }
+
   useEffect(() => {
     getRanking(0);
   }, []);
+
   const pageNum = Math.ceil(partNum / ACCOUNTS_IN_ONE_PAGE);
   let myRank = '';
   if (accountRank) {
     myRank = `順位: ${accountRank}`;
   }
+
   return (
     <div>
       <p>{myRank}</p>
       <RankingTable
-        problems={props.problems}
+        problems={problems}
         rankingList={rankingList}
         acPerSubmit={acPerSubmit}
       />
@@ -193,12 +238,20 @@ function RankingElement(props: any) {
       />
     </div>
   );
-}
-RankingElement.propTypes = {
-  problems: PropTypes.array,
-  rankingVersion: PropTypes.number,
 };
-function ProblemsTab(props: any) {
+
+RankingElement.propTypes = {
+  problems: PropTypes.array.isRequired,
+  rankingVersion: PropTypes.number.isRequired,
+};
+
+interface ProblemsTabProps {
+  contestName: string;
+  problems: any[];
+  submissions: any[];
+}
+
+const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
   const answerInput = React.createRef<HTMLInputElement>();
   const [comment, setComment] = useState('');
   const [key, setKey] = useState(KEY_OF_MY_SUBMISSIONS);
@@ -212,12 +265,12 @@ function ProblemsTab(props: any) {
     const getSubmitResultArray = () => {
       //初期化時はprops、そうでない場合nowSubmissionsが新しい値 更新されている場合、要素数が多い
       let useSubmissions;
-      if (nowSubmissions.length < props.submissions.length) {
-        useSubmissions = props.submissions;
+      if (nowSubmissions.length < submissions.length) {
+        useSubmissions = submissions;
       } else {
         useSubmissions = nowSubmissions;
       }
-      const tryingArray = new Array(props.problems.length);
+      const tryingArray = new Array(problems.length);
       tryingArray.fill('NO_SUB');
       useSubmissions.map((submit: any) => {
         if (submit.result === 'ACCEPTED') {
@@ -232,7 +285,7 @@ function ProblemsTab(props: any) {
     };
     const setColor = () => {
       const submitResult = getSubmitResultArray();
-      props.problems.map((_: any, index: number) => {
+      problems.map((_: any, index: number) => {
         const element = document.getElementById(TAB_ID + '-tab-' + index);
         element?.classList.remove('bg-success', 'text-white', 'bg-warning');
         if (submitResult) {
@@ -254,16 +307,16 @@ function ProblemsTab(props: any) {
     setFirstTabRender(false);
     //初期化時のみ
     if (nowSubmissions.length === 0) {
-      setNowSubmission(props.submissions);
+      setNowSubmission(submissions);
     }
   }, [changeColor, firstTabRender]);
 
-  if (props.problems.length === 0 && props.submissions.length === 0) {
+  if (problems.length === 0 && submissions.length === 0) {
     return <div />;
     // 最初の色つけタイミングのみこの様に処理する必要がある
   } else if (
     !firstTabRender &&
-    ((props.problems.length !== 0 && props.submissions.length !== 0) ||
+    ((problems.length !== 0 && submissions.length !== 0) ||
       nowSubmissions.length !== 0)
   ) {
     setFirstTabRender(true);
@@ -284,11 +337,12 @@ function ProblemsTab(props: any) {
       return (
         <SubmissionTable
           submissions={nowSubmissions}
-          problemNum={props.problems.length}
+          problemNum={problems.length}
         />
       );
     }
   };
+
   const submitAnswer = () => {
     if (answerInput.current?.value === '') {
       setComment('答えが空です');
@@ -318,9 +372,10 @@ function ProblemsTab(props: any) {
         }
       });
   };
+
   const getProblemTabList = () => {
-    return props.problems.map((problem: any, index: any) => {
-      const problemTitle = createEnglishIndex(index, props.problems.size);
+    return problems.map((problem: any, index: any) => {
+      const problemTitle = createEnglishIndex(index, problems.length);
       return (
         <Tab eventKey={index} key={problem.indexOfContest} title={problemTitle}>
           <h6>{'point: ' + problem.point}</h6>
@@ -329,6 +384,7 @@ function ProblemsTab(props: any) {
       );
     });
   };
+
   const selectTab = (key: any) => {
     setComment('');
     setChangeColor(true);
@@ -337,6 +393,7 @@ function ProblemsTab(props: any) {
       answerInput.current.value = '';
     }
   };
+
   return (
     <div>
       <Tabs id={TAB_ID} activeKey={key} onSelect={selectTab}>
@@ -345,25 +402,24 @@ function ProblemsTab(props: any) {
       </Tabs>
       {getElement()}
       <p>{comment}</p>
-      <RankingElement
-        problems={props.problems}
-        rankingVersion={rankingVersion}
-      />
+      <RankingElement problems={problems} rankingVersion={rankingVersion} />
     </div>
   );
-}
-ProblemsTab.propTypes = {
-  problems: PropTypes.array,
-  submissions: PropTypes.array,
-  contestName: PropTypes.string,
 };
 
-export function ContestPage() {
+ProblemsTab.propTypes = {
+  contestName: PropTypes.string.isRequired,
+  problems: PropTypes.array.isRequired,
+  submissions: PropTypes.array.isRequired,
+};
+
+export const ContestPage: React.FC = () => {
   const [contestName, setContestName] = useState('コンテストが見つかりません');
   const [statement, setStatement] = useState('');
   const [time, setTime] = useState('');
   const [submissions, setSubmissions] = useState([]);
   const [problems, setProblems] = useState([]);
+
   useEffect(() => {
     const shortContestName = getShortContestName();
     (async () => {
@@ -394,6 +450,7 @@ export function ContestPage() {
       setSubmissions(submissions);
     })();
   }, []);
+
   return (
     <div>
       <p id={'contestPage-contestName'}>{}</p>
@@ -408,4 +465,4 @@ export function ContestPage() {
       />
     </div>
   );
-}
+};
