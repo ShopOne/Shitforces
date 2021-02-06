@@ -1,16 +1,24 @@
 import PropTypes from 'prop-types';
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { getCookieArray } from './share-func/GetCookieArray';
 import { getAccountInformation } from './share-func/HttpRequest';
 
 // URL: /account/$accountName
 
-function AccountInformationBody(props: any) {
+interface AccountInformationBodyProps {
+  name: string;
+  rating: number;
+}
+
+const AccountInformationBody: React.FC<AccountInformationBodyProps> = (
+  props
+) => {
   const logOutAccount = () => {
     document.cookie = `_sforce_account_name=; max-age=0; path=/`;
     window.location.href = '/';
   };
+
   const getLogOutButtonIfMyAccount = () => {
     const cookieArray = getCookieArray();
     if (cookieArray['_sforce_account_name'] === props.name) {
@@ -21,6 +29,7 @@ function AccountInformationBody(props: any) {
       );
     }
   };
+
   return (
     <div>
       <p>アカウント名: {props.name}</p>
@@ -28,60 +37,49 @@ function AccountInformationBody(props: any) {
       {getLogOutButtonIfMyAccount()}
     </div>
   );
-}
-function AccountNotFound() {
+};
+
+AccountInformationBody.propTypes = {
+  name: PropTypes.string.isRequired,
+  rating: PropTypes.number.isRequired,
+};
+
+const AccountNotFound: React.FC = () => {
   return (
     <div>
       <p>アカウントが見つかりませんでした</p>
     </div>
   );
-}
-AccountInformationBody.propTypes = {
-  rating: PropTypes.number,
-  name: PropTypes.string,
 };
 
-export class AccountPage extends React.Component<any, any> {
-  constructor(props: any) {
-    super(props);
-    this.state = {
-      name: '',
-      rating: '',
-    };
-  }
-  componentDidMount() {
-    this.getAccount();
-  }
+export const AccountPage: React.FC = () => {
+  const [name, setName] = useState('');
+  const [rating, setRating] = useState(0);
 
-  getAccount() {
+  const getAccount = useCallback(() => {
     const splitUrl = window.location.href.split('/');
     const accountName = splitUrl[splitUrl.length - 1];
     getAccountInformation(accountName)
       .then((account) => {
-        this.setState({
-          name: account.name,
-          rating: account.rating,
-        });
+        setName(account.name);
+        setRating(account.rating);
       })
       .catch(() => {
-        this.setState({
-          name: '',
-          rating: '',
-        });
+        setName('');
+        setRating(0);
       });
+  }, []);
+
+  useEffect(() => {
+    getAccount();
+  }, []);
+
+  let page;
+
+  if (name !== '' && rating !== 0) {
+    page = <AccountInformationBody name={name} rating={rating} />;
+  } else {
+    page = <AccountNotFound />;
   }
-  render() {
-    let page;
-    if (this.state.name !== '' && this.state.rating !== '') {
-      page = (
-        <AccountInformationBody
-          name={this.state.name}
-          rating={this.state.rating}
-        />
-      );
-    } else {
-      page = <AccountNotFound />;
-    }
-    return <div>{page}</div>;
-  }
-}
+  return <div>{page}</div>;
+};
