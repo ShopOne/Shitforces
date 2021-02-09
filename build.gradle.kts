@@ -5,12 +5,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.3.4.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    id("org.flywaydb.flyway") version "5.2.4"
     kotlin("jvm") version "1.3.72"
     kotlin("plugin.spring") version "1.3.72"
     kotlin("plugin.jpa") version "1.3.72"
     id("com.moowork.node") version "1.3.1"
 }
-group = "com.nazonazo_app"
+
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
@@ -40,6 +41,7 @@ dependencies {
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation("org.apache.commons:commons-lang3:3.4")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.1")
+    implementation("org.flywaydb:flyway-core")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -85,3 +87,4 @@ processResources {
         dependsOn("buildReact")
     }
 }
+
