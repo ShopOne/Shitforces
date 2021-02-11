@@ -136,12 +136,18 @@ class ContestService(private val contestRepository: ContestRepository,
     fun addContest(requestContest: ContestController.RequestContest):ContestInfo? {
         return TODO("add contest")
     }
-    class ParticipantInfo(
+    data class ParticipantInfo(
         val name: String,
         val rank: Int,
-        val innerRating: Int,
         val partNum: Int,
-        val rating: Int
+        val innerRating: Double,
+        val rating: Double
+    )
+    data class ParticipantResult(
+        val name: String,
+        val innerRating: Double,
+        val rating: Double,
+        val perf: Int
     )
     private fun calcInnerPerformance(rank: Int, participants: List<ParticipantInfo>): Double {
         val ratingLimit = 10000.0
@@ -162,9 +168,12 @@ class ContestService(private val contestRepository: ContestRepository,
         }
         return high
     }
-    private fun calcPerfAndUpdateRating(contestName: String, participants: List<ParticipantInfo>, ratedBound: Int) {
+    fun calcParticipantsResult(participants: List<ParticipantInfo>,
+                               ratedBound: Int
+    ): List<ParticipantResult> {
         val performances = mutableListOf<Double>()
         val innerPerformances = mutableListOf<Double>()
+        val resultParticipants = mutableListOf<ParticipantResult>()
         participants.forEach{
             val perf = calcInnerPerformance(it.rank, participants)
             val realPerf = perf.coerceAtMost(ratedBound + 400.0)
@@ -183,12 +192,12 @@ class ContestService(private val contestRepository: ContestRepository,
                 newRating = perf
                 newInnerRating = innerPerf
             } else {
-                newRating = g(0.9 * f(it.rating.toDouble()) + 0.1 * f(perf))
-                newInnerRating = 0.9 * it.innerRating.toDouble() + 0.1 * innerPerf
+                newRating = g(0.9 * f(it.rating) + 0.1 * f(perf))
+                newInnerRating = 0.9 * it.innerRating + 0.1 * innerPerf
             }
-            sharedAccountService.updateAccountRating(contestName, it.name,
-                newRating.toInt(), newInnerRating.toInt(), perf.toInt())
+            resultParticipants.add(ParticipantResult(it.name,newInnerRating, newRating, perf.toInt()))
         }
+        return resultParticipants
     }
     fun updateRating(contestInfo: ContestInfo) {
 
@@ -200,15 +209,19 @@ class ContestService(private val contestRepository: ContestRepository,
             if (accountInfo != null && accountInfo.rating <= contestInfo.ratedBound) {
                 var innerRating = accountInfo.innerRating
                 if (accountInfo.partNum == 0) {
-                    innerRating = contestInfo.ratedBound / 2
+                    innerRating = contestInfo.ratedBound / 2.0
                 }
                 participants.add(ParticipantInfo(accountInfo.name,
                     it.ranking,
-                    innerRating,
                     accountInfo.partNum,
+                    innerRating,
                     accountInfo.rating))
             }
         }
-        calcPerfAndUpdateRating(contestInfo.name, participants, contestInfo.ratedBound)
+        val participantsResult =calcParticipantsResult(participants, contestInfo.ratedBound)
+        participantsResult.forEach{
+            sharedAccountService.updateAccountRating(contestInfo.name, it.name,
+                it.rating, it.innerRating, it.perf)
+        }
     }
 }

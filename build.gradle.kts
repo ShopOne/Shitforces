@@ -44,6 +44,7 @@ dependencies {
     implementation("org.flywaydb:flyway-core")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
+    testImplementation("io.mockk:mockk:1.10.5")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("org.junit.jupiter:junit-jupiter:5.5.2")

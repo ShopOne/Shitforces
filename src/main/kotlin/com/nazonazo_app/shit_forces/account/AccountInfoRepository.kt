@@ -7,25 +7,23 @@ import org.springframework.stereotype.Repository
 @Repository
 class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
     private val rowMapperForAccountInfo = RowMapper { rs, _ ->
-        AccountInfo(rs.getString("name"), rs.getInt("rating"),
-            rs.getInt("innerRating"), rs.getInt("partNum"),
+        AccountInfo(rs.getString("name"), rs.getDouble("rating"),
+            rs.getDouble("innerRating"), rs.getInt("partNum"),
             rs.getString("passwordHash"), rs.getString("permission"))
     }
     private val rowMapperForHistory = RowMapper { rs, _ ->
         AccountRatingChangeHistory(rs.getString("accountName"), rs.getString("contestName"),
-            rs.getInt("indexOfParticipation"), rs.getInt("prevRating"),
-            rs.getInt("newRating"), rs.getInt("performance"))
+            rs.getInt("indexOfParticipation"), rs.getDouble("prevRating"),
+            rs.getDouble("newRating"), rs.getInt("performance"))
     }
 
     fun createAccount(accountName: String, password: String): AccountInfo? {
-        val newAccount = AccountInfo(accountName, 0, 0, 0,password,
-            AccountInfo.AccountAuthority.GENERAL.name)
-        jdbcTemplate.update("""INSERT INTO accountInfo(name, rating, passwordHash, permission)
-                VALUES ( ?, ?, ?, ? )""",
-            newAccount.name, newAccount.rating, newAccount.passwordHash, newAccount.authority.name)
-        return newAccount
+        jdbcTemplate.update("""INSERT INTO accountInfo(name,  passwordHash, permission)
+                VALUES ( ?, ?, ? )""",
+            accountName, password, AccountInfo.AccountAuthority.GENERAL.name)
+        return findByAccountName(accountName)
     }
-    fun updateRating(contestName: String, accountName: String, rating: Int, innerRating: Int, performance: Int) {
+    fun updateRating(contestName: String, accountName: String, rating: Double, innerRating: Double, performance: Int) {
         val prevAccountRating = findByAccountName(accountName)!!.rating
         jdbcTemplate.update("""UPDATE accountInfo SET rating = ? innerRating = ?
             WHERE name = ?""", accountName, rating, innerRating)
