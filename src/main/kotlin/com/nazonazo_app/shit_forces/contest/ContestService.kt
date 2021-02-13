@@ -147,10 +147,10 @@ class ContestService(private val contestRepository: ContestRepository,
         val name: String,
         val innerRating: Double,
         val rating: Double,
-        val perf: Int
+        val perf: Double
     )
     private fun calcInnerPerformance(rank: Int, participants: List<ParticipantInfo>): Double {
-        val ratingLimit = 10000.0
+        val ratingLimit = 6000.0
         var high = ratingLimit
         var low = -ratingLimit
         val binarySearchTime = 100
@@ -158,7 +158,7 @@ class ContestService(private val contestRepository: ContestRepository,
             val mid = (high + low) / 2
             var sum = 0.0
             participants.forEach {
-                sum += 1.0 / (1 + 6.0.pow(mid - it.innerRating) / 400.0)
+                sum += 1.0 / (1.0 + 6.0.pow((mid - it.innerRating) / 400.0))
             }
             if (sum < rank - 0.5) {
                 high = mid
@@ -172,56 +172,59 @@ class ContestService(private val contestRepository: ContestRepository,
                                ratedBound: Int
     ): List<ParticipantResult> {
         val performances = mutableListOf<Double>()
-        val innerPerformances = mutableListOf<Double>()
+        val resultPerformances = mutableListOf<Double>()
         val resultParticipants = mutableListOf<ParticipantResult>()
         participants.forEach{
             val perf = calcInnerPerformance(it.rank, participants)
             val realPerf = perf.coerceAtMost(ratedBound + 400.0)
             performances.add(perf)
-            innerPerformances.add(realPerf)
+            resultPerformances.add(realPerf)
         }
 
         participants.forEachIndexed{ index, it ->
             val newRating: Double
             val newInnerRating: Double
             val perf = performances[index]
-            val innerPerf = innerPerformances[index]
+            val rPerf = resultPerformances[index]
             val f = {x: Double -> 2.0.pow(x / 800.0) }
             val g = {x: Double -> 800 * ln(x) / ln(2.0) }
             if (it.partNum == 0) {
                 newRating = perf
-                newInnerRating = innerPerf
+                newInnerRating = rPerf
             } else {
-                newRating = g(0.9 * f(it.rating) + 0.1 * f(perf))
-                newInnerRating = 0.9 * it.innerRating + 0.1 * innerPerf
+                newRating = 0.9 * it.innerRating + 0.1 * perf
+                newInnerRating = g(0.9 * f(it.rating) + 0.1 * f(rPerf))
             }
-            resultParticipants.add(ParticipantResult(it.name,newInnerRating, newRating, perf.toInt()))
+            resultParticipants.add(ParticipantResult(it.name,newInnerRating, newRating, rPerf))
         }
         return resultParticipants
     }
-    fun updateRating(contestInfo: ContestInfo) {
+    fun updateRating(contestInfo: ContestInfo): List<ParticipantResult> {
 
         val contestResult = sharedContestService.getContestRanking(contestInfo.shortName, null, null)
             ?.rankingList ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
         val participants = mutableListOf<ParticipantInfo>()
+        var ratedRank = 0
         contestResult.forEach{
             val accountInfo = sharedAccountService.getAccountByName(it.accountName)
-            if (accountInfo != null && accountInfo.rating <= contestInfo.ratedBound) {
+            if (accountInfo != null && sharedAccountService.calcCorrectionRate(accountInfo) < contestInfo.ratedBound) {
+                ratedRank += 1
                 var innerRating = accountInfo.innerRating
                 if (accountInfo.partNum == 0) {
                     innerRating = contestInfo.ratedBound / 2.0
                 }
                 participants.add(ParticipantInfo(accountInfo.name,
-                    it.ranking,
+                    ratedRank,
                     accountInfo.partNum,
                     innerRating,
                     accountInfo.rating))
             }
         }
-        val participantsResult =calcParticipantsResult(participants, contestInfo.ratedBound)
+        val participantsResult = calcParticipantsResult(participants, contestInfo.ratedBound)
         participantsResult.forEach{
             sharedAccountService.updateAccountRating(contestInfo.name, it.name,
-                it.rating, it.innerRating, it.perf)
+                it.rating, it.innerRating, it.perf.toInt())
         }
+        return participantsResult
     }
 }
