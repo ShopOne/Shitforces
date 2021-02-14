@@ -12,10 +12,10 @@ data class AccountInfo(
         "ADMINISTER" -> AccountAuthority.ADMINISTER
         else -> AccountAuthority.GENERAL
     }
-    enum class AccountAuthority(auth: String) {
-        GENERAL("GENERAL"),
-        WRITER("WRITER"),
-        ADMINISTER("ADMINISTER")
+    enum class AccountAuthority{
+        GENERAL,
+        WRITER,
+        ADMINISTER
     }
 }
 data class AccountRatingChangeHistory(
@@ -32,5 +32,6 @@ data class RequestAccount(
 )
 data class ResponseAccount(
     val name: String,
-    val rating: Int
+    val rating: Int,
+    val auth: String
 )

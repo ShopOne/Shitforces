@@ -45,11 +45,11 @@ class ContestServiceTest {
     fun testRatingCalculation0() {
         val contestInfo0 = ContestInfo("test0", "test0", "",
             Timestamp(System.currentTimeMillis()), Timestamp(System.currentTimeMillis()),
-            0, 2800, ContestInfo.ContestType.ICPC
+            0, 2800, ContestInfo.ContestType.ICPC, false
         )
         val contestInfo1 = ContestInfo("test1", "test1", "",
             Timestamp(System.currentTimeMillis()), Timestamp(System.currentTimeMillis()),
-            0, 800, ContestInfo.ContestType.ICPC
+            0, 800, ContestInfo.ContestType.ICPC, false
         )
         val names0 = listOf("a","b","c","d","e","f","g","h","i","j",
             "k","l","m","n","o","p","q","r","s","t")
@@ -117,6 +117,9 @@ class ContestServiceTest {
                 )
         every {
             sharedAccountService.updateAccountRating(any(), any(), any(), any(), any())
+        } returns Unit
+        every {
+            contestRepository.changeToEndCalcRating(any())
         } returns Unit
         every {
             sharedAccountService.calcCorrectionRate(any())

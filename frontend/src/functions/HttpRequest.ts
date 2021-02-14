@@ -3,6 +3,7 @@
  * @type {Object}
  * @property {Number} rating
  * @property {String} accountName
+ * @property {String} auth
  */
 
 /***
@@ -33,6 +34,8 @@
  * @property {String} contestType - コンテスト形式 ICPC,AtCoder形式など
  * @property {Number} ratedBound  - rated上限 0ならばunrated
  * @property {Number} unixStartTime - Unix時間でのコンテスト開始時間
+ * @property {Number} unixEndTime - Unix時間でのコンテスト終了時間
+ * @property {Boolean} ratingCalculated - レート計算済みかどうか
  */
 
 /***
@@ -89,7 +92,8 @@ export async function httpRequest(
     })
     .then((val) => {
       try {
-        return JSON.parse(val);
+        if (val === '') return  val;
+        else return JSON.parse(val);
       } catch {
         throw Error('Json String Error');
       }
@@ -193,4 +197,9 @@ export function postAccountInformation(
     password: btoa(accountName + ':' + password),
   });
   return httpRequest(fetchTo, 'POST', jsonBody);
+}
+export function updateContestRating(
+    shortContestName: string
+) {
+    return httpRequest(`/api/contests/${shortContestName}/rating`, 'POST')
 }

@@ -168,7 +168,7 @@ class ContestService(private val contestRepository: ContestRepository,
         }
         return high
     }
-    fun calcParticipantsResult(participants: List<ParticipantInfo>,
+    private fun calcParticipantsResult(participants: List<ParticipantInfo>,
                                ratedBound: Int
     ): List<ParticipantResult> {
         val performances = mutableListOf<Double>()
@@ -200,6 +200,18 @@ class ContestService(private val contestRepository: ContestRepository,
         return resultParticipants
     }
     fun updateRating(contestInfo: ContestInfo): List<ParticipantResult> {
+
+        if (contestInfo.endTime > Timestamp(System.currentTimeMillis())) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        if (contestInfo.ratingCalculated) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        if (contestInfo.ratedBound <= 0) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        // レート計算ロック
+        contestRepository.changeToEndCalcRating(contestInfo.shortName)
 
         val contestResult = sharedContestService.getContestRanking(contestInfo.shortName, null, null)
             ?.rankingList ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)

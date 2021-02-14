@@ -4,11 +4,12 @@ import { Button, Tab, Tabs, Form, Table } from 'react-bootstrap';
 import { PagingElement } from '../components/PagingElement';
 import { getCookieArray } from '../functions/GetCookieArray';
 import {
+  getAccountInformation,
   getContestInfo,
   getContestProblems,
   getRankingInfo,
   getSubmission,
-  postSubmission,
+  postSubmission, updateContestRating,
 } from '../functions/HttpRequest';
 import './ContestPage.css';
 
@@ -398,7 +399,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
     <div>
       <Tabs id={TAB_ID} activeKey={key} onSelect={selectTab}>
         {getProblemTabList()}
-        <Tab eventKey={'mySubmit'} key={'mySubmit'} title={'自分の提出'}></Tab>
+        <Tab eventKey={'mySubmit'} key={'mySubmit'} title={'自分の提出'}/>
       </Tabs>
       {getElement()}
       <p>{comment}</p>
@@ -419,6 +420,18 @@ export const ContestPage: React.FC = () => {
   const [time, setTime] = useState('');
   const [submissions, setSubmissions] = useState([]);
   const [problems, setProblems] = useState([]);
+  const [ratingUpdateButtonStyle, setRatingUpdateButtonStyle] = useState({display: 'none'});
+  const ratingUpdate = () => {
+    updateContestRating(getShortContestName())
+        .then(() => {
+          alert('レート更新が完了しました');
+          location.reload();
+        })
+        .catch((e) => {
+          alert('レート更新に失敗しました');
+          console.log(e);
+        });
+  };
 
   useEffect(() => {
     const shortContestName = getShortContestName();
@@ -436,10 +449,18 @@ export const ContestPage: React.FC = () => {
       let submissions;
       const cookieArray = getCookieArray();
       if (cookieArray['_sforce_account_name']) {
+        const accountName = cookieArray['_sforce_account_name'];
         submissions = await getSubmission(
           getShortContestName(),
-          cookieArray['_sforce_account_name']
-        ).catch(() => []);
+          accountName
+        );
+        const accountInfo = await getAccountInformation(accountName)
+        if (accountInfo.auth === 'ADMINISTER' &&
+            contestInfo.ratingCalculated === false &&
+            contestInfo.ratedBound > 0 &&
+            contestInfo.unixEndTime < Date.now()) {
+          setRatingUpdateButtonStyle({display: 'block'});
+        }
       } else {
         submissions = [];
       }
@@ -453,6 +474,7 @@ export const ContestPage: React.FC = () => {
 
   return (
     <div>
+      <Button onClick={ratingUpdate} variant={'info'} style={ratingUpdateButtonStyle}>{'レート更新'}</Button>
       <p id={'contestPage-contestName'}>{}</p>
       <p>
         <pre>{statement}</pre>

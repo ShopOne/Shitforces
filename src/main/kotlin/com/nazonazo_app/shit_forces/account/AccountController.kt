@@ -43,6 +43,6 @@ class AccountController(private val accountService: AccountService,
     fun getAccountByNameResponse(@PathVariable("accountName") accountName: String): ResponseAccount {
         val account = sharedAccountService.getAccountByName(accountName)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return ResponseAccount(account.name, sharedAccountService.calcCorrectionRate(account))
+        return ResponseAccount(account.name, sharedAccountService.calcCorrectionRate(account), account.authority.name)
     }
 }

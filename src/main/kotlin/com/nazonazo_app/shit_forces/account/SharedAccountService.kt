@@ -17,6 +17,7 @@ class SharedAccountService(private val accountInfoRepository: AccountInfoReposit
         }
     }
     fun calcCorrectionRate(account: AccountInfo): Int {
+        if (account.partNum == 0) return 0
         val r = account.innerRating
         val p = account.partNum
         val minus = (sqrt(1 - 0.81.pow(p)) /  (1 - 0.9.pow(p)) - 1) / (sqrt(19.0) - 1) * 1200
@@ -33,6 +34,11 @@ class SharedAccountService(private val accountInfoRepository: AccountInfoReposit
                             rating: Double,
                             innerRating: Double,
                             performance: Int
-    )
-            = accountInfoRepository.updateRating(contestName, accountName, rating, innerRating, performance)
+    ) {
+        val prevAccountInfo = accountInfoRepository.findByAccountName(accountName)!!
+        val newAccount = prevAccountInfo.copy(rating = rating, innerRating = innerRating,
+            partNum = prevAccountInfo.partNum + 1)
+        accountInfoRepository.updateRating(contestName, accountName, rating, innerRating,
+            performance, calcCorrectionRate(newAccount))
+    }
 }

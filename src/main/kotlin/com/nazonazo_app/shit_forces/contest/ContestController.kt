@@ -24,7 +24,20 @@ class ContestController(val contestService: ContestService,
     data class RequestContest constructor(val shortName: String, val name: String,
                                           val startTime: Float, val endTime: Float, val rated: Boolean)
 
-    //今はICPC形式のみの用意 のちのち変える
+    @PostMapping("api/contests/{short_contest_name}/rating")
+    fun updateRatingByContestResult(@PathVariable("short_contest_name") shortContestName: String,
+                                    httpServletRequest: HttpServletRequest) {
+        val contest = contestService.getContestInfoByShortName(shortContestName)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        val accountInfo = sharedAccountService.getAccountByName(sessionAccountName)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        if (accountInfo.authority !== AccountInfo.AccountAuthority.ADMINISTER) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        contestService.updateRating(contest)
+    }
     @GetMapping("api/contests/{short_contest_name}/ranking")
     fun getContestRankingResponse(@PathVariable("short_contest_name") shortContestName: String,
                                   @RequestParam(value="page") page: Int,
