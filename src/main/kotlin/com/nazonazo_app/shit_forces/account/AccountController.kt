@@ -5,6 +5,7 @@ import com.nazonazo_app.shit_forces.session.SharedSessionService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @CrossOrigin
@@ -44,5 +45,17 @@ class AccountController(private val accountService: AccountService,
         val account = sharedAccountService.getAccountByName(accountName)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         return ResponseAccount(account.name, sharedAccountService.calcCorrectionRate(account), account.authority.name)
+    }
+
+    @PutMapping("api/account/{accountName}/name")
+    fun changeAccountNameResponse(@PathVariable("accountName") accountName: String,
+                                  @RequestBody requestAccount: RequestAccount,
+                                  httpServletRequest: HttpServletRequest,
+                                  httpServletResponse: HttpServletResponse) {
+        val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
+        if (sessionAccountName != accountName) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
+        accountService.changeAccountName(accountName, requestAccount, httpServletRequest, httpServletResponse)
     }
 }

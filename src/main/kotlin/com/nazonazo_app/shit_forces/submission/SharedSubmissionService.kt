@@ -20,6 +20,9 @@ class SharedSubmissionService(private val submissionRepository: SubmissionReposi
         return res
     }
 
+    fun changeSubmissionAccountName(prevName: String, newName: String) {
+        submissionRepository.changeNameOfSubmission(prevName, newName)
+    }
     fun getContestSubmission(contest: ContestInfo): List<SubmissionInfo> =
         submissionRepository.findContestSubmission(contest.name)
 

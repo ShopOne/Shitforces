@@ -50,4 +50,15 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
         return if (accounts.isEmpty()) null
         else accounts[0]
     }
+
+    fun changeAccountName(prevAccountName: String, newAccountName: String, password: String) {
+        jdbcTemplate.update("UPDATE accountInfo set name = ?, passwordHash = ? where name = ?",
+            newAccountName, password, prevAccountName)
+    }
+
+    fun changeAccountRatingChangeHistoryName(prevName: String, newName: String) {
+        jdbcTemplate.update("""
+            UPDATE accountRatingChangeHistory set accountName = ? where accountName = ?
+        """, newName, prevName)
+    }
 }
