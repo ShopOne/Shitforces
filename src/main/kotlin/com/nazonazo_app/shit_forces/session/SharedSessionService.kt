@@ -60,4 +60,7 @@ class SharedSessionService(private val sessionRepository: SessionRepository) {
         val savedSession = sessionRepository.findByName(accountName)
         return savedSession?.sessionId == sessionId
     }
+    fun deleteSession(accountName: String) {
+        sessionRepository.deleteSessionByName(accountName)
+    }
 }

@@ -194,12 +194,32 @@ export function postAccountInformation(
 ) {
   const jsonBody = JSON.stringify({
     name: accountName,
-    password: btoa(accountName + ':' + password),
+    password: password
   });
   return httpRequest(fetchTo, 'POST', jsonBody);
 }
+
 export function updateContestRating(
     shortContestName: string
 ) {
     return httpRequest(`/api/contests/${shortContestName}/rating`, 'POST')
+}
+
+/**
+ *
+ * @param prevAccountName
+ * @param newAccountName
+ * @param password
+ * @returns {Promise<Null>}
+ */
+export function putAccountName(
+  prevAccountName: string,
+  newAccountName: string,
+  password: string
+) {
+  const jsonBody = JSON.stringify({
+    name: newAccountName,
+    password: password
+  });
+  return httpRequest(`/api/account/${prevAccountName}/name`, 'PUT', jsonBody)
 }

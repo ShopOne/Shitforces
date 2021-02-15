@@ -43,4 +43,9 @@ class SubmissionRepository(val jdbcTemplate: JdbcTemplate) {
             WHERE  contestName = ?
         """, rowMapper, contestName)
     }
+    fun changeNameOfSubmission(prevName: String, newName: String) {
+        jdbcTemplate.update("""
+            UPDATE submissionInfo set accountName = ? where accountName = ?
+        """, newName, prevName)
+    }
 }
