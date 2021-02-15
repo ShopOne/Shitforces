@@ -13,11 +13,12 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             else -> ContestInfo.ContestType.INVALID
         }
         ContestInfo(rs.getString("shortName"), rs.getString("name"), rs.getString("statement"),
-                rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"), rs.getInt("ratedBound"), contestType)
+                rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"),
+            rs.getInt("ratedBound"), contestType, rs.getBoolean("ratingCalculated"))
     }
     fun findByShortName(shortName: String): ContestInfo? {
         val contest =  jdbcTemplate.query("""
-            SELECT shortName, name, statement, startTime, endTime, penalty, contestType, ratedBound
+            SELECT shortName, name, statement, startTime, endTime, penalty, contestType, ratedBound, ratingCalculated
              FROM contestInfo WHERE shortName = (?)""", rowMapper, shortName)
         return if (contest.isEmpty()) {
             null
@@ -27,7 +28,7 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
     }
     fun findByName(contestName: String): ContestInfo? {
         val contest =  jdbcTemplate.query("""
-            SELECT shortName, name, statement, startTime, endTime, penalty, contestType, ratedBond 
+            SELECT shortName, name, statement, startTime, endTime, penalty, contestType, ratedBond, ratingCalculated
             FROM contestInfo WHERE name = (?)""", rowMapper, contestName)
         return if (contest.isEmpty()) {
             null
@@ -35,9 +36,13 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             contest[0]
         }
     }
+    fun changeToEndCalcRating(shortName: String) {
+        jdbcTemplate.update("""UPDATE contestInfo set ratingCalculated = true where shortName = ?""",
+            shortName)
+    }
     fun findLatestContest(contestNum: Int): List<ContestInfo>? {
         return jdbcTemplate.query("""
-            SELECT shortName, name, statement, startTime, endTime, contestType, ratedBound , penalty 
+            SELECT shortName, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
             FROM contestInfo ORDER BY startTime desc""", rowMapper)
     }
     fun addContest(contestInfo: ContestInfo): ContestInfo? {

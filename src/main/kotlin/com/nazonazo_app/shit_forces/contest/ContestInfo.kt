@@ -11,9 +11,11 @@ data class ContestInfo(
         val endTime: Timestamp,
         val penalty: Int,
         val ratedBound: Int,
-        val contestType: ContestType
+        val contestType: ContestType,
+        val ratingCalculated: Boolean
 ) {
     val unixStartTime: Long = startTime.time
+    val unixEndTime: Long = endTime.time
     val startTimeAMPM: String = Utils().formatTimestamp(startTime)
     val endTimeAMPM: String = Utils().formatTimestamp(endTime)
     enum class ContestType(val textName: String) {

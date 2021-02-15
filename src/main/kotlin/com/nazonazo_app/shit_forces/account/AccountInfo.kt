@@ -2,8 +2,8 @@ package com.nazonazo_app.shit_forces.account
 
 data class AccountInfo(
     val name: String,
-    val rating: Int,
-    val innerRating: Int,
+    val rating: Double,
+    val innerRating: Double,
     val partNum: Int,
     val passwordHash: String,
     private val auth: String
@@ -12,18 +12,18 @@ data class AccountInfo(
         "ADMINISTER" -> AccountAuthority.ADMINISTER
         else -> AccountAuthority.GENERAL
     }
-    enum class AccountAuthority(auth: String) {
-        GENERAL("GENERAL"),
-        WRITER("WRITER"),
-        ADMINISTER("ADMINISTER")
+    enum class AccountAuthority{
+        GENERAL,
+        WRITER,
+        ADMINISTER
     }
 }
 data class AccountRatingChangeHistory(
     val accountName: String,
     val contestName: String,
     val indexOfParticipation: Int,
-    val prevRating: Int,
-    val newRating: Int,
+    val prevRating: Double,
+    val newRating: Double,
     val performance: Int
 )
 data class RequestAccount(
@@ -32,5 +32,6 @@ data class RequestAccount(
 )
 data class ResponseAccount(
     val name: String,
-    val rating: Int
+    val rating: Int,
+    val auth: String
 )

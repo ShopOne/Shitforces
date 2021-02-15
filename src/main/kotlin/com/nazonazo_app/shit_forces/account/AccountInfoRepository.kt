@@ -7,31 +7,39 @@ import org.springframework.stereotype.Repository
 @Repository
 class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
     private val rowMapperForAccountInfo = RowMapper { rs, _ ->
-        AccountInfo(rs.getString("name"), rs.getInt("rating"),
-            rs.getInt("innerRating"), rs.getInt("partNum"),
+        AccountInfo(rs.getString("name"), rs.getDouble("rating"),
+            rs.getDouble("innerRating"), rs.getInt("partNum"),
             rs.getString("passwordHash"), rs.getString("permission"))
     }
     private val rowMapperForHistory = RowMapper { rs, _ ->
         AccountRatingChangeHistory(rs.getString("accountName"), rs.getString("contestName"),
-            rs.getInt("indexOfParticipation"), rs.getInt("prevRating"),
-            rs.getInt("newRating"), rs.getInt("performance"))
+            rs.getInt("indexOfParticipation"), rs.getDouble("prevRating"),
+            rs.getDouble("newRating"), rs.getInt("performance"))
     }
 
     fun createAccount(accountName: String, password: String): AccountInfo? {
-        val newAccount = AccountInfo(accountName, 0, 0, 0,password,
-            AccountInfo.AccountAuthority.GENERAL.name)
-        jdbcTemplate.update("""INSERT INTO accountInfo(name, rating, passwordHash, permission)
-                VALUES ( ?, ?, ?, ? )""",
-            newAccount.name, newAccount.rating, newAccount.passwordHash, newAccount.authority.name)
-        return newAccount
+        jdbcTemplate.update("""INSERT INTO accountInfo(name,  passwordHash, permission)
+                VALUES ( ?, ?, ? )""",
+            accountName, password, AccountInfo.AccountAuthority.GENERAL.name)
+        return findByAccountName(accountName)
     }
-    fun updateRating(contestName: String, accountName: String, rating: Int, innerRating: Int, performance: Int) {
-        val prevAccountRating = findByAccountName(accountName)!!.rating
-        jdbcTemplate.update("""UPDATE accountInfo SET rating = ? innerRating = ?
-            WHERE name = ?""", accountName, rating, innerRating)
+    fun getAccountHistory(accountName: String): List<AccountRatingChangeHistory>?
+     = jdbcTemplate.query("""SELECT * from accountRatingChangeHistory 
+         where accountName = ? order by indexOfParticipation
+     """, rowMapperForHistory, accountName)
+
+    fun updateRating(contestName: String, accountName: String, rating: Double, innerRating: Double,
+                     performance: Int, calculatedRating: Int) {
+        val partNum = findByAccountName(accountName)!!.partNum
+        val prevCalculatedRating = getAccountHistory(accountName)?.getOrNull(0)?.newRating ?: 0
+
+         jdbcTemplate.update("""UPDATE accountInfo SET rating = ?,innerRating = ?, partNum = ?
+            WHERE name = ?""", rating, innerRating, partNum + 1, accountName)
+
         jdbcTemplate.update("""INSERT INTO 
-            accountRatingChange(accountName, contestName, indexOfParticipation, newRating, prevRating, performance)
-            VALUES( ?, ?, ?, ?, ?, ?)""", accountName, contestName, rating, prevAccountRating, performance)
+            accountRatingChangeHistory(accountName, contestName, indexOfParticipation, newRating, prevRating, performance)
+            VALUES( ?, ?, ?, ?, ?, ?)""",
+            accountName, contestName, partNum + 1, calculatedRating, prevCalculatedRating, performance)
     }
 
     fun findByAccountName(accountName: String): AccountInfo? {
