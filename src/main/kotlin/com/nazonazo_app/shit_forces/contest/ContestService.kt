@@ -48,27 +48,27 @@ class ContestService(private val contestRepository: ContestRepository,
     }
 
     fun getAccountSubmissionOfContest( accountName: String,
-                                       shortContestName: String,
+                                       id: String,
                                        httpServletRequest: HttpServletRequest): List<SubmissionInfo>? =
     try {
-        val contest = contestRepository.findByShortName(shortContestName) ?: throw Error("コンテストが見つかりません")
+        val contest = contestRepository.findByContestId(id) ?: throw Error("コンテストが見つかりません")
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest) ?: ""
         val sessionAccount = sharedAccountService.getAccountByName(sessionAccountName)
         if (!haveAuthorityOfSeeSubmissions(sessionAccount, accountName, contest)) {
             throw Error("アクセス権限がありません")
         }
-        sharedSubmissionService.getSubmissionOfAccount(accountName, contest.name)
+        sharedSubmissionService.getSubmissionOfAccount(accountName, contest.id)
     } catch (e: Error) {
         print(e)
         null
     }
 
-    fun getContestInfoByName(shortContestName: String): ContestInfo?  =
-        contestRepository.findByShortName(shortContestName)
+    fun getContestInfoByName(contestName: String): ContestInfo?  =
+        contestRepository.findByName(contestName)
 
     fun submitAnswerToContest(requestSubmission: RequestSubmission,
                               httpServletRequest: HttpServletRequest): SubmissionInfo {
-        val contest = getContestInfoByShortName(requestSubmission.shortContestName)
+        val contest = getContestInfoByContestId(requestSubmission.contestId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
         val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
@@ -80,7 +80,7 @@ class ContestService(private val contestRepository: ContestRepository,
         if (!haveAuthOfSubmit(account, contest)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
         }
-        val latestSubmit = sharedSubmissionService.getSubmissionOfAccount(accountName, contest.name)
+        val latestSubmit = sharedSubmissionService.getSubmissionOfAccount(accountName, contest.id)
             .maxBy { it.submitTime }
 
         val nowTime = Timestamp(System.currentTimeMillis())
@@ -93,21 +93,21 @@ class ContestService(private val contestRepository: ContestRepository,
         if (reg.containsMatchIn(requestSubmission.statement)) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN)
         }
-        return sharedSubmissionService.submitAnswer(requestSubmission.indexOfContest, contest.name,
+        return sharedSubmissionService.submitAnswer(requestSubmission.indexOfContest, contest.id,
             requestSubmission.statement, account.name)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
 
     }
 
-    fun getContestProblems(shortContestName: String,
+    fun getContestProblems(contestId: String,
                            httpServletRequest: HttpServletRequest) : List<ProblemInfo>?  {
         return try{
             val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
             val account = sharedAccountService.getAccountByName(accountName ?: "")
-            val contest = contestRepository.findByShortName(shortContestName) ?: throw Error("コンテストが見つかりません")
+            val contest = contestRepository.findByContestId(contestId) ?: throw Error("コンテストが見つかりません")
 
             if (haveAuthorityOfSeeProblems(account, contest)) {
-                sharedProblemService.getProblemsByContestName(contest.name)
+                sharedProblemService.getProblemsByContestId(contest.id)
             } else {
                 listOf()
             }
@@ -117,9 +117,9 @@ class ContestService(private val contestRepository: ContestRepository,
         }
     }
 
-    fun getContestInfoByShortName(shortName: String): ContestInfo? =
+    fun getContestInfoByContestId(id: String): ContestInfo? =
         try {
-            contestRepository.findByShortName(shortName)
+            contestRepository.findByContestId(id)
         } catch (e: Error) {
             print(e)
             null
@@ -211,9 +211,9 @@ class ContestService(private val contestRepository: ContestRepository,
             throw ResponseStatusException(HttpStatus.FORBIDDEN)
         }
         // レート計算ロック
-        contestRepository.changeToEndCalcRating(contestInfo.shortName)
+        contestRepository.changeToEndCalcRating(contestInfo.id)
 
-        val contestResult = sharedContestService.getContestRanking(contestInfo.shortName, null, null)
+        val contestResult = sharedContestService.getContestRanking(contestInfo.id, null, null)
             ?.rankingList ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
         val participants = mutableListOf<ParticipantInfo>()
         var ratedRank = 0
@@ -234,7 +234,7 @@ class ContestService(private val contestRepository: ContestRepository,
         }
         val participantsResult = calcParticipantsResult(participants, contestInfo.ratedBound)
         participantsResult.forEach{
-            sharedAccountService.updateAccountRating(contestInfo.name, it.name,
+            sharedAccountService.updateAccountRating(contestInfo.id, it.name,
                 it.rating, it.innerRating, it.perf.toInt())
         }
         return participantsResult

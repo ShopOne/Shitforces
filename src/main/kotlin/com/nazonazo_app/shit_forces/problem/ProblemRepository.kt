@@ -10,7 +10,7 @@ class ProblemRepository(val jdbcTemplate: JdbcTemplate) {
         rs.getString("answer")
     }
     private val rowMapperForProblem = RowMapper { rs, _ ->
-        ProblemInfo(rs.getString("contestName"), rs.getInt("point"),
+        ProblemInfo(rs.getString("contestId"), rs.getInt("point"),
             rs.getString("statement"), rs.getInt("indexOfContest"), findAnswerById(rs.getInt("id")))
     }
 
@@ -18,16 +18,16 @@ class ProblemRepository(val jdbcTemplate: JdbcTemplate) {
             jdbcTemplate.query("""
                 SELECT answer FROM answerInfo WHERE id = ?
             """, rowMapperForAnswer, id)
-    fun findByContestName(contestName: String): List<ProblemInfo> =
+    fun findByContestId(contestId: String): List<ProblemInfo> =
             jdbcTemplate.query("""
-                SELECT id, contestName, point, statement, indexOfContest FROM problemInfo WHERE contestName = ?
+                SELECT id, contestId, contestId, point, statement, indexOfContest FROM problemInfo WHERE contestId = ?
                 ORDER BY indexOfContest asc;
-            """, rowMapperForProblem, contestName)
-    fun findByContestNameAndIndex(contestName: String, indexOfContest: Int): ProblemInfo? {
+            """, rowMapperForProblem, contestId)
+    fun findByContestIdAndIndex(contestId: String, indexOfContest: Int): ProblemInfo? {
         val problem = jdbcTemplate.query("""
-                SELECT id, contestName, point, statement, indexOfContest FROM problemInfo 
-                WHERE contestName = ? AND indexOfContest = ? order by indexOfContest asc
-            """, rowMapperForProblem, contestName, indexOfContest)
+                SELECT id, contestId, point, statement, indexOfContest FROM problemInfo 
+                WHERE contestId = ? AND indexOfContest = ? order by indexOfContest asc
+            """, rowMapperForProblem, contestId, indexOfContest)
         return problem.getOrNull(0)
     }
 }

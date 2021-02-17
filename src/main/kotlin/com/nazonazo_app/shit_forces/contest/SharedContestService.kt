@@ -19,7 +19,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
                                  val isAccept: List<Boolean>,
                                  val penaltyOfWrong: Int)
     fun getSolvedProblemOnContest(contest: ContestInfo): List<Pair<Int,Int>>{
-        val contestProblemNum = sharedProblemService.getProblemsByContestName(contest.name).size
+        val contestProblemNum = sharedProblemService.getProblemsByContestId(contest.id).size
         val submissionList = sharedSubmissionService.getContestSubmissionInTime(contest)
         val submitAccounts = Array<MutableSet<String>>(contestProblemNum){ mutableSetOf() }
         val acceptAccounts = Array<MutableSet<String>>(contestProblemNum){ mutableSetOf() }
@@ -147,14 +147,14 @@ class SharedContestService(private val contestRepository: ContestRepository,
             }
         }
     }
-    fun getContestRanking(shortContestName: String,
+    fun getContestRanking(contestId: String,
                           page: Int?,
                           requestAccountName : String?
     ): RequestRanking? {
         return try{
-            val contest = contestRepository.findByShortName(shortContestName)?: throw Error("コンテストが見つかりません")
+            val contest = contestRepository.findByContestId(contestId)?: throw Error("コンテストが見つかりません")
             val submissionList = sharedSubmissionService.getContestSubmissionInTime(contest)
-            val contestProblems = sharedProblemService.getProblemsByContestName(contest.name)
+            val contestProblems = sharedProblemService.getProblemsByContestId(contest.id)
             val rankingList = when(contest.contestType) {
                 ContestInfo.ContestType.ICPC -> getContestRankByICPC(contestProblems,
                     submissionList,

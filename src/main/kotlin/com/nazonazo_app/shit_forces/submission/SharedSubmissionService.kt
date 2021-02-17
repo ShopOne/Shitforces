@@ -24,30 +24,31 @@ class SharedSubmissionService(private val submissionRepository: SubmissionReposi
         submissionRepository.changeNameOfSubmission(prevName, newName)
     }
     fun getContestSubmission(contest: ContestInfo): List<SubmissionInfo> =
-        submissionRepository.findContestSubmission(contest.name)
+        submissionRepository.findContestSubmission(contest.id)
 
     fun getContestSubmissionInTime(contest: ContestInfo): List<SubmissionInfo> =
-        submissionRepository.findContestSubmissionInTime(contest.name, contest.startTime, contest.endTime)
+        submissionRepository.findContestSubmissionInTime(contest.id, contest.startTime, contest.endTime)
 
-    fun getSubmissionOfAccount(accountName: String, contestName: String): List<SubmissionInfo> =
-        submissionRepository.findSubmissions(accountName, contestName)
-    fun submitAnswer(indexOfContest: Int, contestName: String,
+    fun getSubmissionOfAccount(accountName: String, contestId: String): List<SubmissionInfo> =
+        submissionRepository.findSubmissions(accountName, contestId)
+
+    fun submitAnswer(indexOfContest: Int, contestId: String,
                      statement: String, submitAccountName: String
     ): SubmissionInfo? =
         try {
-            val problem = sharedProblemService.getContestProblemByNameAndIndex(contestName, indexOfContest)
+            val problem = sharedProblemService.getContestProblemByNameAndIndex(contestId, indexOfContest)
                 ?: throw Error("問題が見つかりません")
 
             //TODO: インタラクティブにいずれ対応
             val now = Timestamp(System.currentTimeMillis())
             val submission = if (statement in problem.answer ||
                 (problem.answer.isNotEmpty() && specialJudge(problem.answer, statement))) {
-                SubmissionInfo(contestName, indexOfContest,
+                SubmissionInfo(contestId, indexOfContest,
                     submitAccountName, statement, now,
                     SubmissionResult.ACCEPTED
                 )
             } else {
-                SubmissionInfo(contestName, indexOfContest,
+                SubmissionInfo(contestId, indexOfContest,
                     submitAccountName, statement, now,
                     SubmissionResult.WRONG_ANSWER
                 )

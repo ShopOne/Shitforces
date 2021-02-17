@@ -13,7 +13,7 @@ interface ContestCardProps {
 const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
   return (
     <Card>
-      <Link to={`/contest/${contest.shortName}`}>
+      <Link to={`/contest/${contest.id}`}>
         <Card.Header>{contest.name}</Card.Header>
       </Link>
       <Card.Text>{`Type: ${contest.contestType} ${contest.startTime} ~ ${contest.endTime}`}</Card.Text>

@@ -15,7 +15,7 @@ import './ContestPage.css';
 
 const KEY_OF_MY_SUBMISSIONS = 'mySubmit';
 
-// URL: /contest/$shortContestName
+// URL: /contest/$contestId
 
 function createEnglishIndex(index: number, num: number) {
   const ALPHABETS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
@@ -27,7 +27,7 @@ function createEnglishIndex(index: number, num: number) {
   return res;
 }
 
-function getShortContestName() {
+function getContestId() {
   const splitPath = window.location.pathname.split('/');
   return splitPath.slice(-1)[0];
 }
@@ -201,7 +201,7 @@ const RankingElement: React.FC<RankingElementProps> = ({
   const ACCOUNTS_IN_ONE_PAGE = 20;
 
   const getRanking = (newPage: any) => {
-    getRankingInfo(newPage, getShortContestName()).then((rankingInfo) => {
+    getRankingInfo(newPage,  getContestId()).then((rankingInfo) => {
       setPartNum(rankingInfo.partAccountNum);
       setRankingList(rankingInfo.rankingList);
       setAccountRank(rankingInfo.requestAccountRank);
@@ -354,7 +354,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       return;
     }
     setComment('');
-    postSubmission(getShortContestName(), key, answerInput.current.value)
+    postSubmission( getContestId(), key, answerInput.current.value)
       .then((submitResult) => {
         const newSubmissions = nowSubmissions.slice();
         newSubmissions.unshift(submitResult);
@@ -422,7 +422,7 @@ export const ContestPage: React.FC = () => {
   const [problems, setProblems] = useState([]);
   const [ratingUpdateButtonStyle, setRatingUpdateButtonStyle] = useState({display: 'none'});
   const ratingUpdate = () => {
-    updateContestRating(getShortContestName())
+    updateContestRating( getContestId())
         .then(() => {
           alert('レート更新が完了しました');
           location.reload();
@@ -434,9 +434,9 @@ export const ContestPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const shortContestName = getShortContestName();
+    const contestId =  getContestId();
     (async () => {
-      const contestInfo = await getContestInfo(shortContestName).catch(
+      const contestInfo = await getContestInfo(contestId).catch(
         () => null
       );
       if (contestInfo === null) {
@@ -444,14 +444,14 @@ export const ContestPage: React.FC = () => {
         return;
       }
       const problems = await getContestProblems(
-        shortContestName
+        contestId
       ).catch(() => []);
       let submissions;
       const cookieArray = getCookieArray();
       if (cookieArray['_sforce_account_name']) {
         const accountName = cookieArray['_sforce_account_name'];
         submissions = await getSubmission(
-          getShortContestName(),
+           getContestId(),
           accountName
         );
         const accountInfo = await getAccountInformation(accountName)

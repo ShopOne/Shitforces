@@ -4,15 +4,15 @@ import com.nazonazo_app.shit_forces.Utils
 import java.sql.Timestamp
 
 data class ContestInfo(
-        val shortName: String,
-        val name: String,
-        val statement: String,
-        val startTime: Timestamp,
-        val endTime: Timestamp,
-        val penalty: Int,
-        val ratedBound: Int,
-        val contestType: ContestType,
-        val ratingCalculated: Boolean
+    val id: String,
+    val name: String,
+    val statement: String,
+    val startTime: Timestamp,
+    val endTime: Timestamp,
+    val penalty: Int,
+    val ratedBound: Int,
+    val contestType: ContestType,
+    val ratingCalculated: Boolean
 ) {
     val unixStartTime: Long = startTime.time
     val unixEndTime: Long = endTime.time

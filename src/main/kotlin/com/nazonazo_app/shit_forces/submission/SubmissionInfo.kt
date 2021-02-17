@@ -3,7 +3,7 @@ package com.nazonazo_app.shit_forces.submission
 import com.nazonazo_app.shit_forces.Utils
 import java.sql.Timestamp
 class SubmissionInfo(
-    val contestName: String,
+    val contestId: String,
     val indexOfContest: Int,
     val accountName: String,
     val statement: String,
@@ -23,7 +23,7 @@ enum class SubmissionResult(val state: String) {
     }
 }
 
-data class RequestSubmission constructor(val shortContestName: String,
+data class RequestSubmission constructor(val contestId: String,
                                          val indexOfContest: Int,
                                          val statement: String)
 

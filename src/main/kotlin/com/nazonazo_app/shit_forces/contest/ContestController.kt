@@ -21,13 +21,13 @@ class ContestController(val contestService: ContestService,
                         val sharedAccountService: SharedAccountService,
                         val sharedSessionService: SharedSessionService
                         ) {
-    data class RequestContest constructor(val shortName: String, val name: String,
+    data class RequestContest constructor(val id: String, val name: String,
                                           val startTime: Float, val endTime: Float, val rated: Boolean)
 
-    @PostMapping("api/contests/{short_contest_name}/rating")
-    fun updateRatingByContestResult(@PathVariable("short_contest_name") shortContestName: String,
+    @PostMapping("api/contests/{contest-id}/rating")
+    fun updateRatingByContestResult(@PathVariable("contest-id") contestId: String,
                                     httpServletRequest: HttpServletRequest) {
-        val contest = contestService.getContestInfoByShortName(shortContestName)
+        val contest = contestService.getContestInfoByContestId(contestId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
@@ -38,19 +38,19 @@ class ContestController(val contestService: ContestService,
         }
         contestService.updateRating(contest)
     }
-    @GetMapping("api/contests/{short_contest_name}/ranking")
-    fun getContestRankingResponse(@PathVariable("short_contest_name") shortContestName: String,
+    @GetMapping("api/contests/{contest-id}/ranking")
+    fun getContestRankingResponse(@PathVariable("contest-id") contestId: String,
                                   @RequestParam(value="page") page: Int,
                                   httpServletRequest: HttpServletRequest
     ): RequestRanking {
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
-        return sharedContestService.getContestRanking(shortContestName, page, sessionAccountName)
+        return sharedContestService.getContestRanking(contestId, page, sessionAccountName)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
-    @GetMapping("api/contests/{short_contest_name}")
-    fun getContestInfoByShortNameResponse(@PathVariable("short_contest_name") shortName: String):ContestInfo {
-        return contestService.getContestInfoByShortName(shortName)
+    @GetMapping("api/contests/{contest-id}")
+    fun getContestInfoByContestIdResponse(@PathVariable("contest-id") contestId: String):ContestInfo {
+        return contestService.getContestInfoByContestId(contestId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
     }
 
@@ -67,12 +67,12 @@ class ContestController(val contestService: ContestService,
     }
      */
 
-    @GetMapping("api/submissions/{account_name}")
-    fun getAccountSubmissionOfContestResponse(@PathVariable("account_name") accountName: String,
-                                              @RequestParam("short_contest_name") shortContestName: String,
+    @GetMapping("api/submissions/{account-name}")
+    fun getAccountSubmissionOfContestResponse(@PathVariable("account-name") accountName: String,
+                                              @RequestParam("contest_id") contestId: String,
                                               httpServletRequest: HttpServletRequest
     ): List<SubmissionInfo> {
-        return contestService.getAccountSubmissionOfContest(accountName, shortContestName, httpServletRequest)
+        return contestService.getAccountSubmissionOfContest(accountName, contestId, httpServletRequest)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
     @PostMapping("api/submissions", headers = ["Content-Type=application/json"])
@@ -81,20 +81,20 @@ class ContestController(val contestService: ContestService,
     ): SubmissionInfo {
         return contestService.submitAnswerToContest(requestSubmission, httpServletRequest)
     }
-    @GetMapping("api/contests/{short_contest_name}/problems")
-    fun getContestProblemsResponse(@PathVariable("short_contest_name") shortContestName: String,
+    @GetMapping("api/contests/{contest_id}/problems")
+    fun getContestProblemsResponse(@PathVariable("contest_id") contestId: String,
                                    httpServletRequest: HttpServletRequest
     ): List<ResponseProblemInfo> {
-        val problems = contestService.getContestProblems(shortContestName, httpServletRequest)
+        val problems = contestService.getContestProblems(contestId, httpServletRequest)
         return problems?.map{
             ResponseProblemInfo(it.contestName, it.point, it.statement, it.indexOfContest)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
-    @PostMapping("api/contests/{short_contest_name}/new-rating")
-    fun updateRatingByContestResultResponse(@PathVariable("short_contest_name") shortContestName: String,
+    @PostMapping("api/contests/{contest_id}/new-rating")
+    fun updateRatingByContestResultResponse(@PathVariable("contest_id") contestId: String,
                                             httpServletRequest: HttpServletRequest) {
 
-        val contestInfo = contestService.getContestInfoByName(shortContestName)
+        val contestInfo = contestService.getContestInfoByContestId(contestId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
