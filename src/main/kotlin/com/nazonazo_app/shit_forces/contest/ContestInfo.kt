@@ -24,6 +24,17 @@ data class ContestInfo(
         INVALID("INVALID")
     }
 }
+data class ContestCreator(
+    val accountName: String,
+    val contestId: String,
+    val position: ContestPosition
+) {
+    enum class ContestPosition {
+        WRITER,
+        COORDINATOR,
+        INVALID
+    }
+}
 data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,
                           val acPerSubmit: List<Pair<Int, Int>>,
                           val partAccountNum: Int,

@@ -74,7 +74,6 @@ export async function httpRequest(
     if (params !== undefined) {
       fetchTo += '?' + new URLSearchParams(params);
     }
-    console.log(fetchTo);
   } else {
     initState = {
       method: method,

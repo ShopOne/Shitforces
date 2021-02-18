@@ -26,25 +26,35 @@ class ContestService(private val contestRepository: ContestRepository,
                      private val sharedProblemService: SharedProblemService,
                      private val sharedSubmissionService: SharedSubmissionService
 ) {
-    private fun haveAuthOfSubmit(sessionAccount: AccountInfo, contest: ContestInfo): Boolean{
+    private fun haveAuthOfSubmit(sessionAccount: AccountInfo,
+                                 contestCreators: List<ContestCreator>,
+                                 contest: ContestInfo): Boolean{
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return contest.startTime <= nowTimeStamp ||
-                sessionAccount.authority == AccountInfo.AccountAuthority.ADMINISTER
+                sessionAccount.authority == AccountInfo.AccountAuthority.ADMINISTER ||
+                contestCreators.find{it.accountName == sessionAccount.name} != null
     }
 
-    private fun haveAuthorityOfSeeProblems(sessionAccount: AccountInfo?, contest: ContestInfo): Boolean{
+    private fun haveAuthorityOfSeeProblems(sessionAccount: AccountInfo?,
+                                           contestCreators: List<ContestCreator>,
+                                           contest: ContestInfo): Boolean{
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return (contest.startTime <= nowTimeStamp ||
-                sessionAccount?.authority ==  AccountInfo.AccountAuthority.ADMINISTER)
+                sessionAccount?.authority ==  AccountInfo.AccountAuthority.ADMINISTER ||
+                contestCreators.find{it.accountName == sessionAccount?.name} != null)
     }
 
     //コンテスト終了 -> 誰のでも見れる
     //コンテスト中(前) -> 自分のアカウントの物のみ見れる ただしAdminは全部見れる(後々Writerだけ等絞るようにしていく)
-    private fun haveAuthorityOfSeeSubmissions(sessionAccount: AccountInfo?, accountName: String, contest: ContestInfo): Boolean{
+    private fun haveAuthorityOfSeeSubmissions(sessionAccount: AccountInfo?,
+                                              accountName: String,
+                                              contestCreators: List<ContestCreator>,
+                                              contest: ContestInfo): Boolean{
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return (contest.endTime <= nowTimeStamp ||
                 sessionAccount?.authority ==  AccountInfo.AccountAuthority.ADMINISTER ||
-                sessionAccount?.name == accountName)
+                sessionAccount?.name == accountName ||
+                contestCreators.find{it.accountName == sessionAccount?.name} != null)
     }
 
     fun getAccountSubmissionOfContest( accountName: String,
@@ -54,7 +64,8 @@ class ContestService(private val contestRepository: ContestRepository,
         val contest = contestRepository.findByContestId(id) ?: throw Error("コンテストが見つかりません")
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest) ?: ""
         val sessionAccount = sharedAccountService.getAccountByName(sessionAccountName)
-        if (!haveAuthorityOfSeeSubmissions(sessionAccount, accountName, contest)) {
+        val contestCreators = contestRepository.findContestCreators(contest.id)
+        if (!haveAuthorityOfSeeSubmissions(sessionAccount, accountName, contestCreators, contest)) {
             throw Error("アクセス権限がありません")
         }
         sharedSubmissionService.getSubmissionOfAccount(accountName, contest.id)
@@ -76,8 +87,9 @@ class ContestService(private val contestRepository: ContestRepository,
 
         val account = sharedAccountService.getAccountByName(accountName)
             ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        val contestCreators = contestRepository.findContestCreators(contest.id)
 
-        if (!haveAuthOfSubmit(account, contest)) {
+        if (!haveAuthOfSubmit(account, contestCreators, contest)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
         }
         val latestSubmit = sharedSubmissionService.getSubmissionOfAccount(accountName, contest.id)
@@ -105,8 +117,9 @@ class ContestService(private val contestRepository: ContestRepository,
             val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
             val account = sharedAccountService.getAccountByName(accountName ?: "")
             val contest = contestRepository.findByContestId(contestId) ?: throw Error("コンテストが見つかりません")
+            val contestCreators = contestRepository.findContestCreators(contest.id)
 
-            if (haveAuthorityOfSeeProblems(account, contest)) {
+            if (haveAuthorityOfSeeProblems(account, contestCreators, contest)) {
                 sharedProblemService.getProblemsByContestId(contest.id)
             } else {
                 listOf()
