@@ -475,7 +475,7 @@ export const ContestPage: React.FC = () => {
   return (
     <div>
       <Button onClick={ratingUpdate} variant={'info'} style={ratingUpdateButtonStyle}>{'レート更新'}</Button>
-      <p id={'contestPage-contestName'}>{}</p>
+      <p id={'contestPage-contestName'}>{contestName}</p>
       <p>
         <pre>{statement}</pre>
       </p>
