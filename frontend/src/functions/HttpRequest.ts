@@ -26,7 +26,7 @@
 /***
  * @class ContestInfo
  * @type {Object}
- * @property {String} shortName
+ * @property {String} id
  * @property {String} name
  * @property {String} statement - コンテストの説明
  * @property {String} startTimeAMPM - コンテスト開始時間のフォーマット済文字列
@@ -102,18 +102,18 @@ export async function httpRequest(
 
 /***
  *
- * @param {String} shortContestName
+ * @param {String} contestId
  * @param {Number} indexOfContest
  * @param {String} statement
  * @returns {Promise<SubmissionResult>}
  */
 export function postSubmission(
-  shortContestName: string,
+  contestId: string,
   indexOfContest: string,
   statement: string
 ) {
   const param = {
-    shortContestName: shortContestName,
+    contestId: contestId,
     indexOfContest: indexOfContest,
     statement: statement,
   };
@@ -123,22 +123,22 @@ export function postSubmission(
 /***
  *
  * @param  {Number} page - 順位表何ページ目かの指定 1ページ20 (+1 ログインアカウント用 未実装)
- * @param  {String} shortContestName - コンテスト短縮名(urlの名前)
+ * @param  {String} contestId - コンテスト短縮名(urlの名前)
  * @returns {Promise<RankingInfo>}  rankingInfo
  *
  */
-export function getRankingInfo(page: number, shortContestName: string) {
-  return httpRequest(`/api/contests/${shortContestName}/ranking`, 'GET', {
+export function getRankingInfo(page: number, contestId: string) {
+  return httpRequest(`/api/contests/${contestId}/ranking`, 'GET', {
     page: page,
   });
 }
 
 /***
- * @param {String} shortContestName - コンテスト短縮名(urlの名前)
+ * @param {String} contestId - コンテスト短縮名(urlの名前)
  * @return {Promise<ContestInfo>}
  */
-export function getContestInfo(shortContestName: string) {
-  return httpRequest(`/api/contests/${shortContestName}`, 'GET');
+export function getContestInfo(contestId: string) {
+  return httpRequest(`/api/contests/${contestId}`, 'GET');
 }
 
 /***
@@ -160,24 +160,24 @@ export function getLatestContests() {
 
 /**
  *
- * @param {String} shortContestName
+ * @param {String} contestId
  * @param {String} accountName
  * @returns {Promise<SubmissionInfo>}
  */
-export function getSubmission(shortContestName: string, accountName: string) {
+export function getSubmission(contestId: string, accountName: string) {
   const param = {
-    short_contest_name: shortContestName,
+    ['contest_id']: contestId,
   };
   return httpRequest(`/api/submissions/${accountName}`, 'GET', param);
 }
 
 /**
  *
- * @param {String} shortContestName
+ * @param {String} contestId
  * @returns {Promise<Array<ProblemInfo>>}
  */
-export function getContestProblems(shortContestName: string) {
-  return httpRequest(`/api/contests/${shortContestName}/problems`, 'GET');
+export function getContestProblems(contestId: string) {
+  return httpRequest(`/api/contests/${contestId}/problems`, 'GET');
 }
 
 /**
@@ -200,9 +200,9 @@ export function postAccountInformation(
 }
 
 export function updateContestRating(
-    shortContestName: string
+    contestId: string
 ) {
-    return httpRequest(`/api/contests/${shortContestName}/rating`, 'POST')
+    return httpRequest(`/api/contests/${contestId}/rating`, 'POST')
 }
 
 /**
