@@ -365,7 +365,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       })
       .catch((e) => {
         if (e.message === '403') {
-          setComment('10秒間隔を空けて提出して下さい');
+          setComment('5秒間隔を空けて提出して下さい');
         } else if (e.message === '400') {
           setComment('ログインして下さい');
         } else {
