@@ -9,7 +9,9 @@
     "format": "sort-package-json && prettier --write \"**/{.*/,}*.{css,html,js,json,jsx,md,scss,ts,tsx,yaml,yml}\"",
     "lint": "eslint \"{src,__tests__}/**/*.{js,jsx,ts,tsx}\"",
     "lint-fix": "npm run lint --fix",
-    "start": "react-scripts start",
+    "start": "npm-run-all -rp start:web start:mock-api",
+    "start:web": "PORT=3000 REACT_APP_BACKEND_URL='http://localhost:8080' react-scripts start",
+    "start:mock-api": "agreed-server --path agreed.js --port 8080 --cors",
     "test": "react-scripts test",
     "typecheck": "tsc --noEmit"
   },
@@ -57,6 +59,7 @@
     "tsutils": "^3.17.1"
   },
   "devDependencies": {
+    "@agreed/cli": "^5.2.0",
     "@types/node": "^14.14.25",
     "@types/react": "^16.9.52",
     "@types/react-dom": "^17.0.0",
@@ -68,6 +71,7 @@
     "eslint-plugin-import": "^2.22.1",
     "husky": "^4.3.8",
     "lint-staged": "^10.5.3",
+    "npm-run-all": "^4.1.5",
     "prettier": "^2.2.1",
     "prop-types": "^15.7.2",
     "sort-package-json": "^1.48.1",
