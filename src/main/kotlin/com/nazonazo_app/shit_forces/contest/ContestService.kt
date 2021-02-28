@@ -146,8 +146,16 @@ class ContestService(private val contestRepository: ContestRepository,
             null
         }
 
-    fun addContest(requestContest: ContestController.RequestContest):ContestInfo? {
-        return TODO("add contest")
+    fun addContest(requestContest: RequestContest) {
+        val contestType = when(requestContest.contestType) {
+            ContestInfo.ContestType.ICPC.textName -> ContestInfo.ContestType.ICPC
+            ContestInfo.ContestType.ATCODER.textName -> ContestInfo.ContestType.ATCODER
+            else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
+        val contest = ContestInfo(requestContest.id, requestContest.contestName, "",
+            requestContest.startTime, requestContest.endTime, requestContest.penalty, requestContest.ratedBound,
+            contestType, false)
+        contestRepository.addContest(contest)
     }
     data class ParticipantInfo(
         val name: String,

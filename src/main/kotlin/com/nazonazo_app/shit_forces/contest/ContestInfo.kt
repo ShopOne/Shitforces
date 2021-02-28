@@ -35,6 +35,19 @@ data class ContestCreator(
         INVALID
     }
 }
+data class RequestContest(
+    val id: String,
+    val contestName: String,
+    val startTime: Timestamp,
+    val endTime: Timestamp,
+    val penalty: Int,
+    val ratedBound: Int,
+    val contestType: String,
+    val creators: List<RequestContestCreator>
+)
+class RequestContestCreator(val accountName: String,
+                            val contestId: String,
+                            val position: String)
 data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,
                           val acPerSubmit: List<Pair<Int, Int>>,
                           val partAccountNum: Int,

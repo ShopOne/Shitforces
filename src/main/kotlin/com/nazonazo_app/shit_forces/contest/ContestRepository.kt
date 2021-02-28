@@ -61,7 +61,11 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             SELECT accountName, contestId, position FROM contestCreator WHERE contestId = ?
         """,rowMapperForContestCreator, contestId)
 
-    fun addContest(contestInfo: ContestInfo): ContestInfo? {
-        return TODO("add contest")
+    fun addContest(contest: ContestInfo) {
+        jdbcTemplate.update("""
+            INSERT INTO contestInfo(id, name, statement, startTime, endTime, contestType, ratedBound, penalty)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+        """, contest.id, contest.name, contest.statement, contest.startTime, contest.endTime,
+            contest.contestType.textName, contest.ratedBound, contest.penalty)
     }
 }

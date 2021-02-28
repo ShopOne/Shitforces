@@ -183,8 +183,8 @@ export function getContestProblems(contestId: string) {
 /**
  *
  * @param {String} fetchTo アカウント情報のポスト先 /api/login か /api/signup
- * @param accountName
- * @param password
+ * @param {String} accountName
+ * @param {String} password
  * @returns {Promise<Null>}
  */
 export function postAccountInformation(
@@ -192,24 +192,28 @@ export function postAccountInformation(
   accountName: string,
   password: string
 ) {
-  const jsonBody = JSON.stringify({
+  const param = {
     name: accountName,
     password: password
-  });
-  return httpRequest(fetchTo, 'POST', jsonBody);
-}
-
-export function updateContestRating(
-    contestId: string
-) {
-    return httpRequest(`/api/contests/${contestId}/rating`, 'POST')
+  };
+  return httpRequest(fetchTo, 'POST', JSON.stringify(param));
 }
 
 /**
  *
- * @param prevAccountName
- * @param newAccountName
- * @param password
+ * @param {String} contestId
+ */
+export function updateContestRating(
+    contestId: string
+) {
+    return httpRequest(`/api/contests/${contestId}/rating`, 'POST');
+}
+
+/**
+ *
+ * @param {String} prevAccountName
+ * @param {String} newAccountName
+ * @param {String} password
  * @returns {Promise<Null>}
  */
 export function putAccountName(
@@ -221,5 +225,48 @@ export function putAccountName(
     name: newAccountName,
     password: password
   });
-  return httpRequest(`/api/account/${prevAccountName}/name`, 'PUT', jsonBody)
+  return httpRequest(`/api/account/${prevAccountName}/name`, 'PUT', jsonBody);
+}
+
+
+/**
+ * data class RequestContest(
+ val id: String,
+ val contestName: String,
+ val startTime: Timestamp,
+ val endTime: Timestamp,
+ val penalty: Int,
+ val ratedBound: Int,
+ val contestType: String
+ )
+ @param {String} id
+ @param {String} contestName
+ @param {Date} startTime
+ @param {Date} endTime
+ @param {number} penalty
+ @param {number} ratedBound
+ @param {String} contestType
+ @param {object} creators
+ */
+export function createContest(
+  id: string,
+  contestName: string,
+  startTime: Date,
+  endTime: Date,
+  penalty: number,
+  ratedBound: number,
+  contestType: string,
+  creators: object
+) {
+  const param = {
+    id: id,
+    contestName: contestName,
+    startTime: startTime,
+    endTime: endTime,
+    penalty: penalty,
+    ratedBound: ratedBound,
+    contestType: contestType,
+    creators: creators
+  };
+  return httpRequest('/api/contests', 'POST', JSON.stringify(param));
 }

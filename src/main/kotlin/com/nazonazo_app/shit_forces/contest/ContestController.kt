@@ -21,8 +21,6 @@ class ContestController(val contestService: ContestService,
                         val sharedAccountService: SharedAccountService,
                         val sharedSessionService: SharedSessionService
                         ) {
-    data class RequestContest constructor(val id: String, val name: String,
-                                          val startTime: Float, val endTime: Float, val rated: Boolean)
 
     @PostMapping("api/contests/{contest-id}/rating")
     fun updateRatingByContestResult(@PathVariable("contest-id") contestId: String,
@@ -59,13 +57,18 @@ class ContestController(val contestService: ContestService,
         return contestService.getLatestContestsInfo(contestNum)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
-    /*
-    @PostMapping("api/contests/", headers = ["Content-Type=application/json"])
-    fun addContestResponse(@RequestBody requestContest: RequestContest):ContestInfo {
-        return contestService.addContest(requestContest)
+
+    @PostMapping("api/contests", headers = ["Content-Type=application/json"])
+    fun addContestResponse(@RequestBody requestContest: RequestContest,
+                           httpServletRequest: HttpServletRequest) {
+        val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        val sessionAccount = sharedAccountService.getAccountByName(sessionAccountName)
+        if (sessionAccount?.authority != AccountInfo.AccountAuthority.ADMINISTER) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        }
+        contestService.addContest(requestContest)
     }
-     */
 
     @GetMapping("api/submissions/{account-name}")
     fun getAccountSubmissionOfContestResponse(@PathVariable("account-name") accountName: String,
