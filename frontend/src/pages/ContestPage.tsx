@@ -80,15 +80,13 @@ const RankingTable: React.FC<RankingTableProps> = ({
      */
     return rankingList.map((account: any, idx: number) => {
       const probElement = [];
-      let acTimeListIdx = 0;
       for (let i = 0; i < problemsNum; i++) {
         if (account.acceptList.some((ac: any) => ac === i)) {
           probElement.push(
             <td>
               <p className={'contestPage-ranking-submitResult'}>AC</p>
-              <p className={'contestPage-ranking-submitTime'}>{formatSecondToMMSS(account.acceptTimeList[acTimeListIdx])}</p>
+              <p className={'contestPage-ranking-submitTime'}>{formatSecondToMMSS(account.acceptTimeList[i])}</p>
             </td>);
-          acTimeListIdx++;
         } else {
           probElement.push(<td> </td>);
         }
