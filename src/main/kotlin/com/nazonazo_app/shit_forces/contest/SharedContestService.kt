@@ -7,6 +7,7 @@ import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import com.nazonazo_app.shit_forces.submission.SubmissionResult
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.sql.Timestamp
 
 @Service
 @Transactional
@@ -67,6 +68,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
                 score,
                 penaResult,
                 acceptProblem,
+                it.submitTime,
                 -1))
         }
         return setRankingOfInfo(ranking)
@@ -93,6 +95,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
                 score,
                 it.penaltyOfWrong + latestSubmit,
                 acceptProblem,
+                it.submitTime,
                 -1))
         }
         return setRankingOfInfo(ranking)

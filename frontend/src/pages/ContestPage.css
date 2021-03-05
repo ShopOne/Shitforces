@@ -1,3 +1,17 @@
 #contestPage-contestName {
   text-align: center;
 }
+.contestPage-ranking-submitTime {
+  color: gray;
+  height: 3px;
+  margin-top: 0;
+}
+.contestPage-ranking-submitResult {
+  color: forestgreen;
+  font-weight: bold;
+  margin-top: 0;
+  margin-bottom: 1px;
+}
+.contestPage-ranking-tr {
+  padding-bottom: 0;
+}
