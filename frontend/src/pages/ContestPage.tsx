@@ -32,6 +32,12 @@ function getContestId() {
   return splitPath.slice(-1)[0];
 }
 
+function formatSecondToMMSS(ms: number): string {
+  const mm = Math.ceil(ms / 60);
+  const ss = ('00' + Math.ceil((ms % 60) / 1000)).slice(-2);
+  return `${mm}:${ss}`;
+}
+
 interface RankingTableProps {
   acPerSubmit: any[];
   problems: any[];
@@ -68,20 +74,27 @@ const RankingTable: React.FC<RankingTableProps> = ({
      * @param {String} account.accountName
      * @param {Array} account.acceptList - ACした問題リスト
      * @param {ranking} account.ranking - このアカウントの現在順位
+     * @param {Array} account.acceptTimeList - 提出までに経過した秒数
      * @param {Number} account.score
      * @param {Number} account.penalty
      */
     return rankingList.map((account: any, idx: number) => {
       const probElement = [];
+      let acTimeListIdx = 0;
       for (let i = 0; i < problemsNum; i++) {
         if (account.acceptList.some((ac: any) => ac === i)) {
-          probElement.push(<td>AC</td>);
+          probElement.push(
+            <td>
+              <p className={'contestPage-ranking-submitResult'}>AC</p>
+              <p className={'contestPage-ranking-submitTime'}>{formatSecondToMMSS(account.acceptTimeList[acTimeListIdx])}</p>
+            </td>);
+          acTimeListIdx++;
         } else {
           probElement.push(<td> </td>);
         }
       }
       return (
-        <tr key={account.accountName + idx}>
+        <tr key={account.accountName + idx} className={'contestPage-ranking-tr'}>
           <td>{account.ranking}</td>
           <td>{account.accountName}</td>
           <td>{account.score}</td>

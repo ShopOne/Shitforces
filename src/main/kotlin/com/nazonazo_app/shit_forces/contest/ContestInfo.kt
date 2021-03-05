@@ -43,4 +43,5 @@ data class ContestRankingAccountInfo(val accountName: String,
                                      val score: Int,
                                      val penalty: Int,
                                      val acceptList: List<Int>,
+                                     val acceptTimeList: List<Int>,
                                      var ranking: Int)
