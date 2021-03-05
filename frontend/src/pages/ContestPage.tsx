@@ -33,8 +33,8 @@ function getContestId() {
 }
 
 function formatSecondToMMSS(ms: number): string {
-  const mm = Math.ceil(ms / 60);
-  const ss = ('00' + Math.ceil((ms % 60) / 1000)).slice(-2);
+  const mm = Math.round(ms / 60);
+  const ss = ('00' + Math.round(ms % 60)).slice(-2);
   return `${mm}:${ss}`;
 }
 
