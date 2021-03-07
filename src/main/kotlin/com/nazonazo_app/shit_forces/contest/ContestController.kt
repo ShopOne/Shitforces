@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest
 
 const val ONE_PAGE_SIZE = 20
 const val SUBMIT_INTERVAL_TIME = 5 * 1000
+const val LATEST_CONTEST_PAGE_SIZE = 10
 
 @CrossOrigin
 @RestController
@@ -55,8 +56,8 @@ class ContestController(val contestService: ContestService,
     }
 
     @GetMapping("api/contests/latest")
-    fun getLatestContestsInfoResponse(@RequestParam("contest_num") contestNum: Int?):List<ContestInfo> {
-        return contestService.getLatestContestsInfo(contestNum)
+    fun getLatestContestsInfoResponse(@RequestParam("contest_page") contestPage: Int): LatestContestsInfo {
+        return contestService.getLatestContestsInfo(contestPage)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
     /*

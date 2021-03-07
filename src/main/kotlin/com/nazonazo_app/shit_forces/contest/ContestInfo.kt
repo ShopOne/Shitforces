@@ -24,6 +24,10 @@ data class ContestInfo(
         INVALID("INVALID")
     }
 }
+data class LatestContestsInfo(
+    val contests: List<ContestInfo>,
+    val allContestNum: Int
+)
 data class ContestCreator(
     val accountName: String,
     val contestId: String,

@@ -37,6 +37,13 @@
  * @property {Number} unixEndTime - Unix時間でのコンテスト終了時間
  * @property {Boolean} ratingCalculated - レート計算済みかどうか
  */
+/***
+ * @class LatestContestsInfo
+ * @type {Object}
+ * @property {Array} contests
+ * @property {Number} allContestNum
+ */
+
 
 /***
  * @class SubmissionInfo
@@ -152,10 +159,11 @@ export function getAccountInformation(accountName: string) {
 }
 
 /**
- * @returns {Promise<Array<ContestInfo>>}
+ * @param {Number} page
+ * @returns {Promise<Array<LatestContestsInfo>>}
  */
-export function getLatestContests() {
-  return httpRequest('/api/contests/latest', 'GET');
+export function getLatestContests(page: number) {
+  return httpRequest('/api/contests/latest', 'GET', {contest_page: page});
 }
 
 /**

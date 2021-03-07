@@ -2,9 +2,12 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { PagingElement } from "../components/PagingElement";
 import { getLatestContests } from '../functions/HttpRequest';
 
 // URL: /
+
+const CONTEST_IN_ONE_PAGE = 10;
 
 interface ContestCardProps {
   contest: any;
@@ -27,10 +30,17 @@ ContestCard.propTypes = {
 
 const ContestList: React.FC = () => {
   const [contests, setContests] = useState<any>(null);
+  const [pageNum, setPageNum] = useState<number>(0);
 
+  const updatePage = (newPage: number) => {
+    getLatestContests(newPage).then((latestContestsInfo) => {
+      setContests(latestContestsInfo.contests);
+    });
+  };
   useEffect(() => {
-    getLatestContests().then((contests) => {
-      setContests(contests);
+    getLatestContests(0).then((latestContestsInfo) => {
+      setPageNum(Math.ceil(latestContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE));
+      setContests(latestContestsInfo.contests);
     });
   }, []);
 
@@ -43,7 +53,11 @@ const ContestList: React.FC = () => {
   }
 
   return (
-    <div>{contestCards ? <div>{contestCards}</div> : <p>loading...</p>}</div>
+    <div>
+      {contestCards ? <div>{contestCards}</div> : <p>loading...</p>}
+      <br/>
+      <PagingElement pageChanged={updatePage} pageNum={pageNum}/>
+    </div>
   );
 };
 
