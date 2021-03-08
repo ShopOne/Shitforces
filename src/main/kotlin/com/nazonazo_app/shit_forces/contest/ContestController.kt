@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 const val ONE_PAGE_SIZE = 20
 const val SUBMIT_INTERVAL_TIME = 5 * 1000
@@ -78,9 +79,10 @@ class ContestController(val contestService: ContestService,
     }
     @PostMapping("api/submissions", headers = ["Content-Type=application/json"])
     fun submitAnswerResponse(@RequestBody requestSubmission: RequestSubmission,
+                             httpServletResponse: HttpServletResponse,
                              httpServletRequest: HttpServletRequest
     ): SubmissionInfo {
-        return contestService.submitAnswerToContest(requestSubmission, httpServletRequest)
+        return contestService.submitAnswerToContest(requestSubmission, httpServletRequest, httpServletResponse)
     }
     @GetMapping("api/contests/{contest_id}/problems")
     fun getContestProblemsResponse(@PathVariable("contest_id") contestId: String,
