@@ -51,15 +51,19 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.update("""UPDATE contestInfo set ratingCalculated = true where id = ?""",
             id)
     }
-    fun findLatestContest(contestNum: Int): List<ContestInfo>? {
+    fun findLatestContest(page: Int): List<ContestInfo> {
         return jdbcTemplate.query("""
             SELECT id, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
-            FROM contestInfo ORDER BY startTime desc""", rowMapperForContestInfo)
+            FROM contestInfo ORDER BY startTime desc LIMIT ? OFFSET ?""",
+            rowMapperForContestInfo, LATEST_CONTEST_PAGE_SIZE, page * LATEST_CONTEST_PAGE_SIZE)
     }
     fun findContestCreators(contestId: String): List<ContestCreator> =
         jdbcTemplate.query("""
             SELECT accountName, contestId, position FROM contestCreator WHERE contestId = ?
         """,rowMapperForContestCreator, contestId)
+
+    fun finAllContestNum(): Int =
+        jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo""", Int::class.java)!!
 
     fun addContest(contestInfo: ContestInfo): ContestInfo? {
         return TODO("add contest")

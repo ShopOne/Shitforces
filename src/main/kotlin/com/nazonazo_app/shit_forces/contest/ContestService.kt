@@ -138,13 +138,12 @@ class ContestService(private val contestRepository: ContestRepository,
             null
         }
 
-    fun getLatestContestsInfo(contestNum: Int?):List<ContestInfo>? =
-        try {
-            contestRepository.findLatestContest(contestNum ?: 10)
-        } catch (e: Error) {
-            print(e)
-            null
-        }
+    fun getLatestContestsInfo(page: Int): LatestContestsInfo {
+        val contests = contestRepository.findLatestContest(page)
+        val allContestNum = contestRepository.finAllContestNum()
+        return LatestContestsInfo(contests, allContestNum)
+    }
+
 
     fun addContest(requestContest: ContestController.RequestContest):ContestInfo? {
         return TODO("add contest")
