@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.sql.Timestamp
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 import kotlin.math.ln
 import kotlin.math.pow
 
@@ -78,7 +79,9 @@ class ContestService(private val contestRepository: ContestRepository,
         contestRepository.findByName(contestName)
 
     fun submitAnswerToContest(requestSubmission: RequestSubmission,
-                              httpServletRequest: HttpServletRequest): SubmissionInfo {
+                              httpServletRequest: HttpServletRequest,
+                              httpServletResponse: HttpServletResponse
+    ): SubmissionInfo {
         val contest = getContestInfoByContestId(requestSubmission.contestId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
@@ -105,6 +108,7 @@ class ContestService(private val contestRepository: ContestRepository,
         if (reg.containsMatchIn(requestSubmission.statement)) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN)
         }
+        sharedSessionService.createNewSession(accountName, httpServletResponse)
         return sharedSubmissionService.submitAnswer(requestSubmission.indexOfContest, contest.id,
             requestSubmission.statement, account.name)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
