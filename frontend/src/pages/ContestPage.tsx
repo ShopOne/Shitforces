@@ -391,7 +391,9 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       return (
         <Tab eventKey={index} key={problem.indexOfContest} title={problemTitle}>
           <h6>{'point: ' + problem.point}</h6>
-          <p>{problem.statement}</p>
+          <div className={'div-pre'}>
+            <p>{problem.statement}</p>
+          </div>
         </Tab>
       );
     });
