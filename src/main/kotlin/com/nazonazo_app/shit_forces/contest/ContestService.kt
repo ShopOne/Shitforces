@@ -35,11 +35,22 @@ class ContestService(private val contestRepository: ContestRepository,
                 contestCreators.find{it.accountName == sessionAccount.name} != null
     }
 
-    private fun haveAuthorityOfSeeProblems(sessionAccount: AccountInfo?,
-                                           contestCreators: List<ContestCreator>,
-                                           contest: ContestInfo): Boolean{
+    private fun haveAuthOfSeeProblems(sessionAccount: AccountInfo?,
+                                      contestCreators: List<ContestCreator>,
+                                      contest: ContestInfo
+    ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return (contest.startTime <= nowTimeStamp ||
+                sessionAccount?.authority ==  AccountInfo.AccountAuthority.ADMINISTER ||
+                contestCreators.find{it.accountName == sessionAccount?.name} != null)
+    }
+
+    private fun haveAuthOfSeeAnswer(sessionAccount: AccountInfo?,
+                                    contestCreators: List<ContestCreator>,
+                                    contest: ContestInfo
+    ): Boolean {
+        val nowTimeStamp = Timestamp(System.currentTimeMillis())
+        return (contest.endTime <= nowTimeStamp ||
                 sessionAccount?.authority ==  AccountInfo.AccountAuthority.ADMINISTER ||
                 contestCreators.find{it.accountName == sessionAccount?.name} != null)
     }
@@ -119,7 +130,7 @@ class ContestService(private val contestRepository: ContestRepository,
             val contest = contestRepository.findByContestId(contestId) ?: throw Error("コンテストが見つかりません")
             val contestCreators = contestRepository.findContestCreators(contest.id)
 
-            if (haveAuthorityOfSeeProblems(account, contestCreators, contest)) {
+            if (haveAuthOfSeeProblems(account, contestCreators, contest)) {
                 sharedProblemService.getProblemsByContestId(contest.id)
             } else {
                 listOf()
@@ -152,9 +163,17 @@ class ContestService(private val contestRepository: ContestRepository,
             ContestInfo.ContestType.ATCODER.textName -> ContestInfo.ContestType.ATCODER
             else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
+        val creators = requestContest.creators.map {
+            val position = when(it.position.toUpperCase()) {
+                "COORDINATOR" -> ContestCreator.ContestPosition.COORDINATOR
+                "WRITER" -> ContestCreator.ContestPosition.WRITER
+                else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+            }
+            ContestCreator(it.accountName, it.contestId, position)
+        }
         val contest = ContestInfo(requestContest.id, requestContest.contestName, "",
             requestContest.startTime, requestContest.endTime, requestContest.penalty, requestContest.ratedBound,
-            contestType, false)
+            contestType, false, creators)
         contestRepository.addContest(contest)
     }
     data class ParticipantInfo(
@@ -260,4 +279,38 @@ class ContestService(private val contestRepository: ContestRepository,
         }
         return participantsResult
     }
+    fun putContestInfo(contestId: String,
+                       putRequestContest: PutRequestContest,
+                       httpServletRequest: HttpServletRequest
+    ) {
+        val contestInfo = getContestInfoByContestId(contestId)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        if (contestInfo.contestCreators.find { it.accountName == accountName } == null) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        val problems = putRequestContest.problems.mapIndexed { index, it ->
+            ProblemInfo(contestId, it.point, it.statement, index, it.answer)
+        }
+        contestRepository.updateContestInfoByPutRequestContest(contestId, putRequestContest)
+        sharedProblemService.updateContestProblem(contestInfo.id, problems)
+    }
+
+    fun getProblemAnswer(id: Int, httpServletRequest: HttpServletRequest): List<String> {
+        val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        val sessionAccount = sharedAccountService.getAccountByName(accountName)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        val problemInfo = sharedProblemService.getProblemById(id)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        val contestId = problemInfo.contestId
+        val contestInfo = getContestInfoByContestId(contestId)
+            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
+        if (!haveAuthOfSeeAnswer(sessionAccount, contestInfo.contestCreators, contestInfo)) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        return sharedProblemService.getAnswersById(id)
+    }
+
 }

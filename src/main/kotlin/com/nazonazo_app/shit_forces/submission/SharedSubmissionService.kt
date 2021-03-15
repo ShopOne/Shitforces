@@ -10,9 +10,9 @@ class SharedSubmissionService(private val submissionRepository: SubmissionReposi
                               private val sharedProblemService: SharedProblemService
 ){
 
-    private fun specialJudge(answers: List<String>, statement: String): Boolean {
+    private fun specialJudge(answer: List<String>, statement: String): Boolean {
         var res = false
-        answers.forEach {
+        answer.forEach {
             when(it) {
                 "special:All" -> res = true
             }

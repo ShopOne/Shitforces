@@ -270,3 +270,33 @@ export function createContest(
   };
   return httpRequest('/api/contests', 'POST', JSON.stringify(param));
 }
+
+/**
+ *
+ * @param contestId
+ * @param penalty
+ * @param statement
+ * @param problems
+ */
+export function putContestInfo(
+  contestId: string,
+  penalty: number,
+  statement: string,
+  problems: {statement: string, point: number, answer: string[]}[]
+) {
+  const param = {
+    penalty: penalty,
+    statement: statement,
+    problems: problems
+  };
+  return httpRequest(`/api/contests/${contestId}`, 'PUT', JSON.stringify(param));
+}
+
+/**
+ * @param id
+ */
+export function getProblemAnswer(
+  id: number
+) {
+  return httpRequest(`/api/problems/${id}/answer`, 'GET');
+}

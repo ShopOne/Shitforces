@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { Button, Tab, Tabs, Form, Table } from 'react-bootstrap';
+import {Button, Tab, Tabs, Form, Table} from 'react-bootstrap';
+import { Link } from "react-router-dom";
 import { PagingElement } from '../components/PagingElement';
 import { getCookieArray } from '../functions/GetCookieArray';
 import {
@@ -12,6 +13,7 @@ import {
   postSubmission, updateContestRating,
 } from '../functions/HttpRequest';
 import './ContestPage.css';
+import {ContestCreator} from "../types";
 
 const KEY_OF_MY_SUBMISSIONS = 'mySubmit';
 
@@ -421,6 +423,7 @@ export const ContestPage: React.FC = () => {
   const [submissions, setSubmissions] = useState([]);
   const [problems, setProblems] = useState([]);
   const [ratingUpdateButtonStyle, setRatingUpdateButtonStyle] = useState({display: 'none'});
+  const [contestEditButtonStyle, setContestEditButtonStyle] = useState({display: 'none'})
   const ratingUpdate = () => {
     updateContestRating( getContestId())
         .then(() => {
@@ -439,6 +442,8 @@ export const ContestPage: React.FC = () => {
       const contestInfo = await getContestInfo(contestId).catch(
         () => null
       );
+      const contestEditButtonStyle = {display: 'none'};
+      const ratingUpdateButtonStyle = {display: 'none'};
       if (contestInfo === null) {
         setContestName('コンテストが見つかりません');
         return;
@@ -454,12 +459,18 @@ export const ContestPage: React.FC = () => {
            getContestId(),
           accountName
         );
+        const myContestPosition = contestInfo.contestCreators.find(
+          (account: ContestCreator) => account.accountName === accountName
+        );
+        if (myContestPosition) {
+          contestEditButtonStyle.display = 'block';
+        }
         const accountInfo = await getAccountInformation(accountName)
         if (accountInfo.auth === 'ADMINISTER' &&
             contestInfo.ratingCalculated === false &&
             contestInfo.ratedBound > 0 &&
             contestInfo.unixEndTime < Date.now()) {
-          setRatingUpdateButtonStyle({display: 'block'});
+          ratingUpdateButtonStyle.display = 'block';
         }
       } else {
         submissions = [];
@@ -469,12 +480,17 @@ export const ContestPage: React.FC = () => {
       setTime(`${contestInfo.startTimeAMPM} ~ ${contestInfo.endTimeAMPM}`);
       setProblems(problems);
       setSubmissions(submissions);
+      setContestEditButtonStyle(contestEditButtonStyle);
+      setRatingUpdateButtonStyle(ratingUpdateButtonStyle);
     })();
   }, []);
 
   return (
     <div>
       <Button onClick={ratingUpdate} variant={'info'} style={ratingUpdateButtonStyle}>{'レート更新'}</Button>
+      <Link to={`/contest/${getContestId()}/edit`}>
+        <Button variant={'info'} style={contestEditButtonStyle}>{'コンテスト編集'}</Button>
+      </Link>
       <p id={'contestPage-contestName'}>{contestName}</p>
       <p>
         <pre>{statement}</pre>

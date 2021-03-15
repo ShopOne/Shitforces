@@ -1,6 +1,7 @@
 package com.nazonazo_app.shit_forces.contest
 
 import com.nazonazo_app.shit_forces.Utils
+import com.nazonazo_app.shit_forces.problem.PutRequestProblem
 import java.sql.Timestamp
 
 data class ContestInfo(
@@ -12,7 +13,8 @@ data class ContestInfo(
     val penalty: Int,
     val ratedBound: Int,
     val contestType: ContestType,
-    val ratingCalculated: Boolean
+    val ratingCalculated: Boolean,
+    val contestCreators: List<ContestCreator>
 ) {
     val unixStartTime: Long = startTime.time
     val unixEndTime: Long = endTime.time
@@ -44,6 +46,12 @@ data class RequestContest(
     val ratedBound: Int,
     val contestType: String,
     val creators: List<RequestContestCreator>
+)
+
+data class PutRequestContest(
+    val penalty: Int,
+    val statement: String,
+    val problems: List<PutRequestProblem>
 )
 class RequestContestCreator(val accountName: String,
                             val contestId: String,

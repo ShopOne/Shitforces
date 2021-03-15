@@ -15,9 +15,10 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             ContestInfo.ContestType.ICPC.textName -> ContestInfo.ContestType.ICPC
             else -> ContestInfo.ContestType.INVALID
         }
+        val id = rs.getString("id")
         ContestInfo(rs.getString("id"), rs.getString("name"), rs.getString("statement"),
                 rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"),
-            rs.getInt("ratedBound"), contestType, rs.getBoolean("ratingCalculated"))
+            rs.getInt("ratedBound"), contestType, rs.getBoolean("ratingCalculated"), findContestCreators(id))
     }
     private val rowMapperForContestCreator = RowMapper { rs, _ ->
         val position = when(rs.getString("position").toUpperCase()) {
@@ -67,5 +68,12 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             VALUES(?, ?, ?, ?, ?, ?, ?, ?)
         """, contest.id, contest.name, contest.statement, contest.startTime, contest.endTime,
             contest.contestType.textName, contest.ratedBound, contest.penalty)
+    }
+
+    fun updateContestInfoByPutRequestContest(contestId: String, putContest: PutRequestContest) {
+        jdbcTemplate.update("""
+            UPDATE contestInfo SET statement = ?, penalty = ?
+            WHERE id = ?
+        """, putContest.statement, putContest.penalty, contestId)
     }
 }

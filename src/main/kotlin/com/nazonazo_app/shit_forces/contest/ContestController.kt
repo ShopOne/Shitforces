@@ -90,7 +90,7 @@ class ContestController(val contestService: ContestService,
     ): List<ResponseProblemInfo> {
         val problems = contestService.getContestProblems(contestId, httpServletRequest)
         return problems?.map{
-            ResponseProblemInfo(it.contestName, it.point, it.statement, it.indexOfContest)
+            ResponseProblemInfo(it.contestId, it.point, it.statement, it.indexOfContest, it.id!!)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
     @PostMapping("api/contests/{contest_id}/new-rating")
@@ -108,4 +108,17 @@ class ContestController(val contestService: ContestService,
         contestService.updateRating(contestInfo)
     }
 
+    @PutMapping("api/contests/{contest_id}")
+    fun putContestInfoResponse(@PathVariable("contest_id") contestId: String,
+                               @RequestBody putRequestContest: PutRequestContest,
+                               httpServletRequest: HttpServletRequest
+    ) {
+        contestService.putContestInfo(contestId, putRequestContest, httpServletRequest)
+    }
+    @GetMapping("api/problems/{problem_id}/answer")
+    fun getAnswerByIdResponse(@PathVariable("problem_id") id: Int,
+                              httpServletRequest: HttpServletRequest
+    ): List<String> {
+        return contestService.getProblemAnswer(id, httpServletRequest)
+    }
 }
