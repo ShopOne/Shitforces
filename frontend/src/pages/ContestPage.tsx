@@ -104,7 +104,7 @@ const RankingTable: React.FC<RankingTableProps> = ({
   };
 
   return (
-    <Table striped bordered hover>
+    <Table striped bordered hover responsive>
       <thead>
         <tr>
           <th>順位</th>
