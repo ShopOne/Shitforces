@@ -1,4 +1,5 @@
 import React from 'react';
+import { Container } from 'react-bootstrap';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Header } from './components/Header';
 import { AccountPage } from './pages/AccountPage';
@@ -12,8 +13,8 @@ import './App.css';
 export const App: React.FC = () => {
   return (
     <Router>
-      <div>
-        <Header />
+      <Header />
+      <Container className="App-container p-3">
         <Switch>
           <Route exact key="/" path="/" component={MainPage} />
           <Route exact key="/login" path="/login" component={LoginPage} />
@@ -32,7 +33,7 @@ export const App: React.FC = () => {
           />
           <Route component={NotFoundPage} />
         </Switch>
-      </div>
+      </Container>
     </Router>
   );
 };
