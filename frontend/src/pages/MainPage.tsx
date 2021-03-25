@@ -1,16 +1,16 @@
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { PagingElement } from "../components/PagingElement";
+import { PagingElement } from '../components/PagingElement';
 import { getLatestContests } from '../functions/HttpRequest';
+import { ContestInfo } from '../types';
 
 // URL: /
 
 const CONTEST_IN_ONE_PAGE = 10;
 
 interface ContestCardProps {
-  contest: any;
+  contest: ContestInfo;
 }
 
 const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
@@ -19,17 +19,15 @@ const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
       <Link to={`/contest/${contest.id}`}>
         <Card.Header>{contest.name}</Card.Header>
       </Link>
-      <Card.Text>{`Type: ${contest.contestType} ${contest.startTime} ~ ${contest.endTime}`}</Card.Text>
+      <Card.Text>{`Type: ${contest.contestType} ${
+        (contest as any).startTime
+      } ~ ${(contest as any).endTime}`}</Card.Text>
     </Card>
   );
 };
 
-ContestCard.propTypes = {
-  contest: PropTypes.object,
-};
-
 const ContestList: React.FC = () => {
-  const [contests, setContests] = useState<any>(null);
+  const [contests, setContests] = useState<ContestInfo[] | null>(null);
   const [pageNum, setPageNum] = useState<number>(0);
 
   const updatePage = (newPage: number) => {
@@ -39,12 +37,14 @@ const ContestList: React.FC = () => {
   };
   useEffect(() => {
     getLatestContests(0).then((latestContestsInfo) => {
-      setPageNum(Math.ceil(latestContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE));
+      setPageNum(
+        Math.ceil(latestContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
+      );
       setContests(latestContestsInfo.contests);
     });
   }, []);
 
-  let contestCards = <div />;
+  let contestCards: React.ReactNode = <div />;
 
   if (contests !== null) {
     contestCards = contests.map((contest: any) => {
@@ -55,8 +55,8 @@ const ContestList: React.FC = () => {
   return (
     <div>
       {contestCards ? <div>{contestCards}</div> : <p>loading...</p>}
-      <br/>
-      <PagingElement pageChanged={updatePage} pageNum={pageNum}/>
+      <br />
+      <PagingElement pageChanged={updatePage} pageNum={pageNum} />
     </div>
   );
 };

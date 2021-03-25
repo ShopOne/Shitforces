@@ -9,8 +9,10 @@ import {
   getContestProblems,
   getRankingInfo,
   getSubmission,
-  postSubmission, updateContestRating,
+  postSubmission,
+  updateContestRating,
 } from '../functions/HttpRequest';
+import { ProblemInfo, RankingInfoAccount, SubmissionInfo } from '../types';
 import './ContestPage.css';
 
 const KEY_OF_MY_SUBMISSIONS = 'mySubmit';
@@ -41,7 +43,7 @@ function formatSecondToMMSS(ms: number): string {
 interface RankingTableProps {
   acPerSubmit: any[];
   problems: any[];
-  rankingList: any[];
+  rankingList: RankingInfoAccount[];
 }
 
 const RankingTable: React.FC<RankingTableProps> = ({
@@ -69,30 +71,27 @@ const RankingTable: React.FC<RankingTableProps> = ({
   };
 
   const rankingInfo = () => {
-    /**
-     * @param {Object} account - 順位表に表示するためのアカウント情報
-     * @param {String} account.accountName
-     * @param {Array} account.acceptList - ACした問題リスト
-     * @param {ranking} account.ranking - このアカウントの現在順位
-     * @param {Array} account.acceptTimeList - 提出までに経過した秒数
-     * @param {Number} account.score
-     * @param {Number} account.penalty
-     */
-    return rankingList.map((account: any, idx: number) => {
+    return rankingList.map((account, idx: number) => {
       const probElement = [];
       for (let i = 0; i < problemsNum; i++) {
         if (account.acceptList.some((ac: any) => ac === i)) {
           probElement.push(
             <td>
               <p className={'contestPage-ranking-submitResult'}>AC</p>
-              <p className={'contestPage-ranking-submitTime'}>{formatSecondToMMSS(account.acceptTimeList[i])}</p>
-            </td>);
+              <p className={'contestPage-ranking-submitTime'}>
+                {formatSecondToMMSS(account.acceptTimeList[i])}
+              </p>
+            </td>
+          );
         } else {
           probElement.push(<td> </td>);
         }
       }
       return (
-        <tr key={account.accountName + idx} className={'contestPage-ranking-tr'}>
+        <tr
+          key={account.accountName + idx}
+          className={'contestPage-ranking-tr'}
+        >
           <td>{account.ranking}</td>
           <td>{account.accountName}</td>
           <td>{account.score}</td>
@@ -205,14 +204,16 @@ const RankingElement: React.FC<RankingElementProps> = ({
   rankingVersion,
 }) => {
   const [partNum, setPartNum] = useState(0);
-  const [rankingList, setRankingList] = useState([]);
-  const [accountRank, setAccountRank] = useState();
+  const [rankingList, setRankingList] = useState<RankingInfoAccount[]>([]);
+  const [accountRank, setAccountRank] = useState<number>();
   const [nowRankingVersion, setNowRankingVersion] = useState(0);
-  const [acPerSubmit, setAcPerSubmit] = useState([]);
+  const [acPerSubmit, setAcPerSubmit] = useState<
+    [number | undefined, number | undefined]
+  >([undefined, undefined]);
   const ACCOUNTS_IN_ONE_PAGE = 20;
 
   const getRanking = (newPage: any) => {
-    getRankingInfo(newPage,  getContestId()).then((rankingInfo) => {
+    getRankingInfo(newPage, getContestId()).then((rankingInfo) => {
       setPartNum(rankingInfo.partAccountNum);
       setRankingList(rankingInfo.rankingList);
       setAccountRank(rankingInfo.requestAccountRank);
@@ -259,8 +260,8 @@ RankingElement.propTypes = {
 
 interface ProblemsTabProps {
   contestName: string;
-  problems: any[];
-  submissions: any[];
+  problems: ProblemInfo[];
+  submissions: SubmissionInfo[];
 }
 
 const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
@@ -365,7 +366,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       return;
     }
     setComment('');
-    postSubmission( getContestId(), key, answerInput.current.value)
+    postSubmission(getContestId(), key, answerInput.current.value)
       .then((submitResult) => {
         const newSubmissions = nowSubmissions.slice();
         newSubmissions.unshift(submitResult);
@@ -412,7 +413,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
     <div>
       <Tabs id={TAB_ID} activeKey={key} onSelect={selectTab}>
         {getProblemTabList()}
-        <Tab eventKey={'mySubmit'} key={'mySubmit'} title={'自分の提出'}/>
+        <Tab eventKey={'mySubmit'} key={'mySubmit'} title={'自分の提出'} />
       </Tabs>
       {getElement()}
       <p>{comment}</p>
@@ -431,48 +432,45 @@ export const ContestPage: React.FC = () => {
   const [contestName, setContestName] = useState('コンテストが見つかりません');
   const [statement, setStatement] = useState('');
   const [time, setTime] = useState('');
-  const [submissions, setSubmissions] = useState([]);
-  const [problems, setProblems] = useState([]);
-  const [ratingUpdateButtonStyle, setRatingUpdateButtonStyle] = useState({display: 'none'});
+  const [submissions, setSubmissions] = useState<SubmissionInfo[]>([]);
+  const [problems, setProblems] = useState<ProblemInfo[]>([]);
+  const [ratingUpdateButtonStyle, setRatingUpdateButtonStyle] = useState({
+    display: 'none',
+  });
   const ratingUpdate = () => {
-    updateContestRating( getContestId())
-        .then(() => {
-          alert('レート更新が完了しました');
-          location.reload();
-        })
-        .catch((e) => {
-          alert('レート更新に失敗しました');
-          console.log(e);
-        });
+    updateContestRating(getContestId())
+      .then(() => {
+        alert('レート更新が完了しました');
+        location.reload();
+      })
+      .catch((e) => {
+        alert('レート更新に失敗しました');
+        console.log(e);
+      });
   };
 
   useEffect(() => {
-    const contestId =  getContestId();
+    const contestId = getContestId();
     (async () => {
-      const contestInfo = await getContestInfo(contestId).catch(
-        () => null
-      );
+      const contestInfo = await getContestInfo(contestId).catch(() => null);
       if (contestInfo === null) {
         setContestName('コンテストが見つかりません');
         return;
       }
-      const problems = await getContestProblems(
-        contestId
-      ).catch(() => []);
-      let submissions;
+      const problems = await getContestProblems(contestId).catch(() => []);
+      let submissions: SubmissionInfo[] = [];
       const cookieArray = getCookieArray();
       if (cookieArray['_sforce_account_name']) {
         const accountName = cookieArray['_sforce_account_name'];
-        submissions = await getSubmission(
-           getContestId(),
-          accountName
-        );
-        const accountInfo = await getAccountInformation(accountName)
-        if (accountInfo.auth === 'ADMINISTER' &&
-            contestInfo.ratingCalculated === false &&
-            contestInfo.ratedBound > 0 &&
-            contestInfo.unixEndTime < Date.now()) {
-          setRatingUpdateButtonStyle({display: 'block'});
+        submissions = await getSubmission(getContestId(), accountName);
+        const accountInfo = await getAccountInformation(accountName);
+        if (
+          accountInfo.auth === 'ADMINISTER' &&
+          contestInfo.ratingCalculated === false &&
+          contestInfo.ratedBound > 0 &&
+          contestInfo.unixEndTime < Date.now()
+        ) {
+          setRatingUpdateButtonStyle({ display: 'block' });
         }
       } else {
         submissions = [];
@@ -487,7 +485,13 @@ export const ContestPage: React.FC = () => {
 
   return (
     <div>
-      <Button onClick={ratingUpdate} variant={'info'} style={ratingUpdateButtonStyle}>{'レート更新'}</Button>
+      <Button
+        onClick={ratingUpdate}
+        variant={'info'}
+        style={ratingUpdateButtonStyle}
+      >
+        {'レート更新'}
+      </Button>
       <p id={'contestPage-contestName'}>{contestName}</p>
       <p>
         <pre>{statement}</pre>
