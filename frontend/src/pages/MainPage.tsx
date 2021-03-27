@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { PagingElement } from '../components/PagingElement';
 import { getLatestContests } from '../functions/HttpRequest';
@@ -8,23 +8,6 @@ import { ContestInfo } from '../types';
 // URL: /
 
 const CONTEST_IN_ONE_PAGE = 10;
-
-interface ContestCardProps {
-  contest: ContestInfo;
-}
-
-const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
-  return (
-    <Card>
-      <Link to={`/contest/${contest.id}`}>
-        <Card.Header>{contest.name}</Card.Header>
-      </Link>
-      <Card.Text>{`Type: ${contest.contestType} ${
-        (contest as any).startTime
-      } ~ ${(contest as any).endTime}`}</Card.Text>
-    </Card>
-  );
-};
 
 const ContestList: React.FC = () => {
   const [contests, setContests] = useState<ContestInfo[] | null>(null);
@@ -44,20 +27,41 @@ const ContestList: React.FC = () => {
     });
   }, []);
 
-  let contestCards: React.ReactNode = <div />;
-
-  if (contests !== null) {
-    contestCards = contests.map((contest: any) => {
-      return <ContestCard contest={contest} key={contest.name} />;
-    });
-  }
-
   return (
-    <div>
-      {contestCards ? <div>{contestCards}</div> : <p>loading...</p>}
-      <br />
+    <>
+      <Table bordered hover size="sm" striped>
+        <thead>
+          <tr>
+            <th className="text-center">開始時刻</th>
+            <th className="text-center">コンテスト名</th>
+            <th className="text-center">種類</th>
+            <th className="text-center">時間</th>
+            <th className="text-center">Rated対象</th>
+          </tr>
+        </thead>
+        <tbody>
+          {contests?.map((contest) => (
+            <tr key={contest.id}>
+              <td className="text-center">{contest.startTimeAMPM}</td>
+              <td>
+                <Link to={`/contest/${contest.id}`}>{contest.name}</Link>
+              </td>
+              <td className="text-center">{contest.contestType}</td>
+              <td className="text-center">
+                {Math.floor(
+                  (contest.unixEndTime - contest.unixStartTime) / (60 * 1000)
+                )}
+                分
+              </td>
+              <td className="text-center">
+                {contest.ratedBound > 0 ? `~ ${contest.ratedBound}` : '-'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
       <PagingElement pageChanged={updatePage} pageNum={pageNum} />
-    </div>
+    </>
   );
 };
 
