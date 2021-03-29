@@ -16,11 +16,15 @@ export async function httpRequest(
   if (process?.env?.REACT_APP_BACKEND_URL !== undefined) {
     fetchTo = process.env.REACT_APP_BACKEND_URL + fetchTo;
   }
-  let initState = undefined;
+  let initState: any = undefined;
   if (method === 'GET' || method === 'HEAD') {
     if (params !== undefined) {
       fetchTo += '?' + new URLSearchParams(params);
     }
+    initState = {
+      mode: 'cors',
+      credentials: 'include',
+    };
   } else {
     initState = {
       method: method,
@@ -28,6 +32,8 @@ export async function httpRequest(
         'Content-Type': 'application/json',
       },
       body: params,
+      mode: 'cors',
+      credentials: 'include',
     };
   }
   return await fetch(fetchTo, initState)

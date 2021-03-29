@@ -16,7 +16,7 @@ const val ONE_PAGE_SIZE = 20
 const val SUBMIT_INTERVAL_TIME = 5 * 1000
 const val LATEST_CONTEST_PAGE_SIZE = 10
 
-@CrossOrigin
+@CrossOrigin(origins = arrayOf("http://localhost:3000"), allowCredentials = "true")
 @RestController
 class ContestController(val contestService: ContestService,
                         val sharedContestService: SharedContestService,

@@ -8,7 +8,7 @@ import org.springframework.web.server.ResponseStatusException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-@CrossOrigin
+@CrossOrigin(origins = arrayOf("http://localhost:3000"), allowCredentials = "true")
 @RestController
 class AccountController(private val accountService: AccountService,
                         private val sharedAccountService: SharedAccountService,
