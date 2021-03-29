@@ -59,7 +59,6 @@ const CreateContestElement: React.FC = () => {
       alert('最低一人Coordinatorを指定して下さい');
       return;
     }
-    console.log(adjustedCreatorList);
     createContest(
       contestId,
       contestName,

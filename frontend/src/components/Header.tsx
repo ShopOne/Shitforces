@@ -1,5 +1,5 @@
 import React from 'react';
-import { Nav, Navbar } from 'react-bootstrap';
+import { Button, Nav, Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { getCookieArray } from '../functions/GetCookieArray';
 
@@ -10,29 +10,29 @@ export const Header: React.FC = () => {
   if (cookieArray['_sforce_account_name']) {
     const name = cookieArray['_sforce_account_name'];
     rightHeader = (
-      <div>
-        <Nav.Link href={`/account/${name}`}>
-          <Navbar.Brand>{name}</Navbar.Brand>
+      <Nav>
+        <Nav.Link as={Link} to={`/account/${name}`}>
+          {name}
         </Nav.Link>
-      </div>
+      </Nav>
     );
   } else {
     rightHeader = (
-      <div>
-        <Link to={'/signup'}>
-          <Navbar.Brand>SignUp</Navbar.Brand>
-        </Link>
-        <Link to={'/login'}>
-          <Navbar.Brand>Login</Navbar.Brand>
-        </Link>
-      </div>
+      <Nav>
+        <Nav.Link as={Link} to={'/login'} className="mr-sm-2">
+          Login
+        </Nav.Link>
+        <Button as={Link} to={'/signup'} variant="outline-light">
+          Sign up
+        </Button>
+      </Nav>
     );
   }
 
   return (
     <Navbar bg="dark" variant="dark">
       <Nav className="mr-auto">
-        <Nav.Link href="/">
+        <Nav.Link as={Link} to="/">
           <Navbar.Brand>Shitforces</Navbar.Brand>
         </Nav.Link>
       </Nav>

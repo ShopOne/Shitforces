@@ -10,9 +10,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 const val ONE_PAGE_SIZE = 20
 const val SUBMIT_INTERVAL_TIME = 5 * 1000
+const val LATEST_CONTEST_PAGE_SIZE = 10
 
 @CrossOrigin
 @RestController
@@ -53,9 +55,8 @@ class ContestController(val contestService: ContestService,
     }
 
     @GetMapping("api/contests/latest")
-    fun getLatestContestsInfoResponse(@RequestParam("contest_num") contestNum: Int?):List<ContestInfo> {
-        return contestService.getLatestContestsInfo(contestNum)
-            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
+    fun getLatestContestsInfoResponse(@RequestParam("contest_page") contestPage: Int): LatestContestsInfo {
+        return contestService.getLatestContestsInfo(contestPage)
     }
 
     @PostMapping("api/contests", headers = ["Content-Type=application/json"])
@@ -80,9 +81,10 @@ class ContestController(val contestService: ContestService,
     }
     @PostMapping("api/submissions", headers = ["Content-Type=application/json"])
     fun submitAnswerResponse(@RequestBody requestSubmission: RequestSubmission,
+                             httpServletResponse: HttpServletResponse,
                              httpServletRequest: HttpServletRequest
     ): SubmissionInfo {
-        return contestService.submitAnswerToContest(requestSubmission, httpServletRequest)
+        return contestService.submitAnswerToContest(requestSubmission, httpServletRequest, httpServletResponse)
     }
     @GetMapping("api/contests/{contest_id}/problems")
     fun getContestProblemsResponse(@PathVariable("contest_id") contestId: String,

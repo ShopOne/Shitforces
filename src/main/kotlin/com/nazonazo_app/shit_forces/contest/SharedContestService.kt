@@ -7,6 +7,7 @@ import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import com.nazonazo_app.shit_forces.submission.SubmissionResult
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.sql.Timestamp
 
 @Service
 @Transactional
@@ -58,7 +59,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
             val acceptProblem = mutableListOf<Int>()
             it.isAccept.forEachIndexed{index, result ->
                 if (result) {
-                    score += problemsInfo[index].point!!
+                    score += problemsInfo[index].point
                     penaResult += it.submitTime[index]
                     acceptProblem.add(index)
                 }
@@ -67,6 +68,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
                 score,
                 penaResult,
                 acceptProblem,
+                it.submitTime,
                 -1))
         }
         return setRankingOfInfo(ranking)
@@ -84,7 +86,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
             val acceptProblem = mutableListOf<Int>()
             it.isAccept.forEachIndexed{index, result ->
                 if (result) {
-                    score += problemsInfo[index].point!!
+                    score += problemsInfo[index].point
                     acceptProblem.add(index)
                     latestSubmit = latestSubmit.coerceAtLeast(it.submitTime[index])
                 }
@@ -93,6 +95,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
                 score,
                 it.penaltyOfWrong + latestSubmit,
                 acceptProblem,
+                it.submitTime,
                 -1))
         }
         return setRankingOfInfo(ranking)

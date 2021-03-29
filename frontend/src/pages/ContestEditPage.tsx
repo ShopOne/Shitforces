@@ -145,7 +145,7 @@ export const ContestEditPage: React.FC = () => {
         !contestInfo.contestCreators.find((creator: ContestCreator) => creator.accountName === accountName)) {
         return;
       }
-      const answers: string[][] = await Promise.all(contestProblems.map((problem: any) => {
+      const answers: string[][] = await Promise.all(contestProblems.map((problem) => {
         return getProblemAnswer(problem.id);
       }));
       const problems = contestProblems.map((problem: any, idx: number) => {
@@ -158,7 +158,7 @@ export const ContestEditPage: React.FC = () => {
         problems.push(new EditProblemInfo('', 0, 1, ['']));
       }
       setStatement(contestInfo.statement);
-      setPenalty(contestInfo.penalty);
+      setPenalty(contestInfo.penalty.toString());
       setProblems(problems)
       setIsValidAccess(true);
     })();
@@ -178,7 +178,7 @@ export const ContestEditPage: React.FC = () => {
     putContestInfo(getContestId(), parseInt(penalty), statement, sendProblems)
       .then(() => {
         alert('コンテストの編集が完了しました');
-        window.location.reload();
+        window.location.href = `/contest/${getContestId()}`
       })
       .catch((e) => {
         alert('コンテストの編集に失敗しました');
@@ -188,6 +188,7 @@ export const ContestEditPage: React.FC = () => {
 
   return (
     <div>
+      <p>コンテスト中は問題の編集を行っても反映されません</p>
       <Form>
           <Form.Row>
             <Col>

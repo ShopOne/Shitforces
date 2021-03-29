@@ -1,71 +1,18 @@
-/***
- * @class AccountInfo
- * @type {Object}
- * @property {Number} rating
- * @property {String} accountName
- * @property {String} auth
- */
+import type {
+  AccountInfo,
+  ContestInfo,
+  LatestContestsInfo,
+  ProblemInfo,
+  RankingInfo,
+  SubmissionInfo,
+  SubmissionResult,
+} from '../types';
 
-/***
- * @class SubmissionResult
- * @type {Object}
- * @property {String} result
- * @property {String} statement
- * @property {String} submitTime
- */
-
-/***
- * @class RankingInfo
- * @type {Object}
- * @property {Number} partAccountNum - 参加者数
- * @property {Array} rankingList - 順位表
- * @property {Number} requestAccountRank - リクエストしたユーザーの順位
- * @property {Array} acPerSubmit - AC/Submitの数 .firstにAC人数、.secondに提出人数
- */
-
-/***
- * @class ContestInfo
- * @type {Object}
- * @property {String} id
- * @property {String} name
- * @property {String} statement - コンテストの説明
- * @property {String} startTimeAMPM - コンテスト開始時間のフォーマット済文字列
- * @property {String} endTimeAMPM - コンテスト終了時間のフォーマット済文字列
- * @property {String} contestType - コンテスト形式 ICPC,AtCoder形式など
- * @property {Number} ratedBound  - rated上限 0ならばunrated
- * @property {Number} unixStartTime - Unix時間でのコンテスト開始時間
- * @property {Number} unixEndTime - Unix時間でのコンテスト終了時間
- * @property {Boolean} ratingCalculated - レート計算済みかどうか
- */
-
-/***
- * @class SubmissionInfo
- * @type {Object}
- * @property {String} contestName
- * @property {Number} indexOfContest
- * @property {String} accountName
- * @property {String} statement - 答案
- * @property {String} submitTime - 提出時間
- * @property {String} result
- */
-
-/***
- * @class ProblemInfo
- * @type {Object}
- * @type {String} contestName
- * @type {Number} point - 問題の得点
- * @type {String} statement - 問題文
- * @type {Number} indexOfContest - コンテストの何番目の問題か
- */
-
-/**
- * @return Promise<Object>
- */
 export async function httpRequest(
   fetchTo: string,
   method: string,
   params?: any
-) {
+): Promise<unknown> {
   if (process?.env?.REACT_APP_BACKEND_URL !== undefined) {
     fetchTo = process.env.REACT_APP_BACKEND_URL + fetchTo;
   }
@@ -92,7 +39,7 @@ export async function httpRequest(
     })
     .then((val) => {
       try {
-        if (val === '') return  val;
+        if (val === '') return val;
         else return JSON.parse(val);
       } catch {
         throw Error('Json String Error');
@@ -100,153 +47,147 @@ export async function httpRequest(
     });
 }
 
-/***
- *
- * @param {String} contestId
- * @param {Number} indexOfContest
- * @param {String} statement
- * @returns {Promise<SubmissionResult>}
- */
 export function postSubmission(
   contestId: string,
   indexOfContest: string,
   statement: string
-) {
+): Promise<SubmissionResult> {
   const param = {
     contestId: contestId,
     indexOfContest: indexOfContest,
     statement: statement,
   };
-  return httpRequest('/api/submissions', 'POST', JSON.stringify(param));
+  return httpRequest(
+    '/api/submissions',
+    'POST',
+    JSON.stringify(param)
+  ) as Promise<SubmissionResult>;
 }
 
-/***
- *
- * @param  {Number} page - 順位表何ページ目かの指定 1ページ20 (+1 ログインアカウント用 未実装)
- * @param  {String} contestId - コンテスト短縮名(urlの名前)
- * @returns {Promise<RankingInfo>}  rankingInfo
- *
+/**
+ * @param page 順位表何ページ目かの指定 1ページ20 (+1 ログインアカウント用 未実装)
+ * @param contestId コンテスト短縮名(urlの名前)
  */
-export function getRankingInfo(page: number, contestId: string) {
+export function getRankingInfo(
+  page: number,
+  contestId: string
+): Promise<RankingInfo> {
   return httpRequest(`/api/contests/${contestId}/ranking`, 'GET', {
     page: page,
-  });
+  }) as Promise<RankingInfo>;
 }
 
-/***
- * @param {String} contestId - コンテスト短縮名(urlの名前)
- * @return {Promise<ContestInfo>}
+/**
+ * @param contestId コンテスト短縮名(urlの名前)
  */
-export function getContestInfo(contestId: string) {
-  return httpRequest(`/api/contests/${contestId}`, 'GET');
+export function getContestInfo(contestId: string): Promise<ContestInfo> {
+  return httpRequest(
+    `/api/contests/${contestId}`,
+    'GET'
+  ) as Promise<ContestInfo>;
 }
 
-/***
- *
- * @param {String} accountName
- * @returns {Promise<Object>}
+/**
+ * @param accountName
  */
-export function getAccountInformation(accountName: string) {
+export function getAccountInformation(
+  accountName: string
+): Promise<AccountInfo> {
   const fetchTo = '/api/account/' + accountName;
-  return httpRequest(fetchTo, 'GET');
+  return httpRequest(fetchTo, 'GET') as Promise<AccountInfo>;
 }
 
 /**
- * @returns {Promise<Array<ContestInfo>>}
+ * @param page
  */
-export function getLatestContests() {
-  return httpRequest('/api/contests/latest', 'GET');
+export function getLatestContests(page: number): Promise<LatestContestsInfo> {
+  return httpRequest('/api/contests/latest', 'GET', {
+    contest_page: page,
+  }) as Promise<LatestContestsInfo>;
 }
 
 /**
- *
- * @param {String} contestId
- * @param {String} accountName
- * @returns {Promise<SubmissionInfo>}
+ * @param contestId
+ * @param accountName
  */
-export function getSubmission(contestId: string, accountName: string) {
+export function getSubmission(
+  contestId: string,
+  accountName: string
+): Promise<SubmissionInfo[]> {
   const param = {
     ['contest_id']: contestId,
   };
-  return httpRequest(`/api/submissions/${accountName}`, 'GET', param);
+  return httpRequest(
+    `/api/submissions/${accountName}`,
+    'GET',
+    param
+  ) as Promise<SubmissionInfo[]>;
 }
 
 /**
- *
- * @param {String} contestId
- * @returns {Promise<Array<ProblemInfo>>}
+ * @param contestId
  */
-export function getContestProblems(contestId: string) {
-  return httpRequest(`/api/contests/${contestId}/problems`, 'GET');
+export function getContestProblems(contestId: string): Promise<ProblemInfo[]> {
+  return httpRequest(`/api/contests/${contestId}/problems`, 'GET') as Promise<
+    ProblemInfo[]
+  >;
 }
 
 /**
- *
- * @param {String} fetchTo アカウント情報のポスト先 /api/login か /api/signup
- * @param {String} accountName
- * @param {String} password
- * @returns {Promise<Null>}
+ * @param fetchTo アカウント情報のポスト先 /api/login か /api/signup
+ * @param accountName
+ * @param password
  */
 export function postAccountInformation(
   fetchTo: string,
   accountName: string,
   password: string
-) {
-  const param = {
+): Promise<void> {
+  const jsonBody = JSON.stringify({
     name: accountName,
-    password: password
-  };
-  return httpRequest(fetchTo, 'POST', JSON.stringify(param));
+    password: password,
+  });
+  return httpRequest(fetchTo, 'POST', jsonBody) as Promise<void>;
+}
+
+export function updateContestRating(contestId: string) {
+  return httpRequest(`/api/contests/${contestId}/rating`, 'POST');
 }
 
 /**
  *
- * @param {String} contestId
- */
-export function updateContestRating(
-    contestId: string
-) {
-    return httpRequest(`/api/contests/${contestId}/rating`, 'POST');
-}
-
-/**
- *
- * @param {String} prevAccountName
- * @param {String} newAccountName
- * @param {String} password
+ * @param prevAccountName
+ * @param newAccountName
+ * @param password
  * @returns {Promise<Null>}
  */
 export function putAccountName(
   prevAccountName: string,
   newAccountName: string,
   password: string
-) {
+): Promise<void> {
   const jsonBody = JSON.stringify({
     name: newAccountName,
-    password: password
+    password: password,
   });
-  return httpRequest(`/api/account/${prevAccountName}/name`, 'PUT', jsonBody);
+  return httpRequest(
+    `/api/account/${prevAccountName}/name`,
+    'PUT',
+    jsonBody
+  ) as Promise<void>;
 }
 
 
 /**
- * data class RequestContest(
- val id: String,
- val contestName: String,
- val startTime: Timestamp,
- val endTime: Timestamp,
- val penalty: Int,
- val ratedBound: Int,
- val contestType: String
- )
- @param {String} id
- @param {String} contestName
- @param {Date} startTime
- @param {Date} endTime
- @param {number} penalty
- @param {number} ratedBound
- @param {String} contestType
- @param {object} creators
+ *
+ * @param id
+ * @param contestName
+ * @param startTime
+ * @param endTime
+ * @param penalty
+ * @param ratedBound
+ * @param contestType
+ * @param creators
  */
 export function createContest(
   id: string,
@@ -257,7 +198,7 @@ export function createContest(
   ratedBound: number,
   contestType: string,
   creators: object
-) {
+): Promise<void> {
   const param = {
     id: id,
     contestName: contestName,
@@ -268,7 +209,7 @@ export function createContest(
     contestType: contestType,
     creators: creators
   };
-  return httpRequest('/api/contests', 'POST', JSON.stringify(param));
+  return httpRequest('/api/contests', 'POST', JSON.stringify(param)) as Promise<void>;
 }
 
 /**
@@ -283,13 +224,15 @@ export function putContestInfo(
   penalty: number,
   statement: string,
   problems: {statement: string, point: number, answer: string[]}[]
-) {
+): Promise<void> {
   const param = {
     penalty: penalty,
     statement: statement,
     problems: problems
   };
-  return httpRequest(`/api/contests/${contestId}`, 'PUT', JSON.stringify(param));
+  return httpRequest(
+    `/api/contests/${contestId}`, 'PUT', JSON.stringify(param)
+  ) as Promise<void>;
 }
 
 /**
@@ -297,6 +240,6 @@ export function putContestInfo(
  */
 export function getProblemAnswer(
   id: number
-) {
-  return httpRequest(`/api/problems/${id}/answer`, 'GET');
+): Promise<string[]> {
+  return httpRequest(`/api/problems/${id}/answer`, 'GET') as Promise<string[]>;
 }

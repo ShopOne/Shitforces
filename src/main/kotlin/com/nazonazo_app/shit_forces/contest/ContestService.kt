@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.sql.Timestamp
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 import kotlin.math.ln
 import kotlin.math.pow
 
@@ -89,7 +90,9 @@ class ContestService(private val contestRepository: ContestRepository,
         contestRepository.findByName(contestName)
 
     fun submitAnswerToContest(requestSubmission: RequestSubmission,
-                              httpServletRequest: HttpServletRequest): SubmissionInfo {
+                              httpServletRequest: HttpServletRequest,
+                              httpServletResponse: HttpServletResponse
+    ): SubmissionInfo {
         val contest = getContestInfoByContestId(requestSubmission.contestId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
 
@@ -116,6 +119,7 @@ class ContestService(private val contestRepository: ContestRepository,
         if (reg.containsMatchIn(requestSubmission.statement)) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN)
         }
+        sharedSessionService.createNewSession(accountName, httpServletResponse)
         return sharedSubmissionService.submitAnswer(requestSubmission.indexOfContest, contest.id,
             requestSubmission.statement, account.name)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -149,13 +153,12 @@ class ContestService(private val contestRepository: ContestRepository,
             null
         }
 
-    fun getLatestContestsInfo(contestNum: Int?):List<ContestInfo>? =
-        try {
-            contestRepository.findLatestContest(contestNum ?: 10)
-        } catch (e: Error) {
-            print(e)
-            null
-        }
+    fun getLatestContestsInfo(page: Int): LatestContestsInfo {
+        val contests = contestRepository.findLatestContest(page)
+        val allContestNum = contestRepository.findAllContestNum()
+        return LatestContestsInfo(contests, allContestNum)
+    }
+
 
     fun addContest(requestContest: RequestContest) {
         val contestType = when(requestContest.contestType) {
@@ -294,7 +297,10 @@ class ContestService(private val contestRepository: ContestRepository,
             ProblemInfo(contestId, it.point, it.statement, index, it.answer)
         }
         contestRepository.updateContestInfoByPutRequestContest(contestId, putRequestContest)
-        sharedProblemService.updateContestProblem(contestInfo.id, problems)
+        val now = Timestamp(System.currentTimeMillis())
+        if (now < contestInfo.startTime || contestInfo.endTime < now) {
+            sharedProblemService.updateContestProblem(contestInfo.id, problems)
+        }
     }
 
     fun getProblemAnswer(id: Int, httpServletRequest: HttpServletRequest): List<String> {

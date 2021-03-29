@@ -1,49 +1,67 @@
-import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { Card } from 'react-bootstrap';
+import { Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { PagingElement } from '../components/PagingElement';
 import { getLatestContests } from '../functions/HttpRequest';
+import { ContestInfo } from '../types';
 
 // URL: /
 
-interface ContestCardProps {
-  contest: any;
-}
-
-const ContestCard: React.FC<ContestCardProps> = ({ contest }) => {
-  return (
-    <Card>
-      <Link to={`/contest/${contest.id}`}>
-        <Card.Header>{contest.name}</Card.Header>
-      </Link>
-      <Card.Text>{`Type: ${contest.contestType} ${contest.startTime} ~ ${contest.endTime}`}</Card.Text>
-    </Card>
-  );
-};
-
-ContestCard.propTypes = {
-  contest: PropTypes.object,
-};
+const CONTEST_IN_ONE_PAGE = 10;
 
 const ContestList: React.FC = () => {
-  const [contests, setContests] = useState<any>(null);
+  const [contests, setContests] = useState<ContestInfo[] | null>(null);
+  const [pageNum, setPageNum] = useState<number>(0);
 
+  const updatePage = (newPage: number) => {
+    getLatestContests(newPage).then((latestContestsInfo) => {
+      setContests(latestContestsInfo.contests);
+    });
+  };
   useEffect(() => {
-    getLatestContests().then((contests) => {
-      setContests(contests);
+    getLatestContests(0).then((latestContestsInfo) => {
+      setPageNum(
+        Math.ceil(latestContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
+      );
+      setContests(latestContestsInfo.contests);
     });
   }, []);
 
-  let contestCards = <div />;
-
-  if (contests !== null) {
-    contestCards = contests.map((contest: any) => {
-      return <ContestCard contest={contest} key={contest.name} />;
-    });
-  }
-
   return (
-    <div>{contestCards ? <div>{contestCards}</div> : <p>loading...</p>}</div>
+    <>
+      <Table bordered hover size="sm" striped>
+        <thead>
+          <tr>
+            <th className="text-center">開始時刻</th>
+            <th className="text-center">コンテスト名</th>
+            <th className="text-center">種類</th>
+            <th className="text-center">時間</th>
+            <th className="text-center">Rated対象</th>
+          </tr>
+        </thead>
+        <tbody>
+          {contests?.map((contest) => (
+            <tr key={contest.id}>
+              <td className="text-center">{contest.startTimeAMPM}</td>
+              <td>
+                <Link to={`/contest/${contest.id}`}>{contest.name}</Link>
+              </td>
+              <td className="text-center">{contest.contestType}</td>
+              <td className="text-center">
+                {Math.floor(
+                  (contest.unixEndTime - contest.unixStartTime) / (60 * 1000)
+                )}
+                分
+              </td>
+              <td className="text-center">
+                {contest.ratedBound > 0 ? `~ ${contest.ratedBound}` : '-'}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+      <PagingElement pageChanged={updatePage} pageNum={pageNum} />
+    </>
   );
 };
 

@@ -26,6 +26,10 @@ data class ContestInfo(
         INVALID("INVALID")
     }
 }
+data class LatestContestsInfo(
+    val contests: List<ContestInfo>,
+    val allContestNum: Int
+)
 data class ContestCreator(
     val accountName: String,
     val contestId: String,
@@ -64,4 +68,5 @@ data class ContestRankingAccountInfo(val accountName: String,
                                      val score: Int,
                                      val penalty: Int,
                                      val acceptList: List<Int>,
+                                     val acceptTimeList: List<Int>,
                                      var ranking: Int)
