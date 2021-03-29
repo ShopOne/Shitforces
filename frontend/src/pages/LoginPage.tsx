@@ -4,13 +4,5 @@ import { SubmitAccountInfo } from '../components/SubmitAccountInfo';
 // URL: /login
 
 export const LoginPage: React.FC = () => {
-  return (
-    <div>
-      <SubmitAccountInfo
-        fetchTo="/api/login"
-        successText="ログインに成功しました"
-        failedText="ログインに失敗しました。メールアドレスかパスワードが間違っています"
-      />
-    </div>
-  );
+  return <SubmitAccountInfo variant="signIn" />;
 };

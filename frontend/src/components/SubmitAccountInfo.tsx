@@ -1,72 +1,93 @@
-import PropTypes from 'prop-types';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Button, Form } from 'react-bootstrap';
+import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
-import { postAccountInformation } from '../functions/HttpRequest';
 
 const TEXT_TERM =
   'アルファベット、数字、-_から成る、4字以上20字以下の文字列を入力して下さい。';
 
-interface SubmitAccountInfoProps {
-  failedText: string;
-  fetchTo: string;
-  successText: string;
+interface Props {
+  variant: 'signIn' | 'signUp';
 }
 
-export const SubmitAccountInfo: React.FC<SubmitAccountInfoProps> = ({
-  failedText,
-  fetchTo,
-  successText,
-}) => {
-  const accountNameInput = useRef<HTMLInputElement>(null);
-  const passwordInput = useRef<HTMLInputElement>(null);
+export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
+  const { signIn, signUp } = useAuthentication();
 
-  const onSubmit = useCallback(() => {
-    const accountName = accountNameInput.current?.value;
-    const password = passwordInput.current?.value;
-    if (
-      !(
-        accountName &&
-        password &&
-        isValidAccountNameOrPassWord(accountName) &&
-        isValidAccountNameOrPassWord(password)
-      )
-    ) {
-      alert('不正な入力です');
-    } else {
-      postAccountInformation(fetchTo, accountName, password)
-        .then(() => {
-          alert(successText);
-          window.location.href = '/account/' + accountName;
-        })
-        .catch(() => {
-          alert(failedText);
-        });
-    }
-  }, [failedText, fetchTo, successText]);
+  const [accountName, setAccountName] = useState('');
+  const [password, setPassword] = useState('');
+
+  const onChangeAccountName = useCallback<
+    React.ChangeEventHandler<HTMLInputElement>
+  >((event) => {
+    setAccountName(event.target.value);
+  }, []);
+
+  const onChangePassword = useCallback<
+    React.ChangeEventHandler<HTMLInputElement>
+  >((event) => {
+    setPassword(event.target.value);
+  }, []);
+
+  const canSubmit = useMemo(
+    () =>
+      isValidAccountNameOrPassWord(accountName) &&
+      isValidAccountNameOrPassWord(password),
+    [accountName, password]
+  );
+
+  const onSubmit = useCallback<React.FormEventHandler<HTMLElement>>(
+    (event) => {
+      console.log('submit', event);
+      event.preventDefault();
+
+      if (!canSubmit) return;
+
+      switch (variant) {
+        case 'signIn':
+          try {
+            signIn(accountName, password);
+            alert('ログインに成功しました');
+          } catch (e) {
+            console.error(e);
+            alert(
+              'ログインに失敗しました。メールアドレスかパスワードが間違っています'
+            );
+          }
+          break;
+        case 'signUp':
+          try {
+            signUp(accountName, password);
+            alert('アカウントの作成に成功しました');
+          } catch (e) {
+            console.error(e);
+            alert('アカウントの作成に失敗しました');
+          }
+          break;
+      }
+    },
+    [variant, signIn, signUp, canSubmit, accountName, password]
+  );
 
   return (
     <div>
       <p>{TEXT_TERM}</p>
-      <Form>
-        <Form.Group controlId={'formEmail'}>
+      <Form onSubmit={onSubmit}>
+        <Form.Group>
           <Form.Label>ユーザーID</Form.Label>
-          <Form.Control type={'email'} ref={accountNameInput} />
+          <Form.Control value={accountName} onChange={onChangeAccountName} />
         </Form.Group>
-        <Form.Group controlId={'formPassword'}>
+        <Form.Group>
           <Form.Label>パスワード</Form.Label>
-          <Form.Control type={'password'} ref={passwordInput} />
+          <Form.Control
+            type="password"
+            value={password}
+            onChange={onChangePassword}
+          />
         </Form.Group>
+        <Button type="submit" variant="primary" disabled={!canSubmit}>
+          送信
+        </Button>
       </Form>
-      <Button variant={'primary'} onClick={onSubmit}>
-        送信
-      </Button>
     </div>
   );
-};
-
-SubmitAccountInfo.propTypes = {
-  failedText: PropTypes.string.isRequired,
-  fetchTo: PropTypes.string.isRequired,
-  successText: PropTypes.string.isRequired,
 };

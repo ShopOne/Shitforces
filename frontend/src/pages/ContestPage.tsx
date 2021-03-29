@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
 import { Button, Tab, Tabs, Form, Table } from 'react-bootstrap';
 import { PagingElement } from '../components/PagingElement';
-import { getCookieArray } from '../functions/GetCookieArray';
 import {
   getAccountInformation,
   getContestInfo,
@@ -12,6 +11,7 @@ import {
   postSubmission,
   updateContestRating,
 } from '../functions/HttpRequest';
+import { getCookie } from '../functions/getCookie';
 import { ProblemInfo, RankingInfoAccount, SubmissionInfo } from '../types';
 import './ContestPage.css';
 
@@ -459,7 +459,7 @@ export const ContestPage: React.FC = () => {
       }
       const problems = await getContestProblems(contestId).catch(() => []);
       let submissions: SubmissionInfo[] = [];
-      const cookieArray = getCookieArray();
+      const cookieArray = getCookie();
       if (cookieArray['_sforce_account_name']) {
         const accountName = cookieArray['_sforce_account_name'];
         submissions = await getSubmission(getContestId(), accountName);

@@ -2,6 +2,7 @@ import React from 'react';
 import { Container } from 'react-bootstrap';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Header } from './components/Header';
+import { AuthenticationProvider } from './contexts/AuthenticationContext';
 import { AccountPage } from './pages/AccountPage';
 import { ContestPage } from './pages/ContestPage';
 import { LoginPage } from './pages/LoginPage';
@@ -13,27 +14,29 @@ import './App.css';
 export const App: React.FC = () => {
   return (
     <Router>
-      <Header />
-      <Container className="App-container p-3">
-        <Switch>
-          <Route exact key="/" path="/" component={MainPage} />
-          <Route exact key="/login" path="/login" component={LoginPage} />
-          <Route exact key="/signup" path="/signup" component={SignUpPage} />
-          <Route
-            exact
-            key="/account"
-            path="/account/:id"
-            component={AccountPage}
-          />
-          <Route
-            exact
-            key="/contest"
-            path="/contest/:contestId"
-            component={ContestPage}
-          />
-          <Route component={NotFoundPage} />
-        </Switch>
-      </Container>
+      <AuthenticationProvider>
+        <Header />
+        <Container className="App-container p-3">
+          <Switch>
+            <Route exact key="/" path="/" component={MainPage} />
+            <Route exact key="/login" path="/login" component={LoginPage} />
+            <Route exact key="/signup" path="/signup" component={SignUpPage} />
+            <Route
+              exact
+              key="/account"
+              path="/account/:id"
+              component={AccountPage}
+            />
+            <Route
+              exact
+              key="/contest"
+              path="/contest/:contestId"
+              component={ContestPage}
+            />
+            <Route component={NotFoundPage} />
+          </Switch>
+        </Container>
+      </AuthenticationProvider>
     </Router>
   );
 };
