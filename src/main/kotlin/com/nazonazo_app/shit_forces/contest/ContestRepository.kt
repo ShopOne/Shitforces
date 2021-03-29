@@ -68,6 +68,12 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             VALUES(?, ?, ?, ?, ?, ?, ?, ?)
         """, contest.id, contest.name, contest.statement, contest.startTime, contest.endTime,
             contest.contestType.textName, contest.ratedBound, contest.penalty)
+        contest.contestCreators.forEach {
+            jdbcTemplate.update("""
+               INSERT INTO contestCreator(accountName, contestId, position) 
+               VALUES(?, ?, ?)
+            """, it.accountName, it.contestId, it.position.name)
+        }
     }
 
     fun updateContestInfoByPutRequestContest(contestId: String, putContest: PutRequestContest) {

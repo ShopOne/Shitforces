@@ -3,7 +3,6 @@ import React, {useCallback, useEffect, useRef, useState} from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form'
-import FormControl from 'react-bootstrap/FormControl';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
@@ -42,7 +41,7 @@ const CreateContestElement: React.FC = () => {
     const penalty = parseInt(penaltyRef.current!.value);
     const contestStartTime = new Date(Date.parse(startTimeRef.current!.value));
     const contestEndTime = new Date(Date.parse(endTimeRef.current!.value));
-    const adjustCreatorList = creatorList
+    const adjustedCreatorList = creatorList
       .filter(creator => creator.accountName !== '')
       .map(creator => {
         return {
@@ -56,10 +55,11 @@ const CreateContestElement: React.FC = () => {
       alert('不正な入力があります');
       return;
     }
-    if (adjustCreatorList.filter(creator => creator.position === 'Coordinator').length === 0) {
+    if (adjustedCreatorList.filter(creator => creator.position === 'Coordinator').length === 0) {
       alert('最低一人Coordinatorを指定して下さい');
       return;
     }
+    console.log(adjustedCreatorList);
     createContest(
       contestId,
       contestName,
@@ -68,7 +68,7 @@ const CreateContestElement: React.FC = () => {
       penalty,
       ratedBound,
       contestType.toString(),
-      adjustCreatorList
+      adjustedCreatorList
     )
       .then(() => {
         alert('コンテストの作成に成功しました');
@@ -107,7 +107,7 @@ const CreateContestElement: React.FC = () => {
         <Form.Row key={creator.id} >
           <Col>
             <InputGroup className={'mb-3'}>
-              <FormControl
+              <Form.Control
                 placeholder={'shop_one'}
                 onChange={e => changeName(e.target.value, idx)}
               />
@@ -142,7 +142,7 @@ const CreateContestElement: React.FC = () => {
         <Col>
           <label>コンテストID</label>
           <InputGroup className={'mb-3'}>
-            <FormControl
+            <Form.Control
               placeholder={'kbc001'}
               ref={contestIdRef}
             />
@@ -151,7 +151,7 @@ const CreateContestElement: React.FC = () => {
         <Col>
           <label>コンテスト名</label>
           <InputGroup className={'mb-3'}>
-            <FormControl
+            <Form.Control
               placeholder={'くそなぞなぞBeginnerContest001'}
               ref={contestNameRef}/>
           </InputGroup>
@@ -161,15 +161,16 @@ const CreateContestElement: React.FC = () => {
         <Col>
           <label>開始日時</label>
           <InputGroup className={'mb-3'}>
-            <FormControl
+            <Form.Control
               placeholder={'2021-1-10 21:00:00'}
+              type={'datetime'}
               ref={startTimeRef}/>
           </InputGroup>
         </Col>
         <Col>
           <label>終了日時</label>
           <InputGroup className={'mb-3'}>
-            <FormControl
+            <Form.Control
               placeholder={'2021-1-10 21:30:00'}
               ref={endTimeRef}/>
           </InputGroup>
@@ -179,20 +180,22 @@ const CreateContestElement: React.FC = () => {
         <Col>
           <label>レート上限</label>
           <InputGroup className={'mb-3'}>
-            <FormControl
+            <Form.Control
               placeholder={'0'}
               aria-label={'ratedBound'}
               ref={ratedBoundRef}
+              type={'number'}
             />
           </InputGroup>
         </Col>
         <Col>
           <label>ペナルティ</label>
           <InputGroup className={'mb-3'}>
-            <FormControl
+            <Form.Control
               placeholder={'0'}
               aria-label={'penalty'}
               ref={penaltyRef}
+              type={'number'}
             />
           </InputGroup>
         </Col>
