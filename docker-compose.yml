@@ -30,7 +30,7 @@ services:
     depends_on:
       - db
   frontend:
-    image: node:12
+    image: node:14.16.0
     ports:
       - "3000:3000"
     volumes:
