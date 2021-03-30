@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { Button, Tab, Tabs, Form, Table } from 'react-bootstrap';
+import {Button, Tab, Tabs, Form, Table} from 'react-bootstrap';
+import { Link } from "react-router-dom";
 import { PagingElement } from '../components/PagingElement';
 import { getCookieArray } from '../functions/GetCookieArray';
 import {
@@ -208,16 +209,16 @@ const RankingElement: React.FC<RankingElementProps> = ({
   const [accountRank, setAccountRank] = useState<number>();
   const [nowRankingVersion, setNowRankingVersion] = useState(0);
   const [acPerSubmit, setAcPerSubmit] = useState<
-    [number | undefined, number | undefined]
-  >([undefined, undefined]);
+    [{first: number, second: number}]
+  >([{first: 0, second: 0}]);
   const ACCOUNTS_IN_ONE_PAGE = 20;
 
   const getRanking = (newPage: any) => {
     getRankingInfo(newPage, getContestId()).then((rankingInfo) => {
+      setAcPerSubmit(rankingInfo.acPerSubmit);
       setPartNum(rankingInfo.partAccountNum);
       setRankingList(rankingInfo.rankingList);
       setAccountRank(rankingInfo.requestAccountRank);
-      setAcPerSubmit(rankingInfo.acPerSubmit);
     });
   };
 
@@ -437,6 +438,7 @@ export const ContestPage: React.FC = () => {
   const [ratingUpdateButtonStyle, setRatingUpdateButtonStyle] = useState({
     display: 'none',
   });
+  const [contestEditButtonStyle, setContestEditButtonStyle] = useState({display: 'none'})
   const ratingUpdate = () => {
     updateContestRating(getContestId())
       .then(() => {
@@ -458,19 +460,20 @@ export const ContestPage: React.FC = () => {
         return;
       }
       const problems = await getContestProblems(contestId).catch(() => []);
-      let submissions: SubmissionInfo[] = [];
+      let submissions: SubmissionInfo[];
       const cookieArray = getCookieArray();
       if (cookieArray['_sforce_account_name']) {
         const accountName = cookieArray['_sforce_account_name'];
         submissions = await getSubmission(getContestId(), accountName);
         const accountInfo = await getAccountInformation(accountName);
         if (
-          accountInfo.auth === 'ADMINISTER' &&
-          contestInfo.ratingCalculated === false &&
-          contestInfo.ratedBound > 0 &&
+          accountInfo.auth === 'ADMINISTER' && !contestInfo.ratingCalculated && contestInfo.ratedBound > 0 &&
           contestInfo.unixEndTime < Date.now()
         ) {
           setRatingUpdateButtonStyle({ display: 'block' });
+        }
+        if (contestInfo.contestCreators.find((creator) => creator.accountName === accountName)) {
+          setContestEditButtonStyle({ display: 'block' });
         }
       } else {
         submissions = [];
@@ -492,6 +495,10 @@ export const ContestPage: React.FC = () => {
       >
         {'レート更新'}
       </Button>
+      <Button onClick={ratingUpdate} variant={'info'} style={ratingUpdateButtonStyle}>{'レート更新'}</Button>
+      <Link to={`/contest/${getContestId()}/edit`}>
+        <Button variant={'info'} style={contestEditButtonStyle}>{'コンテスト編集'}</Button>
+      </Link>
       <p id={'contestPage-contestName'}>{contestName}</p>
       <p>
         <pre>{statement}</pre>

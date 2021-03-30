@@ -15,9 +15,10 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             ContestInfo.ContestType.ICPC.textName -> ContestInfo.ContestType.ICPC
             else -> ContestInfo.ContestType.INVALID
         }
+        val id = rs.getString("id")
         ContestInfo(rs.getString("id"), rs.getString("name"), rs.getString("statement"),
                 rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"),
-            rs.getInt("ratedBound"), contestType, rs.getBoolean("ratingCalculated"))
+            rs.getInt("ratedBound"), contestType, rs.getBoolean("ratingCalculated"), findContestCreators(id))
     }
     private val rowMapperForContestCreator = RowMapper { rs, _ ->
         val position = when(rs.getString("position").toUpperCase()) {
@@ -62,10 +63,29 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             SELECT accountName, contestId, position FROM contestCreator WHERE contestId = ?
         """,rowMapperForContestCreator, contestId)
 
-    fun finAllContestNum(): Int =
+    fun findAllContestNum(): Int =
         jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo""", Int::class.java)!!
 
-    fun addContest(contestInfo: ContestInfo): ContestInfo? {
-        return TODO("add contest")
+    fun addContest(contest: ContestInfo) {
+        jdbcTemplate.update("""
+            INSERT INTO contestInfo(id, name, statement, startTime, endTime, contestType, ratedBound, penalty)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+        """, contest.id, contest.name, contest.statement, contest.startTime, contest.endTime,
+            contest.contestType.textName, contest.ratedBound, contest.penalty)
+        contest.contestCreators.forEach {
+            jdbcTemplate.update("""
+               INSERT INTO contestCreator(accountName, contestId, position) 
+               VALUES(?, ?, ?)
+            """, it.accountName, it.contestId, it.position.name)
+        }
+    }
+
+    fun updateContestInfoByPutRequestContest(contestId: String, putContest: PutRequestContest) {
+        jdbcTemplate.update(
+            """
+            UPDATE contestInfo SET statement = ?, penalty = ?
+            WHERE id = ?
+        """, putContest.statement, putContest.penalty, contestId
+        )
     }
 }

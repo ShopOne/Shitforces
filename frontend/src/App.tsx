@@ -3,6 +3,7 @@ import { Container } from 'react-bootstrap';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Header } from './components/Header';
 import { AccountPage } from './pages/AccountPage';
+import { ContestEditPage } from "./pages/ContestEditPage";
 import { ContestPage } from './pages/ContestPage';
 import { LoginPage } from './pages/LoginPage';
 import { MainPage } from './pages/MainPage';
@@ -30,6 +31,12 @@ export const App: React.FC = () => {
             key="/contest"
             path="/contest/:contestId"
             component={ContestPage}
+          />
+          <Route
+            exact
+            key="/contestEdit"
+            path="/contest/:contestId/edit"
+            component={ContestEditPage}
           />
           <Route component={NotFoundPage} />
         </Switch>
