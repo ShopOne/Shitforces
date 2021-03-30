@@ -26,4 +26,17 @@ class SharedProblemService(private val problemRepository: ProblemRepository) {
             print(e)
             null
         }
+    fun updateContestProblem(contestId: String, newProblems: List<ProblemInfo>) {
+        val prevProblem = problemRepository.findByContestId(contestId)
+        prevProblem.forEach {
+            problemRepository.deleteProblemById(it.id!!)
+        }
+        problemRepository.addProblems(contestId, newProblems)
+    }
+    fun getProblemById(id: Int): ProblemInfo? {
+        return problemRepository.findById(id)
+    }
+    fun getAnswersById(id: Int): List<String> {
+        return problemRepository.findAnswersById(id)
+    }
 }

@@ -161,9 +161,11 @@ export function updateContestRating(contestId: string) {
 }
 
 /**
+ *
  * @param prevAccountName
  * @param newAccountName
  * @param password
+ * @returns {Promise<Null>}
  */
 export function putAccountName(
   prevAccountName: string,
@@ -179,4 +181,71 @@ export function putAccountName(
     'PUT',
     jsonBody
   ) as Promise<void>;
+}
+
+
+/**
+ *
+ * @param id
+ * @param contestName
+ * @param startTime
+ * @param endTime
+ * @param penalty
+ * @param ratedBound
+ * @param contestType
+ * @param creators
+ */
+export function createContest(
+  id: string,
+  contestName: string,
+  startTime: Date,
+  endTime: Date,
+  penalty: number,
+  ratedBound: number,
+  contestType: string,
+  creators: object
+): Promise<void> {
+  const param = {
+    id: id,
+    contestName: contestName,
+    startTime: startTime,
+    endTime: endTime,
+    penalty: penalty,
+    ratedBound: ratedBound,
+    contestType: contestType,
+    creators: creators
+  };
+  return httpRequest('/api/contests', 'POST', JSON.stringify(param)) as Promise<void>;
+}
+
+/**
+ *
+ * @param contestId
+ * @param penalty
+ * @param statement
+ * @param problems
+ */
+export function putContestInfo(
+  contestId: string,
+  penalty: number,
+  statement: string,
+  problems: {statement: string, point: number, answer: string[]}[]
+): Promise<void> {
+  const param = {
+    penalty: penalty,
+    statement: statement,
+    problems: problems
+  };
+  return httpRequest(
+    `/api/contests/${contestId}`, 'PUT', JSON.stringify(param)
+  ) as Promise<void>;
+}
+
+/**
+ * @param id
+ */
+export function getProblemAnswer(
+  id: number
+): Promise<string[]> {
+  return httpRequest(`/api/problems/${id}/answer`, 'GET') as Promise<string[]>;
 }

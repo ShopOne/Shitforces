@@ -23,8 +23,6 @@ class ContestController(val contestService: ContestService,
                         val sharedAccountService: SharedAccountService,
                         val sharedSessionService: SharedSessionService
                         ) {
-    data class RequestContest constructor(val id: String, val name: String,
-                                          val startTime: Float, val endTime: Float, val rated: Boolean)
 
     @PostMapping("api/contests/{contest-id}/rating")
     fun updateRatingByContestResult(@PathVariable("contest-id") contestId: String,
@@ -59,15 +57,19 @@ class ContestController(val contestService: ContestService,
     @GetMapping("api/contests/latest")
     fun getLatestContestsInfoResponse(@RequestParam("contest_page") contestPage: Int): LatestContestsInfo {
         return contestService.getLatestContestsInfo(contestPage)
-            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
-    /*
-    @PostMapping("api/contests/", headers = ["Content-Type=application/json"])
-    fun addContestResponse(@RequestBody requestContest: RequestContest):ContestInfo {
-        return contestService.addContest(requestContest)
+
+    @PostMapping("api/contests", headers = ["Content-Type=application/json"])
+    fun addContestResponse(@RequestBody requestContest: RequestContest,
+                           httpServletRequest: HttpServletRequest) {
+        val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        val sessionAccount = sharedAccountService.getAccountByName(sessionAccountName)
+        if (sessionAccount?.authority != AccountInfo.AccountAuthority.ADMINISTER) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        }
+        contestService.addContest(requestContest)
     }
-     */
 
     @GetMapping("api/submissions/{account-name}")
     fun getAccountSubmissionOfContestResponse(@PathVariable("account-name") accountName: String,
@@ -90,7 +92,7 @@ class ContestController(val contestService: ContestService,
     ): List<ResponseProblemInfo> {
         val problems = contestService.getContestProblems(contestId, httpServletRequest)
         return problems?.map{
-            ResponseProblemInfo(it.contestName, it.point, it.statement, it.indexOfContest)
+            ResponseProblemInfo(it.contestId, it.point, it.statement, it.indexOfContest, it.id!!)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
     @PostMapping("api/contests/{contest_id}/new-rating")
@@ -108,4 +110,17 @@ class ContestController(val contestService: ContestService,
         contestService.updateRating(contestInfo)
     }
 
+    @PutMapping("api/contests/{contest_id}")
+    fun putContestInfoResponse(@PathVariable("contest_id") contestId: String,
+                               @RequestBody putRequestContest: PutRequestContest,
+                               httpServletRequest: HttpServletRequest
+    ) {
+        contestService.putContestInfo(contestId, putRequestContest, httpServletRequest)
+    }
+    @GetMapping("api/problems/{problem_id}/answer")
+    fun getAnswerByIdResponse(@PathVariable("problem_id") id: Int,
+                              httpServletRequest: HttpServletRequest
+    ): List<String> {
+        return contestService.getProblemAnswer(id, httpServletRequest)
+    }
 }
