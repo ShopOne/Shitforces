@@ -1,3 +1,8 @@
+export interface ContestCreator {
+  accountName: string;
+  contestId: string;
+  position: string;
+}
 export interface AccountInfo {
   name: string;
   rating: number;
@@ -27,7 +32,7 @@ export interface RankingInfo {
   /**
    * AC/Submitの数 .firstにAC人数、.secondに提出人数
    */
-  acPerSubmit: [number, number];
+  acPerSubmit: [{first: number, second: number}];
 }
 
 /**
@@ -54,6 +59,10 @@ export interface RankingInfoAccount {
 export interface ContestInfo {
   id: string;
   name: string;
+  /**
+   * ペナルティ(秒単位)
+   */
+  penalty: number;
   /**
    * コンテストの説明
    */
@@ -86,6 +95,10 @@ export interface ContestInfo {
    * レート計算済みかどうか
    */
   ratingCalculated: boolean;
+  /**
+   * コンテスト編集者
+   */
+  contestCreators: ContestCreator[];
 }
 
 export interface LatestContestsInfo {
@@ -94,7 +107,7 @@ export interface LatestContestsInfo {
 }
 
 export interface SubmissionInfo {
-  contestName: string;
+  contestId: string;
   indexOfContest: number;
   accountName: string;
   /**
@@ -109,7 +122,8 @@ export interface SubmissionInfo {
 }
 
 export interface ProblemInfo {
-  contestName: string;
+  contestId: string;
+  id: number;
   /**
    * 問題の得点
    */

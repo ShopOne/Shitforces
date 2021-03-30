@@ -34,7 +34,7 @@ class SubmissionRepository(val jdbcTemplate: JdbcTemplate) {
     fun findContestSubmissionInTime(contestId: String, startTime: Timestamp, endTime: Timestamp): List<SubmissionInfo> {
         return jdbcTemplate.query("""
             SELECT contestId, accountName, indexOfContest, statement, submitTime, result FROM submissionInfo 
-            WHERE contestId = ? AND ? <= submitTime  AND submitTime < ?
+            WHERE contestId = ? AND ? <= submitTime AND submitTime < ?
         """, rowMapper, contestId, startTime, endTime)
     }
     fun findContestSubmission(contestId: String): List<SubmissionInfo> {

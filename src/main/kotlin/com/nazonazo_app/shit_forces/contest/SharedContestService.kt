@@ -59,7 +59,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
             val acceptProblem = mutableListOf<Int>()
             it.isAccept.forEachIndexed{index, result ->
                 if (result) {
-                    score += problemsInfo[index].point!!
+                    score += problemsInfo[index].point
                     penaResult += it.submitTime[index]
                     acceptProblem.add(index)
                 }
@@ -86,7 +86,7 @@ class SharedContestService(private val contestRepository: ContestRepository,
             val acceptProblem = mutableListOf<Int>()
             it.isAccept.forEachIndexed{index, result ->
                 if (result) {
-                    score += problemsInfo[index].point!!
+                    score += problemsInfo[index].point
                     acceptProblem.add(index)
                     latestSubmit = latestSubmit.coerceAtLeast(it.submitTime[index])
                 }
