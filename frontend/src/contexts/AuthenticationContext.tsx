@@ -1,10 +1,18 @@
 import React, { useCallback, useContext, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { postAccountInformation } from '../functions/HttpRequest';
+import {
+  postAccountInformation,
+  putAccountName,
+} from '../functions/HttpRequest';
 import { getCookie } from '../functions/getCookie';
 
 interface AuthenticationContextValue {
   accountName: string | null;
+  changeAccountName(
+    accountName: string,
+    newAccountName: string,
+    password: string
+  ): Promise<void>;
   signIn(accountName: string, password: string): Promise<void>;
   signOut(): Promise<void>;
   signUp(accountName: string, password: string): Promise<void>;
@@ -12,6 +20,7 @@ interface AuthenticationContextValue {
 
 const AuthenticationContext = React.createContext<AuthenticationContextValue>({
   accountName: null,
+  changeAccountName: async () => undefined,
   signIn: async () => undefined,
   signOut: async () => undefined,
   signUp: async () => undefined,
@@ -31,11 +40,7 @@ export const AuthenticationProvider: React.FC = ({ children }) => {
   const signUp = useCallback(
     async (accountName: string, password: string) => {
       await postAccountInformation('/api/signup', accountName, password);
-
-      if (getCookie()['_sforce_account_name'] === accountName) {
-        setAccountName(accountName);
-      }
-
+      setAccountName(getCookie()['_sforce_account_name'] ?? null);
       history.push(`/account/${accountName}`);
     },
     [history]
@@ -44,11 +49,7 @@ export const AuthenticationProvider: React.FC = ({ children }) => {
   const signIn = useCallback(
     async (accountName: string, password: string) => {
       await postAccountInformation('/api/login', accountName, password);
-
-      if (getCookie()['_sforce_account_name'] === accountName) {
-        setAccountName(accountName);
-      }
-
+      setAccountName(getCookie()['_sforce_account_name'] ?? null);
       history.push(`/account/${accountName}`);
     },
     [history]
@@ -60,10 +61,19 @@ export const AuthenticationProvider: React.FC = ({ children }) => {
     history.push('/');
   }, [history]);
 
+  const changeAccountName = useCallback(
+    async (accountName: string, newAccountName: string, password: string) => {
+      await putAccountName(accountName, newAccountName, password);
+      setAccountName(getCookie()['_sforce_account_name'] ?? null);
+    },
+    [history]
+  );
+
   return (
     <AuthenticationContext.Provider
       value={{
         accountName,
+        changeAccountName,
         signIn,
         signOut,
         signUp,

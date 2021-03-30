@@ -1,15 +1,12 @@
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
-import {
-  getAccountInformation,
-  putAccountName,
-} from '../functions/HttpRequest';
+import { getAccountInformation } from '../functions/HttpRequest';
 
 // URL: /account/$accountName
 
@@ -41,53 +38,73 @@ AccountInformationBody.propTypes = {
   rating: PropTypes.number.isRequired,
 };
 
-interface AccountNameChangeFormProps {
-  name: string;
-}
+const AccountNameChangeForm: React.FC = () => {
+  const { accountName, changeAccountName } = useAuthentication();
 
-const AccountNameChangeForm: React.FC<AccountNameChangeFormProps> = (props) => {
-  const accountNameInput = useRef<HTMLInputElement>(null);
-  const passwordInput = useRef<HTMLInputElement>(null);
-  const changeAccountName = () => {
-    const newName = accountNameInput.current?.value;
-    const password = passwordInput.current?.value;
-    if (
-      newName === undefined ||
-      !isValidAccountNameOrPassWord(newName) ||
-      password === undefined ||
-      !isValidAccountNameOrPassWord(password)
-    ) {
-      alert('不正な入力です');
-      return;
-    }
-    putAccountName(props.name, newName, password)
-      .then(() => {
+  const [newAccountName, setNewAccountName] = useState('');
+  const [password, setPassword] = useState('');
+
+  const onChangeNewAccountName = useCallback<
+    React.ChangeEventHandler<HTMLInputElement>
+  >((event) => {
+    setNewAccountName(event.target.value);
+  }, []);
+
+  const onChangePassword = useCallback<
+    React.ChangeEventHandler<HTMLInputElement>
+  >((event) => {
+    setPassword(event.target.value);
+  }, []);
+
+  const canSubmit = useMemo(
+    () =>
+      accountName !== newAccountName &&
+      isValidAccountNameOrPassWord(newAccountName) &&
+      isValidAccountNameOrPassWord(password),
+    [accountName, newAccountName, password]
+  );
+
+  const onSubmit = useCallback<React.FormEventHandler<HTMLElement>>(
+    (event) => {
+      event.preventDefault();
+
+      if (!accountName || !canSubmit) return;
+
+      try {
+        changeAccountName(accountName, newAccountName, password);
         alert('アカウント名の変更が完了しました');
-        window.location.href = `/account/${newName}`;
-      })
-      .catch(() => {
+      } catch (e) {
+        console.error(e);
         alert(
           'アカウント名の変更に失敗しました。名前が重複しているかパスワードが間違っています。'
         );
-      });
-  };
+      }
+    },
+    [accountName, changeAccountName, canSubmit, newAccountName, password]
+  );
+
   return (
-    <Form>
-      <Form.Group controlId="passwordInput" />
-      <Form.Label>新しいアカウント名</Form.Label>
-      <Form.Control ref={accountNameInput} />
-      <Form.Group controlId="passwordInput" />
-      <Form.Label>パスワード</Form.Label>
-      <Form.Control type="password" ref={passwordInput} />
-      <Button variant="primary" onClick={changeAccountName}>
+    <Form onSubmit={onSubmit}>
+      <Form.Group>
+        <Form.Label>新しいアカウント名</Form.Label>
+        <Form.Control
+          value={newAccountName}
+          onChange={onChangeNewAccountName}
+        />
+      </Form.Group>
+      <Form.Group>
+        <Form.Label>パスワード</Form.Label>
+        <Form.Control
+          type="password"
+          value={password}
+          onChange={onChangePassword}
+        />
+      </Form.Group>
+      <Button type="submit" variant="primary" disabled={!canSubmit}>
         アカウント名変更
       </Button>
     </Form>
   );
-};
-
-AccountNameChangeForm.propTypes = {
-  name: PropTypes.string.isRequired,
 };
 
 interface AccountInfoTabsProps {
@@ -102,7 +119,7 @@ const AccountInfoTabs: React.FC<AccountInfoTabsProps> = (props) => {
         <AccountInformationBody name={props.name} rating={props.rating} />
       </Tab>
       <Tab eventKey="changeName" title="アカウント名の変更">
-        <AccountNameChangeForm name={props.name} />
+        <AccountNameChangeForm />
       </Tab>
     </Tabs>
   );

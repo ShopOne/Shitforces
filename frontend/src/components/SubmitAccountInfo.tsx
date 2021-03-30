@@ -37,7 +37,6 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
 
   const onSubmit = useCallback<React.FormEventHandler<HTMLElement>>(
     (event) => {
-      console.log('submit', event);
       event.preventDefault();
 
       if (!canSubmit) return;
