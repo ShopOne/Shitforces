@@ -1,18 +1,18 @@
 import React from 'react';
 import { Button, Nav, Navbar } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { getCookieArray } from '../functions/GetCookieArray';
+import { useAuthentication } from '../contexts/AuthenticationContext';
 
 export const Header: React.FC = () => {
   let rightHeader;
-  const cookieArray = getCookieArray();
 
-  if (cookieArray['_sforce_account_name']) {
-    const name = cookieArray['_sforce_account_name'];
+  const { accountName } = useAuthentication();
+
+  if (accountName !== null) {
     rightHeader = (
       <Nav>
-        <Nav.Link as={Link} to={`/account/${name}`}>
-          {name}
+        <Nav.Link as={Link} to={`/account/${accountName}`}>
+          {accountName}
         </Nav.Link>
       </Nav>
     );
