@@ -65,6 +65,7 @@ export const AuthenticationProvider: React.FC = ({ children }) => {
     async (accountName: string, newAccountName: string, password: string) => {
       await putAccountName(accountName, newAccountName, password);
       setAccountName(getCookie()['_sforce_account_name'] ?? null);
+      history.push(`/account/${newAccountName}`);
     },
     [history]
   );
