@@ -36,7 +36,7 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
   );
 
   const onSubmit = useCallback<React.FormEventHandler<HTMLElement>>(
-    (event) => {
+    async (event) => {
       event.preventDefault();
 
       if (!canSubmit) return;
@@ -44,7 +44,7 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
       switch (variant) {
         case 'signIn':
           try {
-            signIn(accountName, password);
+            await signIn(accountName, password);
             alert('ログインに成功しました');
           } catch (e) {
             console.error(e);
@@ -55,7 +55,7 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
           break;
         case 'signUp':
           try {
-            signUp(accountName, password);
+            await signUp(accountName, password);
             alert('アカウントの作成に成功しました');
           } catch (e) {
             console.error(e);
