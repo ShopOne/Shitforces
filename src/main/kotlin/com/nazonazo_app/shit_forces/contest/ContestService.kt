@@ -298,7 +298,7 @@ class ContestService(private val contestRepository: ContestRepository,
         }
         contestRepository.updateContestInfoByPutRequestContest(contestId, putRequestContest)
         val now = Timestamp(System.currentTimeMillis())
-        if (now < contestInfo.startTime || contestInfo.endTime < now) {
+        if (now < contestInfo.startTime) {
             sharedProblemService.updateContestProblem(contestInfo.id, problems)
         }
     }

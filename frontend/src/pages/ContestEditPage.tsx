@@ -216,7 +216,7 @@ export const ContestEditPage: React.FC = () => {
 
   return (
     <div>
-      <p>コンテスト中は問題の編集を行っても反映されません</p>
+      <p>コンテスト開始後は問題の編集を行っても反映されません</p>
       <Form>
         <Form.Row>
           <Col>
