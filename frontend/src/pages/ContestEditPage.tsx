@@ -25,7 +25,7 @@ function getContestId() {
 class EditProblemInfo {
   statement: string;
   id: number;
-  point: number;
+  point: number | undefined;
   answer: string[];
   constructor(statement: string, id: number, point: number, answer: string[]) {
     this.statement = statement;
@@ -49,9 +49,9 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
   };
   const updateProblemPoint = (idx: number, point: string) => {
     const newProblems = [...problems];
-    const newPoint = parseInt(point);
+    let newPoint: number | undefined = parseInt(point);
     if (isNaN(newPoint)) {
-      return;
+      newPoint = undefined;
     }
     newProblems[idx].point = newPoint;
     setProblems(newProblems);
@@ -197,9 +197,13 @@ export const ContestEditPage: React.FC = () => {
 
   const putContestInfoFunction = () => {
     const sendProblems = problems.map((problem) => {
+      let point = problem.point;
+      if (point === undefined) {
+        point = 0;
+      }
       return {
         statement: problem.statement,
-        point: problem.point,
+        point: point,
         answer: problem.answer,
       };
     });
