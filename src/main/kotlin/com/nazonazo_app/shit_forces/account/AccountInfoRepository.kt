@@ -61,4 +61,8 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
             UPDATE accountRatingChangeHistory set accountName = ? where accountName = ?
         """, newName, prevName)
     }
+
+    fun findAllAccount(): List<AccountInfo> {
+        return jdbcTemplate.query("""SELECT * FROM accountInfo""", rowMapperForAccountInfo)
+    }
 }

@@ -8,6 +8,8 @@ import org.springframework.web.server.ResponseStatusException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+
+const val ACCOUNT_RANKING_ONE_PAGE = 20
 @CrossOrigin(origins = arrayOf("http://localhost:3000"), allowCredentials = "true")
 @RestController
 class AccountController(private val accountService: AccountService,
@@ -44,7 +46,8 @@ class AccountController(private val accountService: AccountService,
     fun getAccountByNameResponse(@PathVariable("accountName") accountName: String): ResponseAccount {
         val account = sharedAccountService.getAccountByName(accountName)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return ResponseAccount(account.name, sharedAccountService.calcCorrectionRate(account), account.authority.name)
+        return ResponseAccount(account.name, sharedAccountService.calcCorrectionRate(account),
+            account.partNum, account.authority.name)
     }
 
     @PutMapping("api/account/{accountName}/name")
@@ -57,5 +60,10 @@ class AccountController(private val accountService: AccountService,
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
         accountService.changeAccountName(accountName, requestAccount, httpServletRequest, httpServletResponse)
+    }
+
+    @GetMapping("api/ranking")
+    fun getAccountsRankingResponse(@RequestParam("page") page: Int): ResponseAccountRanking {
+        return accountService.getAccountRanking(page)
     }
 }

@@ -1,5 +1,5 @@
 import type {
-  AccountInfo,
+  AccountInfo, AccountRankingInfo,
   ContestInfo,
   LatestContestsInfo,
   ProblemInfo,
@@ -248,4 +248,14 @@ export function getProblemAnswer(
   id: number
 ): Promise<string[]> {
   return httpRequest(`/api/problems/${id}/answer`, 'GET') as Promise<string[]>;
+}
+
+/**
+ * @param page
+ */
+export function getAccountRankingInfo(
+  page: number
+): Promise<AccountRankingInfo> {
+  return httpRequest('/api/ranking', 'GET',
+    { page: page }) as Promise<AccountRankingInfo>;
 }

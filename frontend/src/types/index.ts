@@ -6,7 +6,7 @@ export interface ContestCreator {
 export interface AccountInfo {
   name: string;
   rating: number;
-  accountName: string;
+  partNum: number;
   auth: string;
 }
 
@@ -136,4 +136,9 @@ export interface ProblemInfo {
    * コンテストの何番目の問題か
    */
   indexOfContest: number;
+}
+
+export interface AccountRankingInfo {
+  accounts: AccountInfo[];
+  validAccountNum: number;
 }

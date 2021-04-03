@@ -33,5 +33,12 @@ data class RequestAccount(
 data class ResponseAccount(
     val name: String,
     val rating: Int,
+    val partNum: Int,
     val auth: String
+)
+
+
+data class ResponseAccountRanking(
+    val accounts: List<ResponseAccount>,
+    val validAccountNum: Int
 )
