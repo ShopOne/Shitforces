@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse
 @Service
 class AccountService(val accountInfoRepository: AccountInfoRepository,
                      val sharedSubmissionService: SharedSubmissionService,
+                     val sharedAccountService: SharedAccountService,
                      val sharedSessionService: SharedSessionService){
 
     private fun createConnectedPassword(accountName: String, password: String): String {
@@ -68,5 +69,17 @@ class AccountService(val accountInfoRepository: AccountInfoRepository,
         sharedSessionService.createNewSession(requestAccount.name, httpServletResponse)
         sharedSubmissionService.changeSubmissionAccountName(prevAccountName, requestAccount.name)
         accountInfoRepository.changeAccountRatingChangeHistoryName(prevAccountName, requestAccount.name)
+    }
+
+    fun getAccountRanking(page: Int): ResponseAccountRanking {
+        val accounts = accountInfoRepository.findAllAccount()
+        val responseAccounts = accounts
+            .filter { it.partNum != 0}
+            .map { ResponseAccount(it.name, sharedAccountService.calcCorrectionRate(it),
+                it.partNum, it.authority.name) }
+            .sortedBy { -it.rating }
+            .filterIndexed { idx, _ ->
+                page * ACCOUNT_RANKING_ONE_PAGE <= idx && idx < (page + 1) * ACCOUNT_RANKING_ONE_PAGE }
+        return ResponseAccountRanking(responseAccounts, accounts.size)
     }
 }

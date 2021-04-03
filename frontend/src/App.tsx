@@ -9,6 +9,7 @@ import { ContestPage } from './pages/ContestPage';
 import { LoginPage } from './pages/LoginPage';
 import { MainPage } from './pages/MainPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { RankingPage } from "./pages/RankingPage";
 import { SignUpPage } from './pages/SignUpPage';
 import './App.css';
 
@@ -17,27 +18,28 @@ export const App: React.FC = () => {
     <Router>
       <AuthenticationProvider>
         <Header />
-        <Container className="App-container p-3">
+        <Container className='App-container p-3'>
           <Switch>
-            <Route exact key="/" path="/" component={MainPage} />
-            <Route exact key="/login" path="/login" component={LoginPage} />
-            <Route exact key="/signup" path="/signup" component={SignUpPage} />
+            <Route exact key='/' path='/' component={MainPage} />
+            <Route exact key='/login' path='/login' component={LoginPage} />
+            <Route exact key='/signup' path='/signup' component={SignUpPage} />
+            <Route exact key='/ranking' path='/ranking' component={RankingPage}/>
             <Route
               exact
-              key="/account"
-              path="/account/:id"
+              key='/account'
+              path='/account/:id'
               component={AccountPage}
             />
             <Route
               exact
-              key="/contest"
-              path="/contest/:contestId"
+              key='/contest'
+              path='/contest/:contestId'
               component={ContestPage}
             />
             <Route
               exact
-              key="/contestEdit"
-              path="/contest/:contestId/edit"
+              key='/contestEdit'
+              path='/contest/:contestId/edit'
               component={ContestEditPage}
             />
             <Route component={NotFoundPage} />

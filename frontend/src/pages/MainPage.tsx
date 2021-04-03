@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Table } from 'react-bootstrap';
+import Button from "react-bootstrap/Button";
+import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
 import { PagingElement } from '../components/PagingElement';
 import { getLatestContests } from '../functions/HttpRequest';
@@ -61,6 +62,9 @@ const ContestList: React.FC = () => {
         </tbody>
       </Table>
       <PagingElement pageChanged={updatePage} pageNum={pageNum} />
+      <Link to={'/ranking'}>
+        <Button variant={'primary'}>順位表へ</Button>
+      </Link>
     </>
   );
 };
