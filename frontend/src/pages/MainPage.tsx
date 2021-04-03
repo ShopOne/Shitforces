@@ -55,7 +55,7 @@ const ContestList: React.FC = () => {
                 分
               </td>
               <td className="text-center">
-                {contest.ratedBound > 0 ? `~ ${contest.ratedBound}` : '-'}
+                {contest.ratedBound > 0 ? `~ ${contest.ratedBound - 1}` : '-'}
               </td>
             </tr>
           ))}
