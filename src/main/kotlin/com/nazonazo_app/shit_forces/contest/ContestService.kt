@@ -232,11 +232,11 @@ class ContestService(private val contestRepository: ContestRepository,
             val f = {x: Double -> 2.0.pow(x / 800.0) }
             val g = {x: Double -> 800 * ln(x) / ln(2.0) }
             if (it.partNum == 0) {
-                newRating = perf
-                newInnerRating = rPerf
+                newRating = rPerf
+                newInnerRating = perf
             } else {
-                newRating = 0.9 * it.innerRating + 0.1 * perf
-                newInnerRating = g(0.9 * f(it.rating) + 0.1 * f(rPerf))
+                newRating = g(0.9 * f(it.rating) + 0.1 * f(rPerf))
+                newInnerRating = 0.9 * it.innerRating + 0.1 * perf
             }
             resultParticipants.add(ParticipantResult(it.name,newInnerRating, newRating, rPerf))
         }
