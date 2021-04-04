@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import {Button, Form, Modal} from 'react-bootstrap';
+import { useHistory } from "react-router-dom";
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
 
@@ -12,9 +13,23 @@ interface Props {
 
 export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
   const { signIn, signUp } = useAuthentication();
-
+  const [show, setShow] = useState<boolean>(false);
+  const [alertText, setAlertText] = useState<string>('');
   const [accountName, setAccountName] = useState('');
   const [password, setPassword] = useState('');
+  const auth = useAuthentication();
+  const history = useHistory();
+
+  const handleClose = () => {
+    const name = auth.accountName;
+    if (name) {
+      history.push(`account/${name}`);
+    } else {
+       setShow(false);
+    }
+  }
+  const handleShow = () => setShow(true);
+
 
   const onChangeAccountName = useCallback<
     React.ChangeEventHandler<HTMLInputElement>
@@ -45,21 +60,26 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
         case 'signIn':
           try {
             await signIn(accountName, password);
-            alert('ログインに成功しました');
+            setAlertText('ログインに成功しました');
+            setAccountName(accountName);
+            handleShow();
           } catch (e) {
             console.error(e);
-            alert(
+            setAlertText(
               'ログインに失敗しました。メールアドレスかパスワードが間違っています'
             );
+            handleShow();
           }
           break;
         case 'signUp':
           try {
             await signUp(accountName, password);
-            alert('アカウントの作成に成功しました');
+            setAlertText('アカウントの作成に成功しました');
+            handleShow();
           } catch (e) {
             console.error(e);
-            alert('アカウントの作成に失敗しました');
+            setAlertText('アカウントの作成に失敗しました');
+            handleShow();
           }
           break;
       }
@@ -70,6 +90,17 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
   return (
     <div>
       <p>{TEXT_TERM}</p>
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header>
+          <Modal.Title>ログイン情報</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{alertText}</Modal.Body>
+        <Modal.Footer>
+          <Button variant={'primary'} onClick={handleClose}>
+            閉じる
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Form onSubmit={onSubmit}>
         <Form.Group>
           <Form.Label>ユーザーID</Form.Label>

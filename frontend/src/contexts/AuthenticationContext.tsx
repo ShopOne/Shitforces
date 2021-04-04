@@ -41,7 +41,6 @@ export const AuthenticationProvider: React.FC = ({ children }) => {
     async (accountName: string, password: string) => {
       await postAccountInformation('/api/signup', accountName, password);
       setAccountName(getCookie()['_sforce_account_name'] ?? null);
-      history.push(`/account/${accountName}`);
     },
     [history]
   );
@@ -50,7 +49,6 @@ export const AuthenticationProvider: React.FC = ({ children }) => {
     async (accountName: string, password: string) => {
       await postAccountInformation('/api/login', accountName, password);
       setAccountName(getCookie()['_sforce_account_name'] ?? null);
-      history.push(`/account/${accountName}`);
     },
     [history]
   );
