@@ -18,7 +18,7 @@ class SharedAccountService(private val accountInfoRepository: AccountInfoReposit
     }
     fun calcCorrectionRate(account: AccountInfo): Int {
         if (account.partNum == 0) return 0
-        val r = account.innerRating
+        val r = account.rating
         val p = account.partNum
         val minus = (sqrt(1 - 0.81.pow(p)) /  (1 - 0.9.pow(p)) - 1) / (sqrt(19.0) - 1) * 1200
         val miRating = r - minus

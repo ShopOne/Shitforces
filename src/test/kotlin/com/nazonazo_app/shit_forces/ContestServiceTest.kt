@@ -45,39 +45,39 @@ class ContestServiceTest {
     fun testRatingCalculation0() {
         val contestInfo0 = ContestInfo("test0", "test0", "",
             Timestamp(System.currentTimeMillis()), Timestamp(System.currentTimeMillis()),
-            0, 2800, ContestInfo.ContestType.ICPC, false
+            0, 2800, ContestInfo.ContestType.ICPC, false, listOf()
         )
         val contestInfo1 = ContestInfo("test1", "test1", "",
             Timestamp(System.currentTimeMillis()), Timestamp(System.currentTimeMillis()),
-            0, 800, ContestInfo.ContestType.ICPC, false
+            0, 800, ContestInfo.ContestType.ICPC, false, listOf()
         )
         val names0 = listOf("a","b","c","d","e","f","g","h","i","j",
             "k","l","m","n","o","p","q","r","s","t")
         val names1 = listOf("1","2","3","4","5","6","7","8","9","10","11","12")
         val ranking0 = names0.mapIndexed{index, name ->
-            ContestRankingAccountInfo(name, 0, 0, listOf(), index + 1)
+            ContestRankingAccountInfo(name, 0, 0, listOf(), listOf(), index + 1)
         }
         val ranking1 = listOf(
-            ContestRankingAccountInfo("1", 0, 0, listOf(), 1),
-            ContestRankingAccountInfo("2", 0, 0, listOf(), 2),
-            ContestRankingAccountInfo("3", 0, 0, listOf(), 3),
-            ContestRankingAccountInfo("q", 0, 0, listOf(), 4),
-            ContestRankingAccountInfo("a", 0, 0, listOf(), 5),
-            ContestRankingAccountInfo("h", 0, 0, listOf(), 6),
-            ContestRankingAccountInfo("t", 0, 0, listOf(), 7),
-            ContestRankingAccountInfo("4", 0, 0, listOf(), 8),
-            ContestRankingAccountInfo("g", 0, 0, listOf(), 9),
-            ContestRankingAccountInfo("5", 0, 0, listOf(), 10),
-            ContestRankingAccountInfo("6", 0, 0, listOf(), 11),
-            ContestRankingAccountInfo("7", 0, 0, listOf(), 12),
-            ContestRankingAccountInfo("8", 0, 0, listOf(), 13),
-            ContestRankingAccountInfo("9", 0, 0, listOf(), 14),
-            ContestRankingAccountInfo("k", 0, 0, listOf(), 15),
-            ContestRankingAccountInfo("10", 0, 0, listOf(), 16),
-            ContestRankingAccountInfo("j", 0, 0, listOf(), 17),
-            ContestRankingAccountInfo("11", 0, 0, listOf(), 18),
-            ContestRankingAccountInfo("d", 0, 0, listOf(), 19),
-            ContestRankingAccountInfo("12", 0, 0, listOf(), 20)
+            ContestRankingAccountInfo("1", 0, 0, listOf(), listOf(), 1),
+            ContestRankingAccountInfo("2", 0, 0, listOf(), listOf(), 2),
+            ContestRankingAccountInfo("3", 0, 0, listOf(), listOf(), 3),
+            ContestRankingAccountInfo("q", 0, 0, listOf(), listOf(), 4),
+            ContestRankingAccountInfo("a", 0, 0, listOf(), listOf(), 5),
+            ContestRankingAccountInfo("h", 0, 0, listOf(), listOf(), 6),
+            ContestRankingAccountInfo("t", 0, 0, listOf(), listOf(), 7),
+            ContestRankingAccountInfo("4", 0, 0, listOf(), listOf(), 8),
+            ContestRankingAccountInfo("g", 0, 0, listOf(), listOf(), 9),
+            ContestRankingAccountInfo("5", 0, 0, listOf(), listOf(), 10),
+            ContestRankingAccountInfo("6", 0, 0, listOf(), listOf(), 11),
+            ContestRankingAccountInfo("7", 0, 0, listOf(), listOf(), 12),
+            ContestRankingAccountInfo("8", 0, 0, listOf(), listOf(), 13),
+            ContestRankingAccountInfo("9", 0, 0, listOf(), listOf(), 14),
+            ContestRankingAccountInfo("k", 0, 0, listOf(), listOf(), 15),
+            ContestRankingAccountInfo("10", 0, 0, listOf(), listOf(), 16),
+            ContestRankingAccountInfo("j", 0, 0, listOf(), listOf(), 17),
+            ContestRankingAccountInfo("11", 0, 0, listOf(), listOf(), 18),
+            ContestRankingAccountInfo("d", 0, 0, listOf(), listOf(), 19),
+            ContestRankingAccountInfo("12", 0, 0, listOf(), listOf(), 20)
         )
         names0.forEach {
             val account = AccountInfo(it, 0.0, 0.0, 0, "", "")
@@ -144,7 +144,8 @@ class ContestServiceTest {
         }
     }
     private fun calcCorrectionRateTestImpl(account: AccountInfo): Int {
-        val r = account.innerRating
+        if (account.partNum == 0) return 0
+        val r = account.rating
         val p = account.partNum
         val minus = (sqrt(1 - 0.81.pow(p)) /  (1 - 0.9.pow(p)) - 1) / (sqrt(19.0) - 1) * 1200
         val miRating = r - minus
