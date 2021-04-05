@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import {Button, Form, Modal} from 'react-bootstrap';
-import { useHistory } from "react-router-dom";
+import { Button, Form, Modal } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
 
@@ -25,11 +25,10 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
     if (name) {
       history.push(`account/${name}`);
     } else {
-       setShow(false);
+      setShow(false);
     }
-  }
+  };
   const handleShow = () => setShow(true);
-
 
   const onChangeAccountName = useCallback<
     React.ChangeEventHandler<HTMLInputElement>
