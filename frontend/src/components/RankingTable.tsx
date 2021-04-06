@@ -37,7 +37,7 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
   }
 
   return (
-    <tr className={isMe ? 'table-primary' : undefined}>
+    <tr className={isMe ? 'table-info' : undefined}>
       <td className="align-middle text-center">{account.ranking}</td>
       <td className="align-middle font-weight-bold">{account.accountName}</td>
       <td className="align-middle text-center">
