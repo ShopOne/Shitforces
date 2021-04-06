@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Tab, Tabs, Form, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { PagingElement } from '../components/PagingElement';
+import { RankingTable } from '../components/RankingTable';
+import { useAuthentication } from '../contexts/AuthenticationContext';
 import {
   getAccountInformation,
   getContestInfo,
@@ -13,7 +15,7 @@ import {
   updateContestRating,
 } from '../functions/HttpRequest';
 import { getCookie } from '../functions/getCookie';
-import { ProblemInfo, RankingInfoAccount, SubmissionInfo } from '../types';
+import { ProblemInfo, RankingInfo, SubmissionInfo } from '../types';
 import './ContestPage.css';
 
 const KEY_OF_MY_SUBMISSIONS = 'mySubmit';
@@ -34,96 +36,6 @@ function getContestId() {
   const splitPath = window.location.pathname.split('/');
   return splitPath.slice(-1)[0];
 }
-
-function formatSecondToMMSS(ms: number): string {
-  const mm = Math.floor(ms / 60);
-  const ss = ('00' + Math.floor(ms % 60)).slice(-2);
-  return `${mm}:${ss}`;
-}
-
-interface RankingTableProps {
-  acPerSubmit: any[];
-  problems: any[];
-  rankingList: RankingInfoAccount[];
-}
-
-const RankingTable: React.FC<RankingTableProps> = ({
-  acPerSubmit,
-  problems,
-  rankingList,
-}) => {
-  if (problems.length !== acPerSubmit.length) {
-    return <div />;
-  }
-
-  const problemsNum = problems.length;
-  const problemTr = () => {
-    const items = [];
-    for (let i = 0; i < problemsNum; i++) {
-      items.push(
-        <th>
-          {`${createEnglishIndex(i, problemsNum)} (${acPerSubmit[i].first} / ${
-            acPerSubmit[i].second
-          })`}
-        </th>
-      );
-    }
-    return items;
-  };
-
-  const rankingInfo = () => {
-    return rankingList.map((account, idx: number) => {
-      const probElement = [];
-      for (let i = 0; i < problemsNum; i++) {
-        if (account.acceptList.some((ac: any) => ac === i)) {
-          probElement.push(
-            <td>
-              <p className={'contestPage-ranking-submitResult'}>AC</p>
-              <p className={'contestPage-ranking-submitTime'}>
-                {formatSecondToMMSS(account.acceptTimeList[i])}
-              </p>
-            </td>
-          );
-        } else {
-          probElement.push(<td> </td>);
-        }
-      }
-      return (
-        <tr
-          key={account.accountName + idx}
-          className={'contestPage-ranking-tr'}
-        >
-          <td>{account.ranking}</td>
-          <td>{account.accountName}</td>
-          <td>{account.score}</td>
-          {probElement}
-          <td>{account.penalty}</td>
-        </tr>
-      );
-    });
-  };
-
-  return (
-    <Table striped bordered hover responsive>
-      <thead>
-        <tr>
-          <th>順位</th>
-          <th>アカウント</th>
-          <th>総得点</th>
-          {problemTr()}
-          <th>ペナルティ</th>
-        </tr>
-      </thead>
-      <tbody>{rankingInfo()}</tbody>
-    </Table>
-  );
-};
-
-RankingTable.propTypes = {
-  acPerSubmit: PropTypes.array.isRequired,
-  problems: PropTypes.array.isRequired,
-  rankingList: PropTypes.array.isRequired,
-};
 
 interface SubmissionTableProps {
   problemNum: number;
@@ -196,7 +108,7 @@ SubmissionTable.propTypes = {
 };
 
 interface RankingElementProps {
-  problems: any[];
+  problems: ProblemInfo[];
   rankingVersion: number;
 }
 
@@ -204,21 +116,15 @@ const RankingElement: React.FC<RankingElementProps> = ({
   problems,
   rankingVersion,
 }) => {
-  const [partNum, setPartNum] = useState(0);
-  const [rankingList, setRankingList] = useState<RankingInfoAccount[]>([]);
-  const [accountRank, setAccountRank] = useState<number>();
+  const { accountName } = useAuthentication();
+  const [ranking, setRanking] = useState<RankingInfo | null>(null);
   const [nowRankingVersion, setNowRankingVersion] = useState(0);
-  const [acPerSubmit, setAcPerSubmit] = useState<
-    [{ first: number; second: number }]
-  >([{ first: 0, second: 0 }]);
+
   const ACCOUNTS_IN_ONE_PAGE = 20;
 
   const getRanking = (newPage: any) => {
     getRankingInfo(newPage, getContestId()).then((rankingInfo) => {
-      setAcPerSubmit(rankingInfo.acPerSubmit);
-      setPartNum(rankingInfo.partAccountNum);
-      setRankingList(rankingInfo.rankingList);
-      setAccountRank(rankingInfo.requestAccountRank);
+      setRanking(rankingInfo);
     });
   };
 
@@ -231,20 +137,24 @@ const RankingElement: React.FC<RankingElementProps> = ({
     getRanking(0);
   }, []);
 
-  const pageNum = Math.ceil(partNum / ACCOUNTS_IN_ONE_PAGE);
+  const pageNum = Math.ceil(
+    (ranking?.partAccountNum ?? 0) / ACCOUNTS_IN_ONE_PAGE
+  );
   let myRank = '';
-  if (accountRank) {
-    myRank = `順位: ${accountRank}`;
+  if (ranking?.requestAccountRank) {
+    myRank = `順位: ${ranking.requestAccountRank}`;
   }
 
   return (
     <div>
       <p>{myRank}</p>
-      <RankingTable
-        problems={problems}
-        rankingList={rankingList}
-        acPerSubmit={acPerSubmit}
-      />
+      {ranking && (
+        <RankingTable
+          myAccountName={accountName}
+          problems={problems}
+          ranking={ranking}
+        />
+      )}
       <PagingElement
         pageNum={pageNum}
         pageChanged={getRanking}
