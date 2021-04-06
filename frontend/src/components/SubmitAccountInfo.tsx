@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button, Form, Modal } from 'react-bootstrap';
+import { useHistory } from 'react-router-dom';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
 
@@ -11,15 +12,26 @@ interface Props {
 }
 
 export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
-  const { signIn, signUp } = useAuthentication();
-
-  const [accountName, setAccountName] = useState('');
+  const { accountName, signIn, signUp } = useAuthentication();
+  const [show, setShow] = useState<boolean>(false);
+  const [alertText, setAlertText] = useState<string>('');
+  const [accountNameInput, setAccountNameInput] = useState('');
   const [password, setPassword] = useState('');
+  const history = useHistory();
+
+  const handleClose = () => {
+    if (accountName) {
+      history.push(`account/${accountName}`);
+    } else {
+      setShow(false);
+    }
+  };
+  const handleShow = () => setShow(true);
 
   const onChangeAccountName = useCallback<
     React.ChangeEventHandler<HTMLInputElement>
   >((event) => {
-    setAccountName(event.target.value);
+    setAccountNameInput(event.target.value);
   }, []);
 
   const onChangePassword = useCallback<
@@ -30,9 +42,9 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
 
   const canSubmit = useMemo(
     () =>
-      isValidAccountNameOrPassWord(accountName) &&
+      isValidAccountNameOrPassWord(accountNameInput) &&
       isValidAccountNameOrPassWord(password),
-    [accountName, password]
+    [accountNameInput, password]
   );
 
   const onSubmit = useCallback<React.FormEventHandler<HTMLElement>>(
@@ -44,36 +56,55 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
       switch (variant) {
         case 'signIn':
           try {
-            await signIn(accountName, password);
-            alert('ログインに成功しました');
+            await signIn(accountNameInput, password);
+            setAlertText('ログインに成功しました');
+            setAccountNameInput(accountNameInput);
+            handleShow();
           } catch (e) {
             console.error(e);
-            alert(
+            setAlertText(
               'ログインに失敗しました。メールアドレスかパスワードが間違っています'
             );
+            handleShow();
           }
           break;
         case 'signUp':
           try {
-            await signUp(accountName, password);
-            alert('アカウントの作成に成功しました');
+            await signUp(accountNameInput, password);
+            setAlertText('アカウントの作成に成功しました');
+            handleShow();
           } catch (e) {
             console.error(e);
-            alert('アカウントの作成に失敗しました');
+            setAlertText('アカウントの作成に失敗しました');
+            handleShow();
           }
           break;
       }
     },
-    [variant, signIn, signUp, canSubmit, accountName, password]
+    [variant, signIn, signUp, canSubmit, accountNameInput, password]
   );
 
   return (
     <div>
       <p>{TEXT_TERM}</p>
+      <Modal show={show} onHide={handleClose}>
+        <Modal.Header>
+          <Modal.Title>ログイン情報</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>{alertText}</Modal.Body>
+        <Modal.Footer>
+          <Button variant={'primary'} onClick={handleClose}>
+            閉じる
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Form onSubmit={onSubmit}>
         <Form.Group>
           <Form.Label>ユーザーID</Form.Label>
-          <Form.Control value={accountName} onChange={onChangeAccountName} />
+          <Form.Control
+            value={accountNameInput}
+            onChange={onChangeAccountName}
+          />
         </Form.Group>
         <Form.Group>
           <Form.Label>パスワード</Form.Label>
