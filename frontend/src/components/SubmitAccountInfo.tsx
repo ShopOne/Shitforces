@@ -12,18 +12,16 @@ interface Props {
 }
 
 export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
-  const { signIn, signUp } = useAuthentication();
+  const { accountName, signIn, signUp } = useAuthentication();
   const [show, setShow] = useState<boolean>(false);
   const [alertText, setAlertText] = useState<string>('');
-  const [accountName, setAccountName] = useState('');
+  const [accountNameInput, setAccountNameInput] = useState('');
   const [password, setPassword] = useState('');
-  const auth = useAuthentication();
   const history = useHistory();
 
   const handleClose = () => {
-    const name = auth.accountName;
-    if (name) {
-      history.push(`account/${name}`);
+    if (accountName) {
+      history.push(`account/${accountName}`);
     } else {
       setShow(false);
     }
@@ -33,7 +31,7 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
   const onChangeAccountName = useCallback<
     React.ChangeEventHandler<HTMLInputElement>
   >((event) => {
-    setAccountName(event.target.value);
+    setAccountNameInput(event.target.value);
   }, []);
 
   const onChangePassword = useCallback<
@@ -44,9 +42,9 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
 
   const canSubmit = useMemo(
     () =>
-      isValidAccountNameOrPassWord(accountName) &&
+      isValidAccountNameOrPassWord(accountNameInput) &&
       isValidAccountNameOrPassWord(password),
-    [accountName, password]
+    [accountNameInput, password]
   );
 
   const onSubmit = useCallback<React.FormEventHandler<HTMLElement>>(
@@ -58,9 +56,9 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
       switch (variant) {
         case 'signIn':
           try {
-            await signIn(accountName, password);
+            await signIn(accountNameInput, password);
             setAlertText('ログインに成功しました');
-            setAccountName(accountName);
+            setAccountNameInput(accountNameInput);
             handleShow();
           } catch (e) {
             console.error(e);
@@ -72,7 +70,7 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
           break;
         case 'signUp':
           try {
-            await signUp(accountName, password);
+            await signUp(accountNameInput, password);
             setAlertText('アカウントの作成に成功しました');
             handleShow();
           } catch (e) {
@@ -83,7 +81,7 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
           break;
       }
     },
-    [variant, signIn, signUp, canSubmit, accountName, password]
+    [variant, signIn, signUp, canSubmit, accountNameInput, password]
   );
 
   return (
@@ -103,7 +101,10 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
       <Form onSubmit={onSubmit}>
         <Form.Group>
           <Form.Label>ユーザーID</Form.Label>
-          <Form.Control value={accountName} onChange={onChangeAccountName} />
+          <Form.Control
+            value={accountNameInput}
+            onChange={onChangeAccountName}
+          />
         </Form.Group>
         <Form.Group>
           <Form.Label>パスワード</Form.Label>
