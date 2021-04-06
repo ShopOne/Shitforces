@@ -1,5 +1,6 @@
 import type {
-  AccountInfo, AccountRankingInfo,
+  AccountInfo,
+  AccountRankingInfo,
   ContestInfo,
   LatestContestsInfo,
   ProblemInfo,
@@ -71,16 +72,22 @@ export function postSubmission(
 }
 
 /**
- * @param page 順位表何ページ目かの指定 1ページ20 (+1 ログインアカウント用 未実装)
+ * @param page 順位表何ページ目かの指定 1ページ20 (+1 ログインアカウント用 未実装) nullの場合は順位表全体を返す
  * @param contestId コンテスト短縮名(urlの名前)
  */
 export function getRankingInfo(
-  page: number,
+  page: number | null,
   contestId: string
 ): Promise<RankingInfo> {
-  return httpRequest(`/api/contests/${contestId}/ranking`, 'GET', {
-    page: page,
-  }) as Promise<RankingInfo>;
+  const params: any = {};
+  if (page !== null) {
+    params.page = page;
+  }
+  return httpRequest(
+    `/api/contests/${contestId}/ranking`,
+    'GET',
+    params
+  ) as Promise<RankingInfo>;
 }
 
 /**
@@ -183,7 +190,6 @@ export function putAccountName(
   ) as Promise<void>;
 }
 
-
 /**
  *
  * @param id
@@ -213,9 +219,13 @@ export function createContest(
     penalty: penalty,
     ratedBound: ratedBound,
     contestType: contestType,
-    creators: creators
+    creators: creators,
   };
-  return httpRequest('/api/contests', 'POST', JSON.stringify(param)) as Promise<void>;
+  return httpRequest(
+    '/api/contests',
+    'POST',
+    JSON.stringify(param)
+  ) as Promise<void>;
 }
 
 /**
@@ -229,24 +239,24 @@ export function putContestInfo(
   contestId: string,
   penalty: number,
   statement: string,
-  problems: {statement: string, point: number, answer: string[]}[]
+  problems: { statement: string; point: number; answer: string[] }[]
 ): Promise<void> {
   const param = {
     penalty: penalty,
     statement: statement,
-    problems: problems
+    problems: problems,
   };
   return httpRequest(
-    `/api/contests/${contestId}`, 'PUT', JSON.stringify(param)
+    `/api/contests/${contestId}`,
+    'PUT',
+    JSON.stringify(param)
   ) as Promise<void>;
 }
 
 /**
  * @param id
  */
-export function getProblemAnswer(
-  id: number
-): Promise<string[]> {
+export function getProblemAnswer(id: number): Promise<string[]> {
   return httpRequest(`/api/problems/${id}/answer`, 'GET') as Promise<string[]>;
 }
 
@@ -256,6 +266,7 @@ export function getProblemAnswer(
 export function getAccountRankingInfo(
   page: number
 ): Promise<AccountRankingInfo> {
-  return httpRequest('/api/ranking', 'GET',
-    { page: page }) as Promise<AccountRankingInfo>;
+  return httpRequest('/api/ranking', 'GET', {
+    page: page,
+  }) as Promise<AccountRankingInfo>;
 }
