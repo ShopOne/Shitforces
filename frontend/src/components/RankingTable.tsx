@@ -114,6 +114,11 @@ export const RankingTable: React.FC<Props> = ({
       v.accountName.startsWith(accountNameToSearch)
     );
 
+    accounts = accounts.sort((a, b) => {
+      if (a.ranking !== b.ranking) return a.ranking - b.ranking;
+      return a.penalty - b.penalty;
+    });
+
     return accounts;
   }, [ranking.rankingList, accountNameToSearch]);
 
