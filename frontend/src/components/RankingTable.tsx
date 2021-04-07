@@ -143,11 +143,12 @@ export const RankingTable: React.FC<Props> = ({
   const pagenatedAccounts = useMemo(
     () =>
       filteredAccounts.filter(
-        (_, i) =>
-          paginationIndex * ACCOUNTS_PER_PAGE <= i &&
-          i < (paginationIndex + 1) * ACCOUNTS_PER_PAGE
+        (v, i) =>
+          (paginationIndex * ACCOUNTS_PER_PAGE <= i &&
+            i < (paginationIndex + 1) * ACCOUNTS_PER_PAGE) ||
+          v.accountName === myAccountName
       ),
-    [filteredAccounts, paginationIndex]
+    [myAccountName, filteredAccounts, paginationIndex]
   );
 
   const paginationItems = useMemo(() => {
