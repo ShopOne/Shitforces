@@ -73,8 +73,8 @@ class AccountService(val accountInfoRepository: AccountInfoRepository,
 
     fun getAccountRanking(page: Int): ResponseAccountRanking {
         val accounts = accountInfoRepository.findAllAccount()
+            .filter { it.partNum != 0 }
         val responseAccounts = accounts
-            .filter { it.partNum != 0}
             .map { ResponseAccount(it.name, sharedAccountService.calcCorrectionRate(it),
                 it.partNum, it.authority.name) }
             .sortedBy { -it.rating }
