@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponse
 
 
 const val ACCOUNT_RANKING_ONE_PAGE = 20
-@CrossOrigin(origins = arrayOf("http://localhost:3000"), allowCredentials = "true")
+@CrossOrigin(origins = ["http://localhost:3000"], allowCredentials = "true")
 @RestController
 class AccountController(private val accountService: AccountService,
                         private val sharedAccountService: SharedAccountService,
