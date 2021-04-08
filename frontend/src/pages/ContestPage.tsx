@@ -120,33 +120,28 @@ const RankingElement: React.FC<RankingElementProps> = ({
   const [ranking, setRanking] = useState<RankingInfo | null>(null);
   const [nowRankingVersion, setNowRankingVersion] = useState(0);
 
-  const ACCOUNTS_IN_ONE_PAGE = 20;
-
-  const getRanking = (newPage: any) => {
-    getRankingInfo(newPage, getContestId()).then((rankingInfo) => {
+  const getRanking = () => {
+    getRankingInfo(null, getContestId()).then((rankingInfo) => {
       setRanking(rankingInfo);
     });
   };
 
   if (nowRankingVersion !== rankingVersion) {
     setNowRankingVersion(rankingVersion);
-    getRanking(0);
+    getRanking();
   }
 
   useEffect(() => {
-    getRanking(0);
+    getRanking();
   }, []);
 
-  const pageNum = Math.ceil(
-    (ranking?.partAccountNum ?? 0) / ACCOUNTS_IN_ONE_PAGE
-  );
   let myRank = '';
   if (ranking?.requestAccountRank) {
     myRank = `順位: ${ranking.requestAccountRank}`;
   }
 
   return (
-    <div>
+    <>
       <p>{myRank}</p>
       {ranking && (
         <RankingTable
@@ -155,12 +150,10 @@ const RankingElement: React.FC<RankingElementProps> = ({
           ranking={ranking}
         />
       )}
-      <PagingElement
-        pageNum={pageNum}
-        pageChanged={getRanking}
-        reloadButton={true}
-      />
-    </div>
+      <Button onClick={getRanking} variant="secondary">
+        更新
+      </Button>
+    </>
   );
 };
 
@@ -328,6 +321,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       </Tabs>
       {getElement()}
       <p>{comment}</p>
+      <hr />
       <RankingElement problems={problems} rankingVersion={rankingVersion} />
     </div>
   );

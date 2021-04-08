@@ -40,7 +40,7 @@ class ContestController(val contestService: ContestService,
     }
     @GetMapping("api/contests/{contest-id}/ranking")
     fun getContestRankingResponse(@PathVariable("contest-id") contestId: String,
-                                  @RequestParam(value="page") page: Int,
+                                  @RequestParam(value="page", required = false) page: Int?,
                                   httpServletRequest: HttpServletRequest
     ): RequestRanking {
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
