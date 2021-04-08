@@ -321,6 +321,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       </Tabs>
       {getElement()}
       <p>{comment}</p>
+      <hr />
       <RankingElement problems={problems} rankingVersion={rankingVersion} />
     </div>
   );
