@@ -39,9 +39,9 @@ interface EditProblemsElementProps {
   setProblems(problems: EditProblemInfo[]): void;
 }
 const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
-  problems,
-  setProblems,
-}) => {
+                                                                   problems,
+                                                                   setProblems,
+                                                                 }) => {
   const updateProblemStatement = (idx: number, statement: string) => {
     const newProblems = [...problems];
     newProblems[idx].statement = statement;
@@ -74,14 +74,14 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
     newProblems[idx].answer = newAnswer;
     setProblems(newProblems);
   };
-  const listGroups = problems.map((problem) => {
+  const listGroups = problems.map((problem, idx) => {
     const popOver = (
       <Popover id={'popover-basic'}>
         <Popover.Content>
           <MutableListElement
             items={problem.answer}
             setItems={(newAnswer: string[]) => {
-              setNewAnswer(problem.id, newAnswer);
+              setNewAnswer(idx, newAnswer);
             }}
           />
         </Popover.Content>
@@ -95,9 +95,7 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
             <Form.Control
               placeholder={'〇〇な△△な〜んだ？'}
               value={problem.statement}
-              onChange={(e) =>
-                updateProblemStatement(problem.id, e.target.value)
-              }
+              onChange={(e) => updateProblemStatement(idx, e.target.value)}
             />
           </InputGroup>
         </Col>
@@ -114,6 +112,7 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
         <Col>
           <br />
           <OverlayTrigger
+            rootClose={true}
             trigger={'click'}
             placement={'right'}
             overlay={popOver}
