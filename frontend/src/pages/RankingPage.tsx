@@ -41,11 +41,11 @@ export const AccountRankingTable: React.FC<AccountRankingTableProps> = ({
       return (
         <tr key={account.name}>
           <td>{idx + rankStart}</td>
-            <td>
-              <Link to={`account/${account.name}`} style={{ color: ratingColor }}>
-                {account.name}
-              </Link>
-            </td>
+          <td>
+            <Link to={`account/${account.name}`} style={{ color: ratingColor }}>
+              {account.name}
+            </Link>
+          </td>
           <td>{account.partNum}</td>
           <td>{account.rating}</td>
         </tr>
