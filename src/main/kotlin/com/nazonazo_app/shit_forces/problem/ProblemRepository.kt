@@ -62,6 +62,14 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
             }
         }
     }
+    fun updateProblemStatement(contestId: String, problems: List<ProblemInfo>) {
+        problems.forEach {
+            jdbcTemplate.update("""
+                UPDATE problemInfo set statement = ? 
+                WHERE contestId = ? and indexOfContest = ?
+            """, it.statement, contestId, it.indexOfContest)
+        }
+    }
     fun findById(id: Int) : ProblemInfo? {
         val problem = jdbcTemplate.query("""
                 SELECT id, contestId, contestId, point, statement, indexOfContest FROM problemInfo 

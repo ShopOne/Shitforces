@@ -11,6 +11,7 @@ import {
   getContestInfo,
   getContestProblems,
   getProblemAnswer,
+  patchContestInfo,
   putContestInfo,
 } from '../functions/HttpRequest';
 import { getCookie } from '../functions/getCookie';
@@ -39,9 +40,9 @@ interface EditProblemsElementProps {
   setProblems(problems: EditProblemInfo[]): void;
 }
 const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
-                                                                   problems,
-                                                                   setProblems,
-                                                                 }) => {
+  problems,
+  setProblems,
+}) => {
   const updateProblemStatement = (idx: number, statement: string) => {
     const newProblems = [...problems];
     newProblems[idx].statement = statement;
@@ -144,6 +145,7 @@ export const ContestEditPage: React.FC = () => {
   const [statement, setStatement] = useState<string>('');
   const [penalty, setPenalty] = useState<string>('');
   const [problems, setProblems] = useState<EditProblemInfo[]>([]);
+  const [startTime, setStartTime] = useState<number>(0);
   useEffect(() => {
     (async () => {
       const contestId = getContestId();
@@ -188,13 +190,23 @@ export const ContestEditPage: React.FC = () => {
       setPenalty(contestInfo.penalty.toString());
       setProblems(problems);
       setIsValidAccess(true);
+      setStartTime(contestInfo.unixStartTime);
     })();
   }, []);
   if (!isValidAccess) {
     return null;
   }
 
-  const putContestInfoFunction = () => {
+  const updateContestInfoFunction = () => {
+    const nowDate = new Date();
+    const nowTime = nowDate.getTime();
+    const updateFunction = (() => {
+      if (nowTime < startTime) {
+        return putContestInfo;
+      } else {
+        return patchContestInfo;
+      }
+    })();
     const sendProblems = problems.map((problem) => {
       let point = problem.point;
       if (point === undefined) {
@@ -206,7 +218,7 @@ export const ContestEditPage: React.FC = () => {
         answer: problem.answer,
       };
     });
-    putContestInfo(getContestId(), parseInt(penalty), statement, sendProblems)
+    updateFunction(getContestId(), parseInt(penalty), statement, sendProblems)
       .then(() => {
         alert('コンテストの編集が完了しました');
         window.location.href = `/contest/${getContestId()}`;
@@ -219,7 +231,7 @@ export const ContestEditPage: React.FC = () => {
 
   return (
     <div>
-      <p>コンテスト開始後は問題の編集を行っても反映されません</p>
+      <p>コンテスト開始後に点数、答え、問題数は変更できません</p>
       <Form>
         <Form.Row>
           <Col>
@@ -259,7 +271,7 @@ export const ContestEditPage: React.FC = () => {
           </Col>
         </Form.Row>
         <br />
-        <Button onClick={putContestInfoFunction} variant={'success'}>
+        <Button onClick={updateContestInfoFunction} variant={'success'}>
           確定
         </Button>
       </Form>
