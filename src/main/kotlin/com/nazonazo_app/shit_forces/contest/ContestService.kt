@@ -317,6 +317,9 @@ class ContestService(private val contestRepository: ContestRepository,
         if (nowContestProblem.size != newProblems.size) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
+        if (contestInfo.penalty != putRequestContest.penalty) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
         val problemNum = nowContestProblem.size
         for (i in 0 until problemNum) {
             if (nowContestProblem[i].answer != newProblems[i].answer ||
