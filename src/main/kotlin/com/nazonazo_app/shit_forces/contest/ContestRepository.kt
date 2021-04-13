@@ -88,4 +88,5 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         """, putContest.statement, putContest.penalty, contestId
         )
     }
+
 }

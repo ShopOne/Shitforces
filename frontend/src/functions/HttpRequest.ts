@@ -254,6 +254,31 @@ export function putContestInfo(
 }
 
 /**
+ *
+ * @param contestId
+ * @param penalty
+ * @param statement
+ * @param problems
+ */
+export function patchContestInfo(
+  contestId: string,
+  penalty: number,
+  statement: string,
+  problems: { statement: string; point: number; answer: string[] }[]
+): Promise<void> {
+  const param = {
+    penalty: penalty,
+    statement: statement,
+    problems: problems,
+  };
+  return httpRequest(
+    `/api/contests/${contestId}`,
+    'PATCH',
+    JSON.stringify(param)
+  ) as Promise<void>;
+}
+
+/**
  * @param id
  */
 export function getProblemAnswer(id: number): Promise<string[]> {

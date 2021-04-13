@@ -286,6 +286,55 @@ class ContestService(private val contestRepository: ContestRepository,
                        putRequestContest: PutRequestContest,
                        httpServletRequest: HttpServletRequest
     ) {
+        val contestInfo = validateContestUpdatable(contestId, httpServletRequest)
+        val now = Timestamp(System.currentTimeMillis())
+        val validSubmission = sharedSubmissionService.getContestSubmissionInTime(contestInfo)
+        if (now >= contestInfo.startTime && validSubmission.isNotEmpty()) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        val problems = putRequestContest.problems.mapIndexed { index, it ->
+            ProblemInfo(contestId, it.point, it.statement, index, it.answer)
+        }
+        contestRepository.updateContestInfoByPutRequestContest(contestId, putRequestContest)
+        sharedProblemService.updateContestProblem(contestInfo.id, problems)
+    }
+
+    fun patchContestInfo(contestId: String,
+                       putRequestContest: PutRequestContest,
+                       httpServletRequest: HttpServletRequest
+    ) {
+        val contestInfo = validateContestUpdatable(contestId, httpServletRequest)
+        val validSubmission = sharedSubmissionService.getContestSubmissionInTime(contestInfo)
+        if (validSubmission.isEmpty()) {
+            // 過去問編集用の処理なので、putContestを行う
+            putContestInfo(contestId, putRequestContest, httpServletRequest)
+            return
+        }
+        val nowContestProblem = sharedProblemService.getProblemsByContestId(contestId)
+        val newProblems = putRequestContest.problems.mapIndexed { index, it ->
+            ProblemInfo(contestId, it.point, it.statement, index, it.answer)
+        }
+        if (nowContestProblem.size != newProblems.size) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
+        if (contestInfo.penalty != putRequestContest.penalty) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
+        val problemNum = nowContestProblem.size
+        for (i in 0 until problemNum) {
+            if (nowContestProblem[i].answer != newProblems[i].answer ||
+                    nowContestProblem[i].point != newProblems[i].point) {
+                throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+            }
+        }
+        contestRepository.updateContestInfoByPutRequestContest(contestId, putRequestContest)
+        sharedProblemService.updateContestProblemStatement(contestId, newProblems)
+    }
+
+    private fun validateContestUpdatable(
+        contestId: String,
+        httpServletRequest: HttpServletRequest
+    ): ContestInfo {
         val contestInfo = getContestInfoByContestId(contestId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
         val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
@@ -293,15 +342,7 @@ class ContestService(private val contestRepository: ContestRepository,
         if (contestInfo.contestCreators.find { it.accountName == accountName } == null) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN)
         }
-        val problems = putRequestContest.problems.mapIndexed { index, it ->
-            ProblemInfo(contestId, it.point, it.statement, index, it.answer)
-        }
-        contestRepository.updateContestInfoByPutRequestContest(contestId, putRequestContest)
-        val now = Timestamp(System.currentTimeMillis())
-        val validSubmission = sharedSubmissionService.getContestSubmissionInTime(contestInfo)
-        if (now < contestInfo.startTime || validSubmission.isEmpty()) {
-            sharedProblemService.updateContestProblem(contestInfo.id, problems)
-        }
+        return contestInfo
     }
 
     fun getProblemAnswer(id: Int, httpServletRequest: HttpServletRequest): List<String> {

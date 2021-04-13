@@ -13,12 +13,14 @@ class SharedProblemService(private val problemRepository: ProblemRepository) {
             listOf()
         }
     }
+
     fun getContestProblemScores(contestName: String): List<Int?> =
         try{
             problemRepository.findByContestId(contestName).map{it.point}
         } catch (e: Error) {
             listOf()
         }
+
     fun getContestProblemByNameAndIndex(contestName: String, indexOfContest: Int): ProblemInfo? =
         try {
             problemRepository.findByContestIdAndIndex(contestName, indexOfContest)
@@ -26,6 +28,7 @@ class SharedProblemService(private val problemRepository: ProblemRepository) {
             print(e)
             null
         }
+
     fun updateContestProblem(contestId: String, newProblems: List<ProblemInfo>) {
         val prevProblem = problemRepository.findByContestId(contestId)
         prevProblem.forEach {
@@ -33,9 +36,15 @@ class SharedProblemService(private val problemRepository: ProblemRepository) {
         }
         problemRepository.addProblems(contestId, newProblems)
     }
+
+    fun updateContestProblemStatement(contestId: String, newProblems: List<ProblemInfo>) {
+        problemRepository.updateProblemStatement(contestId, newProblems)
+    }
+
     fun getProblemById(id: Int): ProblemInfo? {
         return problemRepository.findById(id)
     }
+
     fun getAnswersById(id: Int): List<String> {
         return problemRepository.findAnswersById(id)
     }
