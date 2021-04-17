@@ -6,16 +6,16 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 @Transactional
 class SharedProblemService(private val problemRepository: ProblemRepository) {
-    fun getProblemsByContestId(contestId: String) : List<ProblemInfo> {
-        return try{
+    fun getProblemsByContestId(contestId: String): List<ProblemInfo> {
+        return try {
             return problemRepository.findByContestId(contestId)
         } catch (e: Error) {
             listOf()
         }
     }
     fun getContestProblemScores(contestName: String): List<Int?> =
-        try{
-            problemRepository.findByContestId(contestName).map{it.point}
+        try {
+            problemRepository.findByContestId(contestName).map { it.point }
         } catch (e: Error) {
             listOf()
         }

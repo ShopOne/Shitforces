@@ -7,12 +7,12 @@ data class AccountInfo(
     val partNum: Int,
     val passwordHash: String,
     private val auth: String
-    ) {
+) {
     val authority = when (auth) {
         "ADMINISTER" -> AccountAuthority.ADMINISTER
         else -> AccountAuthority.GENERAL
     }
-    enum class AccountAuthority{
+    enum class AccountAuthority {
         GENERAL,
         WRITER,
         ADMINISTER
@@ -36,7 +36,6 @@ data class ResponseAccount(
     val partNum: Int,
     val auth: String
 )
-
 
 data class ResponseAccountRanking(
     val accounts: List<ResponseAccount>,

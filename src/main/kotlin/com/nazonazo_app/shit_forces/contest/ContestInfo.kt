@@ -57,16 +57,22 @@ data class PutRequestContest(
     val statement: String,
     val problems: List<PutRequestProblem>
 )
-class RequestContestCreator(val accountName: String,
-                            val contestId: String,
-                            val position: String)
-data class RequestRanking(val rankingList: List<ContestRankingAccountInfo>,
-                          val acPerSubmit: List<Pair<Int, Int>>,
-                          val partAccountNum: Int,
-                          val requestAccountRank: Int?)
-data class ContestRankingAccountInfo(val accountName: String,
-                                     val score: Int,
-                                     val penalty: Int,
-                                     val acceptList: List<Int>,
-                                     val acceptTimeList: List<Int>,
-                                     var ranking: Int)
+class RequestContestCreator(
+    val accountName: String,
+    val contestId: String,
+    val position: String
+)
+data class RequestRanking(
+    val rankingList: List<ContestRankingAccountInfo>,
+    val acPerSubmit: List<Pair<Int, Int>>,
+    val partAccountNum: Int,
+    val requestAccountRank: Int?
+)
+data class ContestRankingAccountInfo(
+    val accountName: String,
+    val score: Int,
+    val penalty: Int,
+    val acceptList: List<Int>,
+    val acceptTimeList: List<Int>,
+    var ranking: Int
+)

@@ -2,21 +2,23 @@ package com.nazonazo_app.shit_forces.account
 
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
+import java.util.Base64
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
-import java.util.*
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 @Transactional
 @Service
-class AccountService(val accountInfoRepository: AccountInfoRepository,
-                     val sharedSubmissionService: SharedSubmissionService,
-                     val sharedAccountService: SharedAccountService,
-                     val sharedSessionService: SharedSessionService){
+class AccountService(
+    val accountInfoRepository: AccountInfoRepository,
+    val sharedSubmissionService: SharedSubmissionService,
+    val sharedAccountService: SharedAccountService,
+    val sharedSessionService: SharedSessionService
+) {
 
     private fun createConnectedPassword(accountName: String, password: String): String {
         return Base64.getEncoder().encodeToString("$accountName:$password".toByteArray())
@@ -49,16 +51,17 @@ class AccountService(val accountInfoRepository: AccountInfoRepository,
         }
 
     fun loginAccount(requestAccount: RequestAccount, servletResponse: HttpServletResponse): Boolean =
-        if(!isSamePassword(requestAccount.name, requestAccount.password)) {
+        if (!isSamePassword(requestAccount.name, requestAccount.password)) {
             false
         } else {
             sharedSessionService.createNewSession(requestAccount.name, servletResponse) != null
         }
 
-    fun changeAccountName(prevAccountName: String,
-                          requestAccount: RequestAccount,
-                          httpServletRequest: HttpServletRequest,
-                          httpServletResponse: HttpServletResponse
+    fun changeAccountName(
+        prevAccountName: String,
+        requestAccount: RequestAccount,
+        httpServletRequest: HttpServletRequest,
+        httpServletResponse: HttpServletResponse
     ) {
         if (!isSamePassword(prevAccountName, requestAccount.password)) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED)

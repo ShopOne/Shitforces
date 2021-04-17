@@ -10,6 +10,7 @@ plugins {
     kotlin("plugin.spring") version "1.3.72"
     kotlin("plugin.jpa") version "1.3.72"
     id("com.moowork.node") version "1.3.1"
+    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
 }
 
 version = "0.0.1-SNAPSHOT"
@@ -18,6 +19,13 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
+    }
+}
+
+tasks.compileKotlin {
+    dependsOn("ktlintFormat")
+    kotlinOptions {
+        jvmTarget = "1.3.72"
     }
 }
 
@@ -80,7 +88,7 @@ processResources {
     var buildFront = true
     if (project.hasProperty("args")) {
         val args = project.properties["args"] as? String
-        if (args?.split("""\s+""".toRegex())?.find{ it == "--only-back-end"} != null){
+        if (args?.split("""\s+""".toRegex())?.find { it == "--only-back-end" } != null) {
             buildFront = false
         }
     }
@@ -88,4 +96,3 @@ processResources {
         dependsOn("buildReact")
     }
 }
-
