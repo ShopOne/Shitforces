@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -138,9 +139,10 @@ class ContestController(
     }
 
     @PatchMapping("api/contests/{contest_id}")
-    fun patchContestInfoResponse(@PathVariable("contest_id") contestId: String,
-                               @RequestBody putRequestContest: PutRequestContest,
-                               httpServletRequest: HttpServletRequest
+    fun patchContestInfoResponse(
+        @PathVariable("contest_id") contestId: String,
+        @RequestBody putRequestContest: PutRequestContest,
+        httpServletRequest: HttpServletRequest
     ) {
         contestService.patchContestInfo(contestId, putRequestContest, httpServletRequest)
     }

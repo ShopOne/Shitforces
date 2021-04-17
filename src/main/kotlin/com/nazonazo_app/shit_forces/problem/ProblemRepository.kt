@@ -72,7 +72,7 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
         }
     }
 
-    fun findById(id: Int) : ProblemInfo? {
+    fun findById(id: Int): ProblemInfo? {
         val problem = jdbcTemplate.query("""
                 SELECT id, contestId, contestId, point, statement, indexOfContest FROM problemInfo 
                 WHERE id = ?

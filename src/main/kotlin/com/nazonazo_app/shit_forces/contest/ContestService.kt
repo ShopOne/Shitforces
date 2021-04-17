@@ -311,9 +311,10 @@ class ContestService(
         sharedProblemService.updateContestProblem(contestInfo.id, problems)
     }
 
-    fun patchContestInfo(contestId: String,
-                       putRequestContest: PutRequestContest,
-                       httpServletRequest: HttpServletRequest
+    fun patchContestInfo(
+        contestId: String,
+        putRequestContest: PutRequestContest,
+        httpServletRequest: HttpServletRequest
     ) {
         val contestInfo = validateContestUpdatable(contestId, httpServletRequest)
         val validSubmission = sharedSubmissionService.getContestSubmissionInTime(contestInfo)
