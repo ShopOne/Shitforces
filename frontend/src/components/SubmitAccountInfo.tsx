@@ -1,5 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Button, Form, Modal } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
 import { useHistory } from 'react-router-dom';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';

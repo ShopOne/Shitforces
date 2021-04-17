@@ -1,6 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { useEffect, useState } from 'react';
-import { Button, Tab, Tabs, Form, Table } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Tab from 'react-bootstrap/Tab';
+import Table from 'react-bootstrap/Table';
+import Tabs from 'react-bootstrap/Tabs';
 import { Link } from 'react-router-dom';
 import { PagingElement } from '../components/PagingElement';
 import { RankingTable } from '../components/RankingTable';

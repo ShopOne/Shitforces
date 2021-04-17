@@ -1,5 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Alert, Button, Form, Pagination, Table } from 'react-bootstrap';
+import Alert from 'react-bootstrap/Alert';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Pagination from 'react-bootstrap/Pagination';
+import Table from 'react-bootstrap/Table';
 import { toProblemLabel } from '../functions/toProblemLabel';
 import { ProblemInfo, RankingInfo, RankingInfoAccount } from '../types';
 

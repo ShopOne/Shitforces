@@ -1,5 +1,7 @@
 import React from 'react';
-import { Button, Nav, Navbar } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Nav from 'react-bootstrap/Nav';
+import Navbar from 'react-bootstrap/Navbar';
 import { Link } from 'react-router-dom';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 

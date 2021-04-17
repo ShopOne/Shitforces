@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import React, { useCallback, useState } from 'react';
-import { Pagination } from 'react-bootstrap';
+import Pagination from 'react-bootstrap/Pagination';
 
 interface PagingElementProps {
   pageChanged(page: number): void;
