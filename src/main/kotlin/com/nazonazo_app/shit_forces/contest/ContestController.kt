@@ -136,6 +136,15 @@ class ContestController(
     ) {
         contestService.putContestInfo(contestId, putRequestContest, httpServletRequest)
     }
+
+    @PatchMapping("api/contests/{contest_id}")
+    fun patchContestInfoResponse(@PathVariable("contest_id") contestId: String,
+                               @RequestBody putRequestContest: PutRequestContest,
+                               httpServletRequest: HttpServletRequest
+    ) {
+        contestService.patchContestInfo(contestId, putRequestContest, httpServletRequest)
+    }
+
     @GetMapping("api/problems/{problem_id}/answer")
     fun getAnswerByIdResponse(
         @PathVariable("problem_id") id: Int,
