@@ -1,5 +1,11 @@
 import PropTypes from 'prop-types';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
@@ -7,16 +13,16 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { useAuthentication } from '../contexts/AuthenticationContext';
-import { isValidAccountNameOrPassWord} from '../functions/AccountInfoSubmitValidation';
-import { getAccountInformation ,createContest} from '../functions/HttpRequest';
+import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
+import { getAccountInformation, createContest } from '../functions/HttpRequest';
 
 // URL: /account/$accountName
 
 const CreateContestElement: React.FC = () => {
   class ContestCreator {
-    accountName: string
-    position: string
-    id: number
+    accountName: string;
+    position: string;
+    id: number;
     constructor(accountName: string, position: string, id: number) {
       this.accountName = accountName;
       this.position = position;
@@ -30,10 +36,10 @@ const CreateContestElement: React.FC = () => {
   const startTimeRef = useRef<HTMLInputElement>(null);
   const endTimeRef = useRef<HTMLInputElement>(null);
   const [contestType, setContestType] = useState<String>('AtCoder');
-  const initCreatorArray = [
-    new ContestCreator('', 'Coordinator', 0)
-  ];
-  const [creatorList, setCreatorList] = useState<Array<ContestCreator>>(initCreatorArray);
+  const initCreatorArray = [new ContestCreator('', 'Coordinator', 0)];
+  const [creatorList, setCreatorList] = useState<Array<ContestCreator>>(
+    initCreatorArray
+  );
   const submitNewContest = () => {
     const contestId = contestIdRef.current!.value;
     const contestName = contestNameRef.current!.value;
@@ -42,20 +48,31 @@ const CreateContestElement: React.FC = () => {
     const contestStartTime = new Date(Date.parse(startTimeRef.current!.value));
     const contestEndTime = new Date(Date.parse(endTimeRef.current!.value));
     const adjustedCreatorList = creatorList
-      .filter(creator => creator.accountName !== '')
-      .map(creator => {
+      .filter((creator) => creator.accountName !== '')
+      .map((creator) => {
         return {
           accountName: creator.accountName,
           contestId: contestId,
-          position: creator.position
-        }
+          position: creator.position,
+        };
       });
-    if (!contestId || !contestName || isNaN(ratedBound) || isNaN(penalty) || !contestType ||
-      !contestStartTime || !contestEndTime) {
+    if (
+      !contestId ||
+      !contestName ||
+      isNaN(ratedBound) ||
+      isNaN(penalty) ||
+      !contestType ||
+      !contestStartTime ||
+      !contestEndTime
+    ) {
       alert('不正な入力があります');
       return;
     }
-    if (adjustedCreatorList.filter(creator => creator.position === 'Coordinator').length === 0) {
+    if (
+      adjustedCreatorList.filter(
+        (creator) => creator.position === 'Coordinator'
+      ).length === 0
+    ) {
       alert('最低一人Coordinatorを指定して下さい');
       return;
     }
@@ -101,20 +118,24 @@ const CreateContestElement: React.FC = () => {
       newCreatorList[idx].position = newPosition;
       setCreatorList(newCreatorList);
     };
-    const listGroups =  creatorList.map((creator, idx) => {
+    const listGroups = creatorList.map((creator, idx) => {
       return (
-        <Form.Row key={creator.id} >
+        <Form.Row key={creator.id}>
           <Col>
             <InputGroup className={'mb-3'}>
               <Form.Control
                 placeholder={'shop_one'}
-                onChange={e => changeName(e.target.value, idx)}
+                onChange={(e) => changeName(e.target.value, idx)}
               />
             </InputGroup>
           </Col>
           <Col>
-            <Form.Group controlId={'creatorPosition'}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => changePosition(e.target.value, idx)}>
+            <Form.Group
+              controlId={'creatorPosition'}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                changePosition(e.target.value, idx)
+              }
+            >
               <Form.Control as={'select'}>
                 <option>Coordinator</option>
                 <option>Writer</option>
@@ -122,8 +143,12 @@ const CreateContestElement: React.FC = () => {
             </Form.Group>
           </Col>
           <Col>
-            <button type={'button'} onClick={addNewCreator}>+</button>
-            <button type={'button'} onClick={() => eraseCreator(idx)}>-</button>
+            <button type={'button'} onClick={addNewCreator}>
+              +
+            </button>
+            <button type={'button'} onClick={() => eraseCreator(idx)}>
+              -
+            </button>
           </Col>
         </Form.Row>
       );
@@ -133,7 +158,7 @@ const CreateContestElement: React.FC = () => {
         <label>コンテスト関係者</label>
         {listGroups}
       </div>
-    )
+    );
   };
   return (
     <div>
@@ -141,10 +166,7 @@ const CreateContestElement: React.FC = () => {
         <Col>
           <label>コンテストID</label>
           <InputGroup className={'mb-3'}>
-            <Form.Control
-              placeholder={'kbc001'}
-              ref={contestIdRef}
-            />
+            <Form.Control placeholder={'kbc001'} ref={contestIdRef} />
           </InputGroup>
         </Col>
         <Col>
@@ -152,7 +174,8 @@ const CreateContestElement: React.FC = () => {
           <InputGroup className={'mb-3'}>
             <Form.Control
               placeholder={'くそなぞなぞBeginnerContest001'}
-              ref={contestNameRef}/>
+              ref={contestNameRef}
+            />
           </InputGroup>
         </Col>
       </Form.Row>
@@ -163,15 +186,14 @@ const CreateContestElement: React.FC = () => {
             <Form.Control
               placeholder={'2021-1-10 21:00:00'}
               type={'datetime'}
-              ref={startTimeRef}/>
+              ref={startTimeRef}
+            />
           </InputGroup>
         </Col>
         <Col>
           <label>終了日時</label>
           <InputGroup className={'mb-3'}>
-            <Form.Control
-              placeholder={'2021-1-10 21:30:00'}
-              ref={endTimeRef}/>
+            <Form.Control placeholder={'2021-1-10 21:30:00'} ref={endTimeRef} />
           </InputGroup>
         </Col>
       </Form.Row>
@@ -202,8 +224,12 @@ const CreateContestElement: React.FC = () => {
           <InputGroup className={'mb-3'}>
             <Form>
               <Form.Label>コンテスト形式</Form.Label>
-              <Form.Group controlId={'contestTypeForm'}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setContestType(e.target.value)}>
+              <Form.Group
+                controlId={'contestTypeForm'}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setContestType(e.target.value)
+                }
+              >
                 <Form.Control as={'select'}>
                   <option>AtCoder</option>
                   <option>ICPC</option>
@@ -328,7 +354,7 @@ const AccountInfoTabs: React.FC<AccountInfoTabsProps> = (props) => {
   const tabs = [];
   tabs.push(
     <Tab eventKey={'profile'} title={'プロフィール'}>
-      <AccountInformationBody name={props.name} rating={props.rating}/>
+      <AccountInformationBody name={props.name} rating={props.rating} />
     </Tab>
   );
   tabs.push(
@@ -339,15 +365,12 @@ const AccountInfoTabs: React.FC<AccountInfoTabsProps> = (props) => {
   if (props.auth === 'ADMINISTER') {
     tabs.push(
       <Tab eventKey={'createContest'} title={'コンテスト作成'}>
-        <CreateContestElement/>
+        <CreateContestElement />
       </Tab>
     );
   }
   return (
-    <Tabs
-      id={'account-info-tab'}
-      activeKey={key}
-      onSelect={(k) => setKey(k)}>
+    <Tabs id={'account-info-tab'} activeKey={key} onSelect={(k) => setKey(k)}>
       {tabs}
     </Tabs>
   );
@@ -356,7 +379,7 @@ AccountInfoTabs.propTypes = {
   name: PropTypes.string.isRequired,
   rating: PropTypes.number.isRequired,
   auth: PropTypes.string.isRequired,
-}
+};
 
 const AccountNotFound: React.FC = () => {
   return (
@@ -369,7 +392,7 @@ const AccountNotFound: React.FC = () => {
 export const AccountPage: React.FC = () => {
   const [name, setName] = useState('');
   const [rating, setRating] = useState<number | null>(null);
-  const [auth,  setAuth] = useState<string | null>(null);
+  const [auth, setAuth] = useState<string | null>(null);
 
   const getAccount = useCallback(() => {
     const splitUrl = window.location.href.split('/');
@@ -392,7 +415,7 @@ export const AccountPage: React.FC = () => {
 
   let page;
   if (name !== '' && rating !== null) {
-    page = <AccountInfoTabs name={name} rating={rating} auth={auth!}/>;
+    page = <AccountInfoTabs name={name} rating={rating} auth={auth!} />;
   } else {
     page = <AccountNotFound />;
   }
