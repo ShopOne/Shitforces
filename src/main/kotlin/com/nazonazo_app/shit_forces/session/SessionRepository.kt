@@ -1,11 +1,10 @@
 package com.nazonazo_app.shit_forces.session
 
+import java.sql.Timestamp
+import java.util.Calendar
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
-import java.util.*
-import java.sql.Date
-import java.sql.Timestamp
 
 @Repository
 class SessionRepository(private val jdbcTemplate: JdbcTemplate) {
@@ -37,7 +36,7 @@ class SessionRepository(private val jdbcTemplate: JdbcTemplate) {
         expirationDate.add(SessionData.SESSION_LIFE_CALENDAR, 1)
         return Timestamp(expirationDate.time.time)
     }
-    fun addNewSession(name: String, sessionId: String) : SessionData? {
+    fun addNewSession(name: String, sessionId: String): SessionData? {
         deleteDeadSession()
         val nowSession = findByName(name)
         if (nowSession === null) {

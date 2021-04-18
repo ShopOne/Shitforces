@@ -23,17 +23,23 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
             accountName, password, AccountInfo.AccountAuthority.GENERAL.name)
         return findByAccountName(accountName)
     }
-    fun getAccountHistory(accountName: String): List<AccountRatingChangeHistory>?
-     = jdbcTemplate.query("""SELECT * from accountRatingChangeHistory 
+    fun getAccountHistory(accountName: String): List<AccountRatingChangeHistory>? =
+        jdbcTemplate.query("""SELECT * from accountRatingChangeHistory 
          where accountName = ? order by indexOfParticipation
      """, rowMapperForHistory, accountName)
 
-    fun updateRating(contestId: String, accountName: String, rating: Double, innerRating: Double,
-                     performance: Int, calculatedRating: Int) {
+    fun updateRating(
+        contestId: String,
+        accountName: String,
+        rating: Double,
+        innerRating: Double,
+        performance: Int,
+        calculatedRating: Int
+    ) {
         val partNum = findByAccountName(accountName)!!.partNum
         val prevCalculatedRating = getAccountHistory(accountName)?.getOrNull(0)?.newRating ?: 0
 
-         jdbcTemplate.update("""UPDATE accountInfo SET rating = ?,innerRating = ?, partNum = ?
+        jdbcTemplate.update("""UPDATE accountInfo SET rating = ?,innerRating = ?, partNum = ?
             WHERE name = ?""", rating, innerRating, partNum + 1, accountName)
 
         jdbcTemplate.update("""INSERT INTO 

@@ -2,7 +2,8 @@ package com.nazonazo_app.shit_forces
 
 import java.sql.Timestamp
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
 
 class Utils {
     fun formatTimestamp(time: Timestamp): String {

@@ -2,26 +2,36 @@ package com.nazonazo_app.shit_forces.account
 
 import com.nazonazo_app.shit_forces.EmptyResponse
 import com.nazonazo_app.shit_forces.session.SharedSessionService
-import org.springframework.http.HttpStatus
-import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-
+import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.CrossOrigin
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestMethod
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 
 const val ACCOUNT_RANKING_ONE_PAGE = 20
 @CrossOrigin(origins = ["http://localhost:3000"], allowCredentials = "true")
 @RestController
-class AccountController(private val accountService: AccountService,
-                        private val sharedAccountService: SharedAccountService,
-                        private val sharedSessionService: SharedSessionService
+class AccountController(
+    private val accountService: AccountService,
+    private val sharedAccountService: SharedAccountService,
+    private val sharedSessionService: SharedSessionService
 ) {
 
     @RequestMapping("api/signup",
         headers = ["Content-Type=application/json"],
         method = [RequestMethod.POST])
-    fun createAccountResponse(@RequestBody requestAccount: RequestAccount,
-                              httpServletResponse: HttpServletResponse
+    fun createAccountResponse(
+        @RequestBody requestAccount: RequestAccount,
+        httpServletResponse: HttpServletResponse
     ): AccountInfo {
         val account = accountService.createAccount(requestAccount)
             ?: throw ResponseStatusException(HttpStatus.CONFLICT)
@@ -31,11 +41,11 @@ class AccountController(private val accountService: AccountService,
         return account
     }
 
-
     @PostMapping("api/login",
         headers = ["Content-Type=application/json"])
-    fun loginAccountResponse(@RequestBody requestAccount: RequestAccount,
-                             httpServletResponse: HttpServletResponse
+    fun loginAccountResponse(
+        @RequestBody requestAccount: RequestAccount,
+        httpServletResponse: HttpServletResponse
     ): EmptyResponse {
         val result = accountService.loginAccount(requestAccount, httpServletResponse)
         if (!result) throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
@@ -51,10 +61,12 @@ class AccountController(private val accountService: AccountService,
     }
 
     @PutMapping("api/account/{accountName}/name")
-    fun changeAccountNameResponse(@PathVariable("accountName") accountName: String,
-                                  @RequestBody requestAccount: RequestAccount,
-                                  httpServletRequest: HttpServletRequest,
-                                  httpServletResponse: HttpServletResponse) {
+    fun changeAccountNameResponse(
+        @PathVariable("accountName") accountName: String,
+        @RequestBody requestAccount: RequestAccount,
+        httpServletRequest: HttpServletRequest,
+        httpServletResponse: HttpServletResponse
+    ) {
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
         if (sessionAccountName != accountName) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)

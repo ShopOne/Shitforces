@@ -49,19 +49,20 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.update("""
             INSERT INTO problemInfo(contestId, indexOfContest, point, statement)
             VALUES(?, ?, ?, ?)
-        """,problem.contestId, problem.indexOfContest, problem.point, problem.statement)
+        """, problem.contestId, problem.indexOfContest, problem.point, problem.statement)
     }
     fun addProblems(contestId: String, problems: List<ProblemInfo>) {
         problems.forEach {
             addProblem(it)
         }
         val problemsInDb = findByContestId(contestId).sortedBy { it.indexOfContest }
-        problemsInDb.forEachIndexed{ index, it ->
+        problemsInDb.forEachIndexed { index, it ->
             problems[index].answer.forEach { ans ->
                 addAnswer(it.id!!, ans)
             }
         }
     }
+
     fun updateProblemStatement(contestId: String, problems: List<ProblemInfo>) {
         problems.forEach {
             jdbcTemplate.update("""
@@ -70,7 +71,8 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
             """, it.statement, contestId, it.indexOfContest)
         }
     }
-    fun findById(id: Int) : ProblemInfo? {
+
+    fun findById(id: Int): ProblemInfo? {
         val problem = jdbcTemplate.query("""
                 SELECT id, contestId, contestId, point, statement, indexOfContest FROM problemInfo 
                 WHERE id = ?

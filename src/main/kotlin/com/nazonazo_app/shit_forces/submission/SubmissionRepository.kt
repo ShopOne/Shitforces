@@ -1,9 +1,9 @@
 package com.nazonazo_app.shit_forces.submission
 
+import java.sql.Timestamp
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
-import java.sql.Timestamp
 
 @Repository
 class SubmissionRepository(val jdbcTemplate: JdbcTemplate) {

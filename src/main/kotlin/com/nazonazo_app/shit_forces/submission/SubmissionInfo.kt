@@ -8,7 +8,8 @@ class SubmissionInfo(
     val accountName: String,
     val statement: String,
     val submitTime: Timestamp,
-    val result: SubmissionResult) {
+    val result: SubmissionResult
+) {
     val submitTimeAMPM = Utils().formatTimestamp(submitTime)
 }
 enum class SubmissionResult(val state: String) {
@@ -18,12 +19,13 @@ enum class SubmissionResult(val state: String) {
     UNDEFINED("UNDEFINED");
     companion object {
         fun fromString(statement: String): SubmissionResult {
-            return values().firstOrNull{ it.state == statement} ?:  UNDEFINED
+            return values().firstOrNull { it.state == statement } ?: UNDEFINED
         }
     }
 }
 
-data class RequestSubmission constructor(val contestId: String,
-                                         val indexOfContest: Int,
-                                         val statement: String)
-
+data class RequestSubmission constructor(
+    val contestId: String,
+    val indexOfContest: Int,
+    val statement: String
+)

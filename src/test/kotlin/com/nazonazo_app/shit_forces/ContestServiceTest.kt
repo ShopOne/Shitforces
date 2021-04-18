@@ -2,7 +2,12 @@ package com.nazonazo_app.shit_forces
 
 import com.nazonazo_app.shit_forces.account.AccountInfo
 import com.nazonazo_app.shit_forces.account.SharedAccountService
-import com.nazonazo_app.shit_forces.contest.*
+import com.nazonazo_app.shit_forces.contest.ContestInfo
+import com.nazonazo_app.shit_forces.contest.ContestRankingAccountInfo
+import com.nazonazo_app.shit_forces.contest.ContestRepository
+import com.nazonazo_app.shit_forces.contest.ContestService
+import com.nazonazo_app.shit_forces.contest.RequestRanking
+import com.nazonazo_app.shit_forces.contest.SharedContestService
 import com.nazonazo_app.shit_forces.problem.SharedProblemService
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
@@ -10,14 +15,14 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
+import java.sql.Timestamp
+import kotlin.math.pow
+import kotlin.math.sqrt
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.springframework.boot.test.context.SpringBootTest
-import java.sql.Timestamp
-import kotlin.math.pow
-import kotlin.math.sqrt
 
 @SpringBootTest
 class ContestServiceTest {
@@ -51,10 +56,10 @@ class ContestServiceTest {
             Timestamp(System.currentTimeMillis()), Timestamp(System.currentTimeMillis()),
             0, 800, ContestInfo.ContestType.ICPC, false, listOf()
         )
-        val names0 = listOf("a","b","c","d","e","f","g","h","i","j",
-            "k","l","m","n","o","p","q","r","s","t")
-        val names1 = listOf("1","2","3","4","5","6","7","8","9","10","11","12")
-        val ranking0 = names0.mapIndexed{index, name ->
+        val names0 = listOf("a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t")
+        val names1 = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
+        val ranking0 = names0.mapIndexed { index, name ->
             ContestRankingAccountInfo(name, 0, 0, listOf(), listOf(), index + 1)
         }
         val ranking1 = listOf(
@@ -125,7 +130,7 @@ class ContestServiceTest {
             sharedAccountService.calcCorrectionRate(any())
         } returns 0
         val result0 = contestService.updateRating(contestInfo0)
-        result0.forEach{
+        result0.forEach {
             val account = AccountInfo(it.name, it.rating, it.innerRating, 1, "", "")
             every {
                 sharedAccountService.getAccountByName(it.name)
@@ -139,7 +144,7 @@ class ContestServiceTest {
         28, 24, 20, 561, 14, 598, 9, 905, 3)
         result1.forEachIndexed { index, it ->
             val account = AccountInfo(it.name, it.rating, it.innerRating,
-                if(it.name.toIntOrNull() == null) 2 else 1, "", "")
+                if (it.name.toIntOrNull() == null) 2 else 1, "", "")
             assertThat(resultCorrectionRate[index], `is`(calcCorrectionRateTestImpl(account)))
         }
     }
@@ -147,7 +152,7 @@ class ContestServiceTest {
         if (account.partNum == 0) return 0
         val r = account.rating
         val p = account.partNum
-        val minus = (sqrt(1 - 0.81.pow(p)) /  (1 - 0.9.pow(p)) - 1) / (sqrt(19.0) - 1) * 1200
+        val minus = (sqrt(1 - 0.81.pow(p)) / (1 - 0.9.pow(p)) - 1) / (sqrt(19.0) - 1) * 1200
         val miRating = r - minus
         var ret = miRating
         if (miRating <= 400) {

@@ -1,12 +1,12 @@
 package com.nazonazo_app.shit_forces.session
 
-import org.apache.commons.lang3.RandomStringUtils
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import java.util.*
+import java.util.Date
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 const val ACCOUNT_NAME_COOKIE_KEY = "_sforce_account_name"
 const val SESSION_ID_COOKIE_KEY = "_sforce_login_session"
@@ -14,11 +14,11 @@ const val SESSION_ID_COOKIE_KEY = "_sforce_login_session"
 @Service
 @Transactional
 class SharedSessionService(private val sessionRepository: SessionRepository) {
-    fun createCookie(key: String, value: String, expirationDate: Date) : Cookie {
+    fun createCookie(key: String, value: String, expirationDate: Date): Cookie {
         val cookie = Cookie(key, value)
-        //一週間 変更する際はsessionRepositoryのgetExpirationDate()も
+        // 一週間 変更する際はsessionRepositoryのgetExpirationDate()も
         cookie.maxAge = SessionData.SESSION_LIFE_INTEGER
-        cookie.path ="/"
+        cookie.path = "/"
         // セッションIDのCookieはJavaScriptからは保護
         if (key == SESSION_ID_COOKIE_KEY) {
             cookie.isHttpOnly = true
@@ -40,7 +40,7 @@ class SharedSessionService(private val sessionRepository: SessionRepository) {
         val cookies = httpServletRequest.cookies ?: return null
         var accountName: String? = null
         cookies.forEach {
-            if (it.name ==  ACCOUNT_NAME_COOKIE_KEY) {
+            if (it.name == ACCOUNT_NAME_COOKIE_KEY) {
                 accountName = it.value
             }
         }

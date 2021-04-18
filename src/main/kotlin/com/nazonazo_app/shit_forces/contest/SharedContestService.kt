@@ -7,57 +7,61 @@ import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import com.nazonazo_app.shit_forces.submission.SubmissionResult
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.sql.Timestamp
 
 @Service
 @Transactional
-class SharedContestService(private val contestRepository: ContestRepository,
-                           private val sharedProblemService: SharedProblemService,
-                           private val sharedSubmissionService: SharedSubmissionService
-){
-    data class AccountAcceptInfo(val name: String,
-                                 val submitTime: List<Int>,
-                                 val isAccept: List<Boolean>,
-                                 val penaltyOfWrong: Int)
-    fun getSolvedProblemOnContest(contest: ContestInfo): List<Pair<Int,Int>>{
+class SharedContestService(
+    private val contestRepository: ContestRepository,
+    private val sharedProblemService: SharedProblemService,
+    private val sharedSubmissionService: SharedSubmissionService
+) {
+    data class AccountAcceptInfo(
+        val name: String,
+        val submitTime: List<Int>,
+        val isAccept: List<Boolean>,
+        val penaltyOfWrong: Int
+    )
+    fun getSolvedProblemOnContest(contest: ContestInfo): List<Pair<Int, Int>> {
         val contestProblemNum = sharedProblemService.getProblemsByContestId(contest.id).size
         val submissionList = sharedSubmissionService.getContestSubmissionInTime(contest)
-        val submitAccounts = Array<MutableSet<String>>(contestProblemNum){ mutableSetOf() }
-        val acceptAccounts = Array<MutableSet<String>>(contestProblemNum){ mutableSetOf() }
+        val submitAccounts = Array<MutableSet<String>>(contestProblemNum) { mutableSetOf() }
+        val acceptAccounts = Array<MutableSet<String>>(contestProblemNum) { mutableSetOf() }
         submissionList
-            .filter { contest.startTime <= it.submitTime  && it.submitTime <= contest.endTime}
+            .filter { contest.startTime <= it.submitTime && it.submitTime <= contest.endTime }
             .forEach {
                 submitAccounts[it.indexOfContest].add(it.accountName)
                 if (it.result == SubmissionResult.ACCEPTED) acceptAccounts[it.indexOfContest].add(it.accountName)
             }
-        return submitAccounts.mapIndexed{ index, acNum ->
+        return submitAccounts.mapIndexed { index, acNum ->
             Pair(acceptAccounts[index].size, acNum.size)
         }
     }
     private fun setRankingOfInfo(ranking: MutableList<ContestRankingAccountInfo>): List<ContestRankingAccountInfo> {
         ranking.sortWith(rankingComparator())
         var rank = 1
-        for ( idx in ranking.indices) {
+        for (idx in ranking.indices) {
             if (idx == 0 ||
-                ranking[idx-1].score != ranking[idx].score ||
-                ranking[idx-1].penalty != ranking[idx].penalty) {
+                ranking[idx - 1].score != ranking[idx].score ||
+                ranking[idx - 1].penalty != ranking[idx].penalty) {
                 rank = idx + 1
             }
             ranking[idx].ranking = rank
         }
         return ranking.toList()
     }
-    private fun getContestRankByICPC(problemsInfo: List<ProblemInfo>,
-                                     submissionList: List<SubmissionInfo>,
-                                     penalty: Int,
-                                     startTime: Long): List<ContestRankingAccountInfo> {
+    private fun getContestRankByICPC(
+        problemsInfo: List<ProblemInfo>,
+        submissionList: List<SubmissionInfo>,
+        penalty: Int,
+        startTime: Long
+    ): List<ContestRankingAccountInfo> {
         val accountAcceptedProblemInfo = getAccountsAcceptInfo(submissionList, problemsInfo.size, startTime, penalty)
         val ranking = mutableListOf<ContestRankingAccountInfo>()
-        accountAcceptedProblemInfo.forEach{
+        accountAcceptedProblemInfo.forEach {
             var score = 0
             var penaResult = it.penaltyOfWrong
             val acceptProblem = mutableListOf<Int>()
-            it.isAccept.forEachIndexed{index, result ->
+            it.isAccept.forEachIndexed { index, result ->
                 if (result) {
                     score += problemsInfo[index].point
                     penaResult += it.submitTime[index]
@@ -73,18 +77,19 @@ class SharedContestService(private val contestRepository: ContestRepository,
         }
         return setRankingOfInfo(ranking)
     }
-    private fun getContestRankByAtCoder(problemsInfo: List<ProblemInfo>,
-                                        submissionList: List<SubmissionInfo>,
-                                        penalty: Int,
-                                        startTime: Long
+    private fun getContestRankByAtCoder(
+        problemsInfo: List<ProblemInfo>,
+        submissionList: List<SubmissionInfo>,
+        penalty: Int,
+        startTime: Long
     ): List<ContestRankingAccountInfo> {
         val accountAcceptedProblemInfo = getAccountsAcceptInfo(submissionList, problemsInfo.size, startTime, penalty)
         val ranking = mutableListOf<ContestRankingAccountInfo>()
-        accountAcceptedProblemInfo.forEach{
+        accountAcceptedProblemInfo.forEach {
             var score = 0
             var latestSubmit = 0
             val acceptProblem = mutableListOf<Int>()
-            it.isAccept.forEachIndexed{index, result ->
+            it.isAccept.forEachIndexed { index, result ->
                 if (result) {
                     score += problemsInfo[index].point
                     acceptProblem.add(index)
@@ -100,21 +105,22 @@ class SharedContestService(private val contestRepository: ContestRepository,
         }
         return setRankingOfInfo(ranking)
     }
-    private fun getAccountsAcceptInfo(submissionList: List<SubmissionInfo>,
-                                                     problemNum: Int,
-                                                     startTime: Long,
-                                                     penalty: Int
+    private fun getAccountsAcceptInfo(
+        submissionList: List<SubmissionInfo>,
+        problemNum: Int,
+        startTime: Long,
+        penalty: Int
     ): List<AccountAcceptInfo> {
-        val countOfSubmit: MutableMap<String,MutableList<Int>> = mutableMapOf()
-        val timeOfSubmit: MutableMap<String,MutableList<Int>> = mutableMapOf()
-        val solvedProblem: MutableMap<String,MutableList<Boolean>> = mutableMapOf()
+        val countOfSubmit: MutableMap<String, MutableList<Int>> = mutableMapOf()
+        val timeOfSubmit: MutableMap<String, MutableList<Int>> = mutableMapOf()
+        val solvedProblem: MutableMap<String, MutableList<Boolean>> = mutableMapOf()
         val submitAccount = mutableSetOf<String>()
         submissionList
             .sortedBy { it.submitTime }
             .forEach {
-                val accountCountOfSubmit = countOfSubmit.getOrDefault(it.accountName, MutableList(problemNum){0})
-                val accountSolvedProblem = solvedProblem.getOrDefault(it.accountName, MutableList(problemNum){false})
-                val accountTimeOfSubmit = timeOfSubmit.getOrDefault(it.accountName, MutableList(problemNum){0})
+                val accountCountOfSubmit = countOfSubmit.getOrDefault(it.accountName, MutableList(problemNum) { 0 })
+                val accountSolvedProblem = solvedProblem.getOrDefault(it.accountName, MutableList(problemNum) { false })
+                val accountTimeOfSubmit = timeOfSubmit.getOrDefault(it.accountName, MutableList(problemNum) { 0 })
                 submitAccount.add(it.accountName)
                 if (it.result === SubmissionResult.ACCEPTED && !accountSolvedProblem[it.indexOfContest]) {
                     accountSolvedProblem[it.indexOfContest] = true
@@ -127,22 +133,22 @@ class SharedContestService(private val contestRepository: ContestRepository,
                     countOfSubmit[it.accountName] = accountCountOfSubmit
                 }
             }
-        return submitAccount.map{
+        return submitAccount.map {
             var penaResult = 0
-            val accountCountOFSubmit = countOfSubmit.getOrDefault(it, MutableList(problemNum){0})
-            solvedProblem[it]?.forEachIndexed{idx, result ->
+            val accountCountOFSubmit = countOfSubmit.getOrDefault(it, MutableList(problemNum) { 0 })
+            solvedProblem[it]?.forEachIndexed { idx, result ->
                 if (result) {
                     penaResult += penalty * accountCountOFSubmit[idx]
                 }
             }
             AccountAcceptInfo(it,
-                timeOfSubmit[it]?.toList() ?: List(problemNum){0},
-                solvedProblem[it] ?: List(problemNum){false},
+                timeOfSubmit[it]?.toList() ?: List(problemNum) { 0 },
+                solvedProblem[it] ?: List(problemNum) { false },
                 penaResult)
         }
     }
     private fun rankingComparator(): Comparator<ContestRankingAccountInfo> {
-        return Comparator{left, right ->
+        return Comparator { left, right ->
             if (left.score != right.score) {
                 right.score - left.score
             } else {
@@ -150,15 +156,16 @@ class SharedContestService(private val contestRepository: ContestRepository,
             }
         }
     }
-    fun getContestRanking(contestId: String,
-                          page: Int?,
-                          requestAccountName : String?
+    fun getContestRanking(
+        contestId: String,
+        page: Int?,
+        requestAccountName: String?
     ): RequestRanking? {
-        return try{
-            val contest = contestRepository.findByContestId(contestId)?: throw Error("コンテストが見つかりません")
+        return try {
+            val contest = contestRepository.findByContestId(contestId) ?: throw Error("コンテストが見つかりません")
             val submissionList = sharedSubmissionService.getContestSubmissionInTime(contest)
             val contestProblems = sharedProblemService.getProblemsByContestId(contest.id)
-            val rankingList = when(contest.contestType) {
+            val rankingList = when (contest.contestType) {
                 ContestInfo.ContestType.ICPC -> getContestRankByICPC(contestProblems,
                     submissionList,
                     contest.penalty,
@@ -170,13 +177,13 @@ class SharedContestService(private val contestRepository: ContestRepository,
                 else -> throw Error("不正なコンテスト形式です")
             }
             val solvedProblems = getSolvedProblemOnContest(contest)
-            val requestAccountInfo: ContestRankingAccountInfo? = rankingList.find{it.accountName == requestAccountName}
+            val requestAccountInfo: ContestRankingAccountInfo? = rankingList.find { it.accountName == requestAccountName }
 
             val requestRankingList: MutableList<ContestRankingAccountInfo> = if (page == null)
                 rankingList.toMutableList()
             else
                 rankingList
-                    .filterIndexed{ idx, _ -> page * ONE_PAGE_SIZE <= idx && idx < (page + 1) * ONE_PAGE_SIZE}
+                    .filterIndexed { idx, _ -> page * ONE_PAGE_SIZE <= idx && idx < (page + 1) * ONE_PAGE_SIZE }
                     .toMutableList()
 
             if (requestAccountInfo != null)

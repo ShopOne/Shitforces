@@ -6,72 +6,81 @@ import com.nazonazo_app.shit_forces.problem.ProblemInfo
 import com.nazonazo_app.shit_forces.problem.SharedProblemService
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.RequestSubmission
-import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
-import org.springframework.http.HttpStatus
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.server.ResponseStatusException
+import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import java.sql.Timestamp
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import kotlin.math.ln
 import kotlin.math.pow
+import org.springframework.http.HttpStatus
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.server.ResponseStatusException
 
 @Service
 @Transactional
-class ContestService(private val contestRepository: ContestRepository,
-                     private val sharedSessionService: SharedSessionService,
-                     private val sharedAccountService: SharedAccountService,
-                     private val sharedContestService: SharedContestService,
-                     private val sharedProblemService: SharedProblemService,
-                     private val sharedSubmissionService: SharedSubmissionService
+class ContestService(
+    private val contestRepository: ContestRepository,
+    private val sharedSessionService: SharedSessionService,
+    private val sharedAccountService: SharedAccountService,
+    private val sharedContestService: SharedContestService,
+    private val sharedProblemService: SharedProblemService,
+    private val sharedSubmissionService: SharedSubmissionService
 ) {
-    private fun haveAuthOfSubmit(sessionAccount: AccountInfo,
-                                 contestCreators: List<ContestCreator>,
-                                 contest: ContestInfo): Boolean{
+    private fun haveAuthOfSubmit(
+        sessionAccount: AccountInfo,
+        contestCreators: List<ContestCreator>,
+        contest: ContestInfo
+    ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return contest.startTime <= nowTimeStamp ||
                 sessionAccount.authority == AccountInfo.AccountAuthority.ADMINISTER ||
-                contestCreators.find{it.accountName == sessionAccount.name} != null
+                contestCreators.find { it.accountName == sessionAccount.name } != null
     }
 
-    private fun haveAuthOfSeeProblems(sessionAccount: AccountInfo?,
-                                      contestCreators: List<ContestCreator>,
-                                      contest: ContestInfo
+    private fun haveAuthOfSeeProblems(
+        sessionAccount: AccountInfo?,
+        contestCreators: List<ContestCreator>,
+        contest: ContestInfo
     ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return (contest.startTime <= nowTimeStamp ||
-                sessionAccount?.authority ==  AccountInfo.AccountAuthority.ADMINISTER ||
-                contestCreators.find{it.accountName == sessionAccount?.name} != null)
+                sessionAccount?.authority == AccountInfo.AccountAuthority.ADMINISTER ||
+                contestCreators.find { it.accountName == sessionAccount?.name } != null)
     }
 
-    private fun haveAuthOfSeeAnswer(sessionAccount: AccountInfo?,
-                                    contestCreators: List<ContestCreator>,
-                                    contest: ContestInfo
+    private fun haveAuthOfSeeAnswer(
+        sessionAccount: AccountInfo?,
+        contestCreators: List<ContestCreator>,
+        contest: ContestInfo
     ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return (contest.endTime <= nowTimeStamp ||
-                sessionAccount?.authority ==  AccountInfo.AccountAuthority.ADMINISTER ||
-                contestCreators.find{it.accountName == sessionAccount?.name} != null)
+                sessionAccount?.authority == AccountInfo.AccountAuthority.ADMINISTER ||
+                contestCreators.find { it.accountName == sessionAccount?.name } != null)
     }
 
-    //コンテスト終了 -> 誰のでも見れる
-    //コンテスト中(前) -> 自分のアカウントの物のみ見れる ただしAdminは全部見れる(後々Writerだけ等絞るようにしていく)
-    private fun haveAuthorityOfSeeSubmissions(sessionAccount: AccountInfo?,
-                                              accountName: String,
-                                              contestCreators: List<ContestCreator>,
-                                              contest: ContestInfo): Boolean{
+    // コンテスト終了 -> 誰のでも見れる
+    // コンテスト中(前) -> 自分のアカウントの物のみ見れる ただしAdminは全部見れる(後々Writerだけ等絞るようにしていく)
+    private fun haveAuthorityOfSeeSubmissions(
+        sessionAccount: AccountInfo?,
+        accountName: String,
+        contestCreators: List<ContestCreator>,
+        contest: ContestInfo
+    ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         return (contest.endTime <= nowTimeStamp ||
-                sessionAccount?.authority ==  AccountInfo.AccountAuthority.ADMINISTER ||
+                sessionAccount?.authority == AccountInfo.AccountAuthority.ADMINISTER ||
                 sessionAccount?.name == accountName ||
-                contestCreators.find{it.accountName == sessionAccount?.name} != null)
+                contestCreators.find { it.accountName == sessionAccount?.name } != null)
     }
 
-    fun getAccountSubmissionOfContest( accountName: String,
-                                       id: String,
-                                       httpServletRequest: HttpServletRequest): List<SubmissionInfo>? =
+    fun getAccountSubmissionOfContest(
+        accountName: String,
+        id: String,
+        httpServletRequest: HttpServletRequest
+    ): List<SubmissionInfo>? =
     try {
         val contest = contestRepository.findByContestId(id) ?: throw Error("コンテストが見つかりません")
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest) ?: ""
@@ -86,12 +95,13 @@ class ContestService(private val contestRepository: ContestRepository,
         null
     }
 
-    fun getContestInfoByName(contestName: String): ContestInfo?  =
+    fun getContestInfoByName(contestName: String): ContestInfo? =
         contestRepository.findByName(contestName)
 
-    fun submitAnswerToContest(requestSubmission: RequestSubmission,
-                              httpServletRequest: HttpServletRequest,
-                              httpServletResponse: HttpServletResponse
+    fun submitAnswerToContest(
+        requestSubmission: RequestSubmission,
+        httpServletRequest: HttpServletRequest,
+        httpServletResponse: HttpServletResponse
     ): SubmissionInfo {
         val contest = getContestInfoByContestId(requestSubmission.contestId)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
@@ -123,12 +133,13 @@ class ContestService(private val contestRepository: ContestRepository,
         return sharedSubmissionService.submitAnswer(requestSubmission.indexOfContest, contest.id,
             requestSubmission.statement, account.name)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
-
     }
 
-    fun getContestProblems(contestId: String,
-                           httpServletRequest: HttpServletRequest) : List<ProblemInfo>?  {
-        return try{
+    fun getContestProblems(
+        contestId: String,
+        httpServletRequest: HttpServletRequest
+    ): List<ProblemInfo>? {
+        return try {
             val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
             val account = sharedAccountService.getAccountByName(accountName ?: "")
             val contest = contestRepository.findByContestId(contestId) ?: throw Error("コンテストが見つかりません")
@@ -159,15 +170,14 @@ class ContestService(private val contestRepository: ContestRepository,
         return LatestContestsInfo(contests, allContestNum)
     }
 
-
     fun addContest(requestContest: RequestContest) {
-        val contestType = when(requestContest.contestType) {
+        val contestType = when (requestContest.contestType) {
             ContestInfo.ContestType.ICPC.textName -> ContestInfo.ContestType.ICPC
             ContestInfo.ContestType.ATCODER.textName -> ContestInfo.ContestType.ATCODER
             else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
         val creators = requestContest.creators.map {
-            val position = when(it.position.toUpperCase()) {
+            val position = when (it.position.toUpperCase()) {
                 "COORDINATOR" -> ContestCreator.ContestPosition.COORDINATOR
                 "WRITER" -> ContestCreator.ContestPosition.WRITER
                 else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST)
@@ -211,26 +221,27 @@ class ContestService(private val contestRepository: ContestRepository,
         }
         return high
     }
-    private fun calcParticipantsResult(participants: List<ParticipantInfo>,
-                               ratedBound: Int
+    private fun calcParticipantsResult(
+        participants: List<ParticipantInfo>,
+        ratedBound: Int
     ): List<ParticipantResult> {
         val performances = mutableListOf<Double>()
         val resultPerformances = mutableListOf<Double>()
         val resultParticipants = mutableListOf<ParticipantResult>()
-        participants.forEach{
+        participants.forEach {
             val perf = calcInnerPerformance(it.rank, participants)
             val realPerf = perf.coerceAtMost(ratedBound + 400.0)
             performances.add(perf)
             resultPerformances.add(realPerf)
         }
 
-        participants.forEachIndexed{ index, it ->
+        participants.forEachIndexed { index, it ->
             val newRating: Double
             val newInnerRating: Double
             val perf = performances[index]
             val rPerf = resultPerformances[index]
-            val f = {x: Double -> 2.0.pow(x / 800.0) }
-            val g = {x: Double -> 800 * ln(x) / ln(2.0) }
+            val f = { x: Double -> 2.0.pow(x / 800.0) }
+            val g = { x: Double -> 800 * ln(x) / ln(2.0) }
             if (it.partNum == 0) {
                 newRating = rPerf
                 newInnerRating = perf
@@ -238,7 +249,7 @@ class ContestService(private val contestRepository: ContestRepository,
                 newRating = g(0.9 * f(it.rating) + 0.1 * f(rPerf))
                 newInnerRating = 0.9 * it.innerRating + 0.1 * perf
             }
-            resultParticipants.add(ParticipantResult(it.name,newInnerRating, newRating, rPerf))
+            resultParticipants.add(ParticipantResult(it.name, newInnerRating, newRating, rPerf))
         }
         return resultParticipants
     }
@@ -260,7 +271,7 @@ class ContestService(private val contestRepository: ContestRepository,
             ?.rankingList ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
         val participants = mutableListOf<ParticipantInfo>()
         var ratedRank = 0
-        contestResult.forEach{
+        contestResult.forEach {
             val accountInfo = sharedAccountService.getAccountByName(it.accountName)
             if (accountInfo != null && sharedAccountService.calcCorrectionRate(accountInfo) < contestInfo.ratedBound) {
                 ratedRank += 1
@@ -276,15 +287,16 @@ class ContestService(private val contestRepository: ContestRepository,
             }
         }
         val participantsResult = calcParticipantsResult(participants, contestInfo.ratedBound)
-        participantsResult.forEach{
+        participantsResult.forEach {
             sharedAccountService.updateAccountRating(contestInfo.id, it.name,
                 it.rating, it.innerRating, it.perf.toInt())
         }
         return participantsResult
     }
-    fun putContestInfo(contestId: String,
-                       putRequestContest: PutRequestContest,
-                       httpServletRequest: HttpServletRequest
+    fun putContestInfo(
+        contestId: String,
+        putRequestContest: PutRequestContest,
+        httpServletRequest: HttpServletRequest
     ) {
         val contestInfo = validateContestUpdatable(contestId, httpServletRequest)
         val now = Timestamp(System.currentTimeMillis())
@@ -299,9 +311,10 @@ class ContestService(private val contestRepository: ContestRepository,
         sharedProblemService.updateContestProblem(contestInfo.id, problems)
     }
 
-    fun patchContestInfo(contestId: String,
-                       putRequestContest: PutRequestContest,
-                       httpServletRequest: HttpServletRequest
+    fun patchContestInfo(
+        contestId: String,
+        putRequestContest: PutRequestContest,
+        httpServletRequest: HttpServletRequest
     ) {
         val contestInfo = validateContestUpdatable(contestId, httpServletRequest)
         val validSubmission = sharedSubmissionService.getContestSubmissionInTime(contestInfo)
@@ -360,5 +373,4 @@ class ContestService(private val contestRepository: ContestRepository,
         }
         return sharedProblemService.getAnswersById(id)
     }
-
 }
