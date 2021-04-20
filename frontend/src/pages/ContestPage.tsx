@@ -46,7 +46,7 @@ interface SubmissionTableProps {
   submissions: any[];
 }
 
-const SubmissionTable: React.FC<SubmissionTableProps> = ({
+const SubmissionTable: React.FC<Required<SubmissionTableProps>> = ({
   problemNum,
   submissions,
 }) => {
@@ -116,7 +116,7 @@ interface RankingElementProps {
   rankingVersion: number;
 }
 
-const RankingElement: React.FC<RankingElementProps> = ({
+const RankingElement: React.FC<Required<RankingElementProps>> = ({
   problems,
   rankingVersion,
 }) => {
@@ -172,7 +172,10 @@ interface ProblemsTabProps {
   submissions: SubmissionInfo[];
 }
 
-const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
+const ProblemsTab: React.FC<Required<ProblemsTabProps>> = ({
+  problems,
+  submissions,
+}) => {
   const answerInput = React.createRef<HTMLInputElement>();
   const [comment, setComment] = useState('');
   const [key, setKey] = useState(KEY_OF_MY_SUBMISSIONS);
@@ -181,6 +184,90 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
   const [nowSubmissions, setNowSubmission] = useState<any[]>([]);
   const [rankingVersion, setRankingVersion] = useState(0);
   const TAB_ID = 'tabId';
+  if (problems.length === 0 && submissions.length === 0) {
+    return <div />;
+    // 最初の色つけタイミングのみこの様に処理する必要がある
+  } else if (
+    !firstTabRender &&
+    ((problems.length !== 0 && submissions.length !== 0) ||
+      nowSubmissions.length !== 0)
+  ) {
+    setFirstTabRender(true);
+  }
+
+  const submitAnswer = () => {
+    if (answerInput.current?.value === '') return setComment('答えが空です');
+    if (answerInput.current?.value.indexOf(':') !== -1)
+      return setComment(': を含む答えは提出できません');
+    setComment('');
+
+    postSubmission(getContestId(), key, answerInput.current.value)
+      .then((submitResult) => {
+        const newSubmissions = nowSubmissions.slice();
+        newSubmissions.unshift(submitResult);
+        setNowSubmission(newSubmissions);
+        setComment(submitResult.result);
+        // RankingElement再読込のため、バージョニング
+        setRankingVersion(rankingVersion + 1);
+      })
+      .catch((e) => {
+        if (e.message === '403') {
+          setComment('5秒間隔を空けて提出して下さい');
+        } else if (e.message === '400') {
+          setComment('ログインして下さい');
+        } else {
+          setComment('提出に失敗しました 再ログインを試してみて下さい');
+        }
+      });
+  };
+
+  const getElement = () => {
+    if (key !== KEY_OF_MY_SUBMISSIONS) {
+      return (
+        <div>
+          <Form.Label>答え</Form.Label>
+          <Form.Control type={'text'} ref={answerInput} />
+          <Button type={'primary'} onClick={submitAnswer}>
+            提出
+          </Button>
+        </div>
+      );
+    } else {
+      return (
+        <SubmissionTable
+          submissions={nowSubmissions}
+          problemNum={problems.length}
+        />
+      );
+    }
+  };
+
+  const getProblemTabList = () => {
+    return problems.map((problem: ProblemInfo, index: number) => {
+      const problemTitle = createEnglishIndex(index, problems.length);
+      return (
+        <Tab
+          eventKey={index.toString()}
+          key={problem.indexOfContest}
+          title={problemTitle}
+        >
+          <h6>{'point: ' + problem.point}</h6>
+          <div className={'div-pre'}>
+            <p>{problem.statement}</p>
+          </div>
+        </Tab>
+      );
+    });
+  };
+
+  const selectTab = (key: any) => {
+    setComment('');
+    setChangeColor(true);
+    setKey(key);
+    if (answerInput.current) {
+      answerInput.current.value = '';
+    }
+  };
 
   useEffect(() => {
     const getSubmitResultArray = () => {
@@ -191,8 +278,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       } else {
         useSubmissions = nowSubmissions;
       }
-      const tryingArray = new Array(problems.length);
-      tryingArray.fill('NO_SUB');
+      const tryingArray = new Array(problems.length).fill('NO_SUB');
       useSubmissions.map((submit: any) => {
         if (submit.result === 'ACCEPTED') {
           tryingArray[submit.indexOfContest] = 'ACCEPTED';
@@ -204,9 +290,10 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       });
       return tryingArray;
     };
+
     const setColor = () => {
       const submitResult = getSubmitResultArray();
-      problems.map((_: any, index: number) => {
+      problems.map((_: ProblemInfo, index: number) => {
         const element = document.getElementById(TAB_ID + '-tab-' + index);
         element?.classList.remove('bg-success', 'text-white', 'bg-warning');
         if (submitResult) {
@@ -231,91 +318,6 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
       setNowSubmission(submissions);
     }
   }, [changeColor, firstTabRender]);
-
-  if (problems.length === 0 && submissions.length === 0) {
-    return <div />;
-    // 最初の色つけタイミングのみこの様に処理する必要がある
-  } else if (
-    !firstTabRender &&
-    ((problems.length !== 0 && submissions.length !== 0) ||
-      nowSubmissions.length !== 0)
-  ) {
-    setFirstTabRender(true);
-  }
-
-  const getElement = () => {
-    if (key !== KEY_OF_MY_SUBMISSIONS) {
-      return (
-        <div>
-          <Form.Label>答え</Form.Label>
-          <Form.Control type={'text'} ref={answerInput} />
-          <Button type={'primary'} onClick={submitAnswer}>
-            提出
-          </Button>
-        </div>
-      );
-    } else {
-      return (
-        <SubmissionTable
-          submissions={nowSubmissions}
-          problemNum={problems.length}
-        />
-      );
-    }
-  };
-
-  const submitAnswer = () => {
-    if (answerInput.current?.value === '') {
-      setComment('答えが空です');
-      return;
-    }
-    if (answerInput.current?.value.indexOf(':') !== -1) {
-      setComment(': を含む答えは提出できません');
-      return;
-    }
-    setComment('');
-    postSubmission(getContestId(), key, answerInput.current.value)
-      .then((submitResult) => {
-        const newSubmissions = nowSubmissions.slice();
-        newSubmissions.unshift(submitResult);
-        setNowSubmission(newSubmissions);
-        setComment(submitResult.result);
-        // RankingElement再読込のため、バージョニング
-        setRankingVersion(rankingVersion + 1);
-      })
-      .catch((e) => {
-        if (e.message === '403') {
-          setComment('5秒間隔を空けて提出して下さい');
-        } else if (e.message === '400') {
-          setComment('ログインして下さい');
-        } else {
-          setComment('提出に失敗しました 再ログインを試してみて下さい');
-        }
-      });
-  };
-
-  const getProblemTabList = () => {
-    return problems.map((problem: any, index: any) => {
-      const problemTitle = createEnglishIndex(index, problems.length);
-      return (
-        <Tab eventKey={index} key={problem.indexOfContest} title={problemTitle}>
-          <h6>{'point: ' + problem.point}</h6>
-          <div className={'div-pre'}>
-            <p>{problem.statement}</p>
-          </div>
-        </Tab>
-      );
-    });
-  };
-
-  const selectTab = (key: any) => {
-    setComment('');
-    setChangeColor(true);
-    setKey(key);
-    if (answerInput.current) {
-      answerInput.current.value = '';
-    }
-  };
 
   return (
     <div>
