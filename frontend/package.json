@@ -11,7 +11,8 @@
     "lint-fix": "npm run lint --fix",
     "start": "react-scripts start",
     "test": "react-scripts test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "typesync || :"
   },
   "husky": {
     "hooks": {
@@ -57,11 +58,18 @@
     "tsutils": "3.21.0"
   },
   "devDependencies": {
+    "@types/browserify": "12.0.36",
+    "@types/fs-extra": "9.0.11",
+    "@types/jquery": "3.5.5",
     "@types/node": "14.14.37",
+    "@types/prettier": "2.2.1",
+    "@types/prop-types": "15.7.2",
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",
     "@types/react-router": "5.1.13",
     "@types/react-router-dom": "5.1.7",
+    "@types/testing-library__jest-dom": "5.9.5",
+    "@types/testing-library__user-event": "4.2.0",
     "browserify": "17.0.0",
     "eslint-config-prettier": "8.1.0",
     "eslint-import-resolver-typescript": "2.4.0",
@@ -71,7 +79,8 @@
     "prettier": "2.2.1",
     "prop-types": "15.7.2",
     "sort-package-json": "1.49.0",
-    "typescript": "4.2.3"
+    "typescript": "4.2.3",
+    "typesync": "0.8.0"
   },
   "engines": {
     "node": "14.16.0"
