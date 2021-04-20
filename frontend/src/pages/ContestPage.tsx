@@ -46,7 +46,7 @@ interface SubmissionTableProps {
   submissions: any[];
 }
 
-const SubmissionTable: React.FC<Required<SubmissionTableProps>> = ({
+const SubmissionTable: React.FC<SubmissionTableProps> = ({
   problemNum,
   submissions,
 }) => {
@@ -116,7 +116,7 @@ interface RankingElementProps {
   rankingVersion: number;
 }
 
-const RankingElement: React.FC<Required<RankingElementProps>> = ({
+const RankingElement: React.FC<RankingElementProps> = ({
   problems,
   rankingVersion,
 }) => {
@@ -171,11 +171,52 @@ interface ProblemsTabProps {
   problems: ProblemInfo[];
   submissions: SubmissionInfo[];
 }
+interface GetElementProps {
+  key: string;
+  answerInput: React.RefObject<HTMLInputElement>;
+  submitAnswer: () => void;
+  nowSubmissions: any[];
+  lengthOfTab: number;
+}
 
-const ProblemsTab: React.FC<Required<ProblemsTabProps>> = ({
-  problems,
-  submissions,
+const AnswerSubmitForm: React.VFC<GetElementProps> = ({
+  key,
+  answerInput,
+  submitAnswer,
+  nowSubmissions,
+  lengthOfTab,
 }) => {
+  if (key !== KEY_OF_MY_SUBMISSIONS) {
+    const handleKeyDonw = (
+      e: React.KeyboardEvent<HTMLInputElement> | undefined
+    ) => {
+      if (e?.key === 'Enter' && e?.ctrlKey) {
+        // or just (e.key==="Enter")
+        submitAnswer();
+      }
+    };
+
+    return (
+      <div>
+        <Form.Label>答え</Form.Label>
+        <Form.Control
+          type={'text'}
+          onKeyDown={handleKeyDonw}
+          ref={answerInput}
+        />
+        <Button type={'primary'} onClick={submitAnswer}>
+          提出
+        </Button>
+      </div>
+    );
+  } else {
+    return (
+      <SubmissionTable submissions={nowSubmissions} problemNum={lengthOfTab} />
+    );
+  }
+};
+
+const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
   const answerInput = React.createRef<HTMLInputElement>();
   const [comment, setComment] = useState('');
   const [key, setKey] = useState(KEY_OF_MY_SUBMISSIONS);
@@ -195,10 +236,13 @@ const ProblemsTab: React.FC<Required<ProblemsTabProps>> = ({
     setFirstTabRender(true);
   }
 
-  const submitAnswer = () => {
-    if (answerInput.current?.value === '') return setComment('答えが空です');
-    if (answerInput.current?.value.indexOf(':') !== -1)
+  const submitAnswer = (): void => {
+    if (answerInput.current?.value === '') {
+      return setComment('答えが空です');
+    }
+    if (answerInput.current?.value.indexOf(':') !== -1) {
       return setComment(': を含む答えは提出できません');
+    }
     setComment('');
 
     postSubmission(getContestId(), key, answerInput.current.value)
@@ -219,27 +263,6 @@ const ProblemsTab: React.FC<Required<ProblemsTabProps>> = ({
           setComment('提出に失敗しました 再ログインを試してみて下さい');
         }
       });
-  };
-
-  const getElement = () => {
-    if (key !== KEY_OF_MY_SUBMISSIONS) {
-      return (
-        <div>
-          <Form.Label>答え</Form.Label>
-          <Form.Control type={'text'} ref={answerInput} />
-          <Button type={'primary'} onClick={submitAnswer}>
-            提出
-          </Button>
-        </div>
-      );
-    } else {
-      return (
-        <SubmissionTable
-          submissions={nowSubmissions}
-          problemNum={problems.length}
-        />
-      );
-    }
   };
 
   const getProblemTabList = () => {
@@ -263,7 +286,7 @@ const ProblemsTab: React.FC<Required<ProblemsTabProps>> = ({
   const selectTab = (key: any) => {
     setComment('');
     setChangeColor(true);
-    setKey(key);
+    setKey((key ?? '').toString());
     if (answerInput.current) {
       answerInput.current.value = '';
     }
@@ -325,7 +348,13 @@ const ProblemsTab: React.FC<Required<ProblemsTabProps>> = ({
         {getProblemTabList()}
         <Tab eventKey={'mySubmit'} key={'mySubmit'} title={'自分の提出'} />
       </Tabs>
-      {getElement()}
+      <AnswerSubmitForm
+        key={key}
+        answerInput={answerInput}
+        submitAnswer={submitAnswer}
+        nowSubmissions={nowSubmissions}
+        lengthOfTab={problems.length}
+      />
       <p>{comment}</p>
       <hr />
       <RankingElement problems={problems} rankingVersion={rankingVersion} />
