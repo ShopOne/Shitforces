@@ -21,36 +21,85 @@ interface RankingTableRowProps {
   problems: ProblemInfo[];
 }
 
+type RowTemplateProps = {
+  // isMe: boolean;
+  ranking: number;
+  accountName: string;
+  score: number;
+  penalty: number;
+};
+const RowTemplate: React.VFC<RowTemplateProps> = ({
+  // isMe,
+  ranking,
+  accountName,
+  score,
+  penalty,
+}) => (
+  <>
+    {/*  <td className={isMe ? 'table-info' : undefined}></td> */}
+    <td className="align-middle text-center">{ranking}</td>
+    <td className="align-middle font-weight-bold">{accountName}</td>
+    <td className="align-middle text-center">
+      <div className="font-weight-bold text-primary">{score}</div>
+      <div className="text-muted">{formatSecondToMMSS(penalty)}</div>
+    </td>
+  </>
+);
+
+const PointAndAcTime = (time: number) => (
+  <td>
+    <p className={'contestPage-ranking-submitResult'}>AC</p>
+    <p className={'contestPage-ranking-submitTime'}>
+      {formatSecondToMMSS(time)}
+    </p>
+  </td>
+);
+
+type PlayerStatusProps = {
+  problemId: number;
+  point: number;
+  time: number;
+};
+const PlayerStatusOn_aProblem: React.VFC<PlayerStatusProps> = ({
+  problemId,
+  point,
+  time,
+}) => (
+  <td key={problemId} className="align-middle text-center">
+    <div className="font-weight-bold text-success">{point}</div>
+    <div className="text-muted">{formatSecondToMMSS(time)}</div>
+  </td>
+);
+
 export const RankingTableRow: React.FC<RankingTableRowProps> = ({
   account,
   isMe,
   problems,
 }) => {
-  const probElement = [];
-  for (let i = 0; i < problems.length; i++) {
-    if (account.acceptList.some((ac: any) => ac === i)) {
-      probElement.push(
-        <td>
-          <p className={'contestPage-ranking-submitResult'}>AC</p>
-          <p className={'contestPage-ranking-submitTime'}>
-            {formatSecondToMMSS(account.acceptTimeList[i])}
-          </p>
-        </td>
-      );
-    } else {
-      probElement.push(<td> </td>);
-    }
-  }
+  // 使われてない
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const probList = problems.map((_, i) =>
+    account.acceptList.some((ac: number) => ac === i) ? (
+      PointAndAcTime(account.acceptTimeList[i])
+    ) : (
+      <td> </td>
+    )
+  );
+
+  // account.acceptListが(true|false)[]で与えられたら処理は簡単になる
 
   return (
     <tr className={isMe ? 'table-info' : undefined}>
-      <td className="align-middle text-center">{account.ranking}</td>
-      <td className="align-middle font-weight-bold">{account.accountName}</td>
-      <td className="align-middle text-center">
-        <div className="font-weight-bold text-primary">{account.score}</div>
-        <div className="text-muted">{formatSecondToMMSS(account.penalty)}</div>
-      </td>
+      <RowTemplate
+        //  isMe={isMe}
+        ranking={account.ranking}
+        accountName={account.accountName}
+        score={account.score}
+        penalty={account.penalty}
+      />
+
       {problems.map((problems) => {
+        // 名前が衝突しています。動作が変わると嫌なのでとりあえずこのまま
         const i = account.acceptList.findIndex(
           (v) => v === problems.indexOfContest
         );
@@ -62,16 +111,12 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
           );
         }
         return (
-          <td key={problems.id} className="align-middle text-center">
-            <div className="font-weight-bold text-success">
-              {problems.point}
-            </div>
-            <div className="text-muted">
-              {formatSecondToMMSS(
-                account.acceptTimeList[problems.indexOfContest]
-              )}
-            </div>
-          </td>
+          <PlayerStatusOn_aProblem
+            key={problems.id}
+            problemId={problems.id}
+            point={problems.point}
+            time={account.acceptTimeList[problems.indexOfContest]}
+          />
         );
       })}
     </tr>
