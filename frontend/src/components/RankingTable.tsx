@@ -48,7 +48,7 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
       <td className="align-middle font-weight-bold">{account.accountName}</td>
       <td className="align-middle text-center">
         <div className="font-weight-bold text-primary">{account.score}</div>
-        <div className="text-muted">{account.penalty}</div>
+        <div className="text-muted">{formatSecondToMMSS(account.penalty)}</div>
       </td>
       {problems.map((problems) => {
         const i = account.acceptList.findIndex(
