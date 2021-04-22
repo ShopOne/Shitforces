@@ -22,14 +22,12 @@ interface RankingTableRowProps {
 }
 
 type RowTemplateProps = {
-  // isMe: boolean;
   ranking: number;
   accountName: string;
   score: number;
   penalty: number;
 };
 const RowTemplate: React.VFC<RowTemplateProps> = ({
-  // isMe,
   ranking,
   accountName,
   score,
@@ -86,12 +84,9 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
     )
   );
 
-  // account.acceptListが(true|false)[]で与えられたら処理は簡単になる
-
   return (
     <tr className={isMe ? 'table-info' : undefined}>
       <RowTemplate
-        //  isMe={isMe}
         ranking={account.ranking}
         accountName={account.accountName}
         score={account.score}
@@ -99,7 +94,6 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
       />
 
       {problems.map((problem) => {
-        // 名前が衝突しています。動作が変わると嫌なのでとりあえずこのまま
         const accountAcceptIdx = account.acceptList.findIndex(
           (v) => v === problem.indexOfContest
         );
