@@ -98,24 +98,24 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
         penalty={account.penalty}
       />
 
-      {problems.map((problems) => {
+      {problems.map((problem) => {
         // 名前が衝突しています。動作が変わると嫌なのでとりあえずこのまま
-        const i = account.acceptList.findIndex(
-          (v) => v === problems.indexOfContest
+        const accountAcceptIdx = account.acceptList.findIndex(
+          (v) => v === problem.indexOfContest
         );
-        if (i === -1) {
+        if (accountAcceptIdx === -1) {
           return (
-            <td key={problems.id} className="align-middle text-center">
+            <td key={problem.id} className="align-middle text-center">
               -
             </td>
           );
         }
         return (
           <PlayerStatusOn_aProblem
-            key={problems.id}
-            problemId={problems.id}
-            point={problems.point}
-            time={account.acceptTimeList[problems.indexOfContest]}
+            key={problem.id}
+            problemId={problem.id}
+            point={problem.point}
+            time={account.acceptTimeList[problem.indexOfContest]}
           />
         );
       })}
