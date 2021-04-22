@@ -29,6 +29,7 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
   const probElement = [];
   for (let i = 0; i < problems.length; i++) {
     if (account.acceptList.some((ac: any) => ac === i)) {
+      //null | number[] ?
       probElement.push(
         <td>
           <p className={'contestPage-ranking-submitResult'}>AC</p>

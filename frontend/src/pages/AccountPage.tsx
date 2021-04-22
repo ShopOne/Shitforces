@@ -42,7 +42,7 @@ const CreateContestElement: React.FC = () => {
     initCreatorArray
   );
   const submitNewContest = () => {
-    const contestId = contestIdRef.current!.value;
+    const contestId = contestIdRef?.current?.value ?? null;
     const contestName = contestNameRef.current!.value;
     const ratedBound = parseInt(ratedBoundRef.current!.value);
     const penalty = parseInt(penaltyRef.current!.value);

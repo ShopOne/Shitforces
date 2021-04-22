@@ -15,6 +15,7 @@ export const MutableListElement: React.FC<MutableListElementProps> = ({
   const [itemState, setItemState] = useState<
     { statement: string; id: number }[]
   >([]);
+
   useEffect(() => {
     const itemState = items.map((item, idx) => {
       return {
@@ -24,6 +25,7 @@ export const MutableListElement: React.FC<MutableListElementProps> = ({
     });
     setItemState(itemState);
   }, []);
+
   const addItem = () => {
     const newItemState = [...itemState];
     const newItems = [...items];
@@ -32,6 +34,7 @@ export const MutableListElement: React.FC<MutableListElementProps> = ({
     setItemState(newItemState);
     setItems(newItems);
   };
+
   const eraseItems = (idx: number) => {
     const newItemState = itemState.filter((_, itemIdx) => idx !== itemIdx);
     const newItems = items.filter((_, itemIdx) => idx !== itemIdx);
@@ -41,6 +44,7 @@ export const MutableListElement: React.FC<MutableListElementProps> = ({
     setItemState(newItemState);
     setItems(newItems);
   };
+
   const updateItems = (idx: number, statement: string) => {
     const newItemState = [...itemState];
     const newItems = [...items];
@@ -49,6 +53,7 @@ export const MutableListElement: React.FC<MutableListElementProps> = ({
     setItemState(newItemState);
     setItems(newItems);
   };
+
   const listElement = () => {
     return itemState.map((item, idx) => {
       return (
