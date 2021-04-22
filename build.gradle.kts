@@ -77,11 +77,18 @@ task<NpmTask>("installNpm") {
     setArgs(listOf("install"))
 }
 task<NpmTask>("buildReact") {
+    val args = mutableListOf("run")
+    val buildMode = System.getenv("BUILD_MODE") ?: "DEVELOPMENT"
     dependsOn("installNpm")
     setExecOverrides(closureOf<ExecSpec> {
         this.workingDir("./frontend")
     })
-    setArgs(listOf("run", "build"))
+    if (buildMode == "PRODUCTION") {
+        args.add("prodbuild")
+    } else {
+        args.add("build")
+    }
+    setArgs(args)
 }
 val processResources by tasks.existing(ProcessResources::class)
 processResources {
