@@ -17,7 +17,7 @@
   "parserOptions": {
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "react", "jquery", "react-hooks"],
+  "plugins": ["@typescript-eslint", "react", "jquery"],
   "root": true,
   "rules": {
     "@typescript-eslint/no-unused-vars": "error",
