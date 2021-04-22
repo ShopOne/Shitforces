@@ -34,7 +34,6 @@ const RowTemplate: React.VFC<RowTemplateProps> = ({
   penalty,
 }) => (
   <>
-    {/*  <td className={isMe ? 'table-info' : undefined}></td> */}
     <td className="align-middle text-center">{ranking}</td>
     <td className="align-middle font-weight-bold">{accountName}</td>
     <td className="align-middle text-center">
@@ -44,21 +43,12 @@ const RowTemplate: React.VFC<RowTemplateProps> = ({
   </>
 );
 
-const PointAndAcTime = (time: number) => (
-  <td>
-    <p className={'contestPage-ranking-submitResult'}>AC</p>
-    <p className={'contestPage-ranking-submitTime'}>
-      {formatSecondToMMSS(time)}
-    </p>
-  </td>
-);
-
 type PlayerStatusProps = {
   problemId: number;
   point: number;
   time: number;
 };
-const PlayerStatusOn_aProblem: React.VFC<PlayerStatusProps> = ({
+const PlayerStatusOfProblem: React.VFC<PlayerStatusProps> = ({
   problemId,
   point,
   time,
@@ -74,16 +64,6 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
   isMe,
   problems,
 }) => {
-  // 使われてない
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const probList = problems.map((_, i) =>
-    account.acceptList.some((ac: number) => ac === i) ? (
-      PointAndAcTime(account.acceptTimeList[i])
-    ) : (
-      <td> </td>
-    )
-  );
-
   return (
     <tr className={isMe ? 'table-info' : undefined}>
       <RowTemplate
@@ -105,7 +85,7 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
           );
         }
         return (
-          <PlayerStatusOn_aProblem
+          <PlayerStatusOfProblem
             key={problem.id}
             problemId={problem.id}
             point={problem.point}
