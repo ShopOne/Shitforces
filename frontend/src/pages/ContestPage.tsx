@@ -171,23 +171,23 @@ interface ProblemsTabProps {
   problems: ProblemInfo[];
   submissions: SubmissionInfo[];
 }
-interface GetElementProps {
-  key: string;
+interface SubmitFormProps {
+  tabKey: string;
   answerInput: React.RefObject<HTMLInputElement>;
   submitAnswer: () => void;
   nowSubmissions: any[];
   lengthOfTab: number;
 }
 
-const AnswerSubmitForm: React.VFC<GetElementProps> = ({
-  key,
+const AnswerSubmitForm: React.VFC<SubmitFormProps> = ({
+  tabKey,
   answerInput,
   submitAnswer,
   nowSubmissions,
   lengthOfTab,
 }) => {
-  if (key !== KEY_OF_MY_SUBMISSIONS) {
-    const handleKeyDonw = (
+  if (tabKey !== KEY_OF_MY_SUBMISSIONS) {
+    const handleKeyDown = (
       e: React.KeyboardEvent<HTMLInputElement> | undefined
     ) => {
       if (e?.key === 'Enter' && e?.ctrlKey) {
@@ -201,8 +201,9 @@ const AnswerSubmitForm: React.VFC<GetElementProps> = ({
         <Form.Label>答え</Form.Label>
         <Form.Control
           type={'text'}
-          onKeyDown={handleKeyDonw}
+          onKeyDown={handleKeyDown}
           ref={answerInput}
+          placeholder="Ctrl+Enterで提出"
         />
         <Button type={'primary'} onClick={submitAnswer}>
           提出
@@ -225,10 +226,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
   const [nowSubmissions, setNowSubmission] = useState<any[]>([]);
   const [rankingVersion, setRankingVersion] = useState(0);
   const TAB_ID = 'tabId';
-  if (problems.length === 0 && submissions.length === 0) {
-    return <div />;
-    // 最初の色つけタイミングのみこの様に処理する必要がある
-  } else if (
+  if (
     !firstTabRender &&
     ((problems.length !== 0 && submissions.length !== 0) ||
       nowSubmissions.length !== 0)
@@ -349,7 +347,7 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
         <Tab eventKey={'mySubmit'} key={'mySubmit'} title={'自分の提出'} />
       </Tabs>
       <AnswerSubmitForm
-        key={key}
+        tabKey={key}
         answerInput={answerInput}
         submitAnswer={submitAnswer}
         nowSubmissions={nowSubmissions}

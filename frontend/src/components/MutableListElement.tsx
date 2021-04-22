@@ -8,9 +8,10 @@ interface MutableListElementProps {
   items: string[];
   setItems(newItems: string[]): void;
 }
-export const MutableListElement: React.FC<
-  Required<MutableListElementProps>
-> = ({ items, setItems }) => {
+export const MutableListElement: React.FC<MutableListElementProps> = ({
+  items,
+  setItems,
+}) => {
   const [itemState, setItemState] = useState<
     { statement: string; id: number }[]
   >([]);

@@ -41,8 +41,7 @@ const CreateContestElement: React.FC = () => {
     initCreatorArray
   );
   const submitNewContest = () => {
-    const contestId = contestIdRef.current!.value; //!.は非nullishだと宣言するアサーションのようですが、初期値がnullなのでアサーションとして不適切かなと思います
-    //  contestIRef?.current?.value ?? null などはどうでしょうか
+    const contestId = contestIdRef?.current?.value ?? null;
     const contestName = contestNameRef.current!.value;
     const ratedBound = parseInt(ratedBoundRef.current!.value);
     const penalty = parseInt(penaltyRef.current!.value);
