@@ -3,15 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "react-scripts build",
-    "postbuild": "node ./postbuild.js",
+    "build": "run-s buildreact copydist",
+    "prodbuild": "GENERATE_SOURCEMAP=false run-s buildreact copydist",
+    "buildreact": "react-scripts build",
+    "copydist": "node ./postbuild.js",
     "eject": "react-scripts eject",
     "format": "sort-package-json && prettier --write \"**/{.*/,}*.{css,html,js,json,jsx,md,scss,ts,tsx,yaml,yml}\"",
     "lint": "eslint \"{src,__tests__}/**/*.{js,jsx,ts,tsx}\"",
     "lint-fix": "npm run lint --fix",
     "start": "react-scripts start",
     "test": "react-scripts test",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "typesync || :"
   },
   "husky": {
     "hooks": {
@@ -57,21 +60,32 @@
     "tsutils": "3.21.0"
   },
   "devDependencies": {
+    "@types/browserify": "12.0.36",
+    "@types/eslint": "7.2.10",
+    "@types/fs-extra": "9.0.11",
+    "@types/jquery": "3.5.5",
     "@types/node": "14.14.37",
+    "@types/prettier": "2.2.1",
+    "@types/prop-types": "15.7.2",
     "@types/react": "17.0.3",
     "@types/react-dom": "17.0.3",
     "@types/react-router": "5.1.13",
     "@types/react-router-dom": "5.1.7",
+    "@types/testing-library__jest-dom": "5.9.5",
+    "@types/testing-library__user-event": "4.2.0",
     "browserify": "17.0.0",
+    "eslint": "7.24.0",
     "eslint-config-prettier": "8.1.0",
     "eslint-import-resolver-typescript": "2.4.0",
     "eslint-plugin-import": "2.22.1",
     "husky": "4.3.8",
     "lint-staged": "10.5.4",
+    "npm-run-all": "4.1.5",
     "prettier": "2.2.1",
     "prop-types": "15.7.2",
     "sort-package-json": "1.49.0",
-    "typescript": "4.2.3"
+    "typescript": "4.2.3",
+    "typesync": "0.8.0"
   },
   "engines": {
     "node": "14.16.0"
