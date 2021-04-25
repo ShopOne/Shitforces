@@ -135,14 +135,14 @@ const RankingElement: React.FC<RankingElementProps> = ({
     getRanking();
   }
 
-  useEffect(() => {
-    getRanking();
-  }, []);
-
   let myRank = '';
   if (ranking?.requestAccountRank) {
     myRank = `順位: ${ranking.requestAccountRank}`;
   }
+
+  useEffect(() => {
+    getRanking();
+  }, []);
 
   return (
     <>

@@ -38,16 +38,18 @@ export interface RankingInfo {
 /**
  * 順位表に表示するためのアカウント情報
  */
+// AccountRankingInfoとRankingInfoAccountの区別が付きづらい User_StandingDataなどは？
+// ユーザーの順位に関係するデータだとすぐわかるようにしたいです
 export interface RankingInfoAccount {
   accountName: string;
   /**
    * ACした問題リスト
    */
-  acceptList: unknown[];
+  acceptList: number[];
   /**
    * このアカウントの現在順位
    */
-  ranking: any;
+  ranking: number;
   /**
    * 提出までに経過した秒数
    */
