@@ -440,13 +440,6 @@ export const ContestPage: React.FC = () => {
       >
         {'レート更新'}
       </Button>
-      <Button
-        onClick={ratingUpdate}
-        variant={'info'}
-        style={ratingUpdateButtonStyle}
-      >
-        {'レート更新'}
-      </Button>
       <Link to={`/contest/${getContestId()}/edit`}>
         <Button variant={'info'} style={contestEditButtonStyle}>
           {'コンテスト編集'}
