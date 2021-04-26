@@ -21,58 +21,76 @@ interface RankingTableRowProps {
   problems: ProblemInfo[];
 }
 
+type RowTemplateProps = {
+  ranking: number;
+  accountName: string;
+  score: number;
+  penalty: number;
+};
+const RowTemplate: React.VFC<RowTemplateProps> = ({
+  ranking,
+  accountName,
+  score,
+  penalty,
+}) => (
+  <>
+    <td className="align-middle text-center">{ranking}</td>
+    <td className="align-middle font-weight-bold">{accountName}</td>
+    <td className="align-middle text-center">
+      <div className="font-weight-bold text-primary">{score}</div>
+      <div className="text-muted">{formatSecondToMMSS(penalty)}</div>
+    </td>
+  </>
+);
+
+type PlayerStatusProps = {
+  problemId: number;
+  point: number;
+  time: number;
+};
+const PlayerStatusOfProblem: React.VFC<PlayerStatusProps> = ({
+  problemId,
+  point,
+  time,
+}) => (
+  <td key={problemId} className="align-middle text-center">
+    <div className="font-weight-bold text-success">{point}</div>
+    <div className="text-muted">{formatSecondToMMSS(time)}</div>
+  </td>
+);
+
 export const RankingTableRow: React.FC<RankingTableRowProps> = ({
   account,
   isMe,
   problems,
 }) => {
-  const probElement = [];
-  for (let i = 0; i < problems.length; i++) {
-    if (account.acceptList.some((ac: any) => ac === i)) {
-      //null | number[] ?
-      probElement.push(
-        <td>
-          <p className={'contestPage-ranking-submitResult'}>AC</p>
-          <p className={'contestPage-ranking-submitTime'}>
-            {formatSecondToMMSS(account.acceptTimeList[i])}
-          </p>
-        </td>
-      );
-    } else {
-      probElement.push(<td> </td>);
-    }
-  }
-
   return (
     <tr className={isMe ? 'table-info' : undefined}>
-      <td className="align-middle text-center">{account.ranking}</td>
-      <td className="align-middle font-weight-bold">{account.accountName}</td>
-      <td className="align-middle text-center">
-        <div className="font-weight-bold text-primary">{account.score}</div>
-        <div className="text-muted">{account.penalty}</div>
-      </td>
-      {problems.map((problems) => {
-        const i = account.acceptList.findIndex(
-          (v) => v === problems.indexOfContest
+      <RowTemplate
+        ranking={account.ranking}
+        accountName={account.accountName}
+        score={account.score}
+        penalty={account.penalty}
+      />
+
+      {problems.map((problem) => {
+        const accountAcceptIdx = account.acceptList.findIndex(
+          (v) => v === problem.indexOfContest
         );
-        if (i === -1) {
+        if (accountAcceptIdx === -1) {
           return (
-            <td key={problems.id} className="align-middle text-center">
+            <td key={problem.id} className="align-middle text-center">
               -
             </td>
           );
         }
         return (
-          <td key={problems.id} className="align-middle text-center">
-            <div className="font-weight-bold text-success">
-              {problems.point}
-            </div>
-            <div className="text-muted">
-              {formatSecondToMMSS(
-                account.acceptTimeList[problems.indexOfContest]
-              )}
-            </div>
-          </td>
+          <PlayerStatusOfProblem
+            key={problem.id}
+            problemId={problem.id}
+            point={problem.point}
+            time={account.acceptTimeList[problem.indexOfContest]}
+          />
         );
       })}
     </tr>
