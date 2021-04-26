@@ -192,7 +192,7 @@ export const RankingTable: React.FC<Props> = ({
     [ranking.acPerSubmit]
   );
 
-  if (problems.length !== ranking.acPerSubmit.length) {
+  if (problems.length && problems.length !== ranking.acPerSubmit.length) {
     return <Alert variant="danger">Error</Alert>;
   }
 
