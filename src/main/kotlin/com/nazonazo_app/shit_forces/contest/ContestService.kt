@@ -300,12 +300,12 @@ class ContestService(
     ) {
         val contestInfo = validateContestUpdatable(contestId, httpServletRequest)
         val now = Timestamp(System.currentTimeMillis())
-        val validSubmission = sharedSubmissionService.getContestSubmissionInTime(contestInfo)
+        val validSubmission = sharedSubmissionService.getValidContestSubmission(contestInfo)
         if (now >= contestInfo.startTime && validSubmission.isNotEmpty()) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN)
         }
         val problems = putRequestContest.problems.mapIndexed { index, it ->
-            ProblemInfo(contestId, it.point, it.statement, index, it.answer)
+            ProblemInfo(contestId, it.point, it.statement, index, it.answer, it.isQuiz)
         }
         contestRepository.updateContestInfoByPutRequestContest(contestId, putRequestContest)
         sharedProblemService.updateContestProblem(contestInfo.id, problems)
@@ -317,7 +317,7 @@ class ContestService(
         httpServletRequest: HttpServletRequest
     ) {
         val contestInfo = validateContestUpdatable(contestId, httpServletRequest)
-        val validSubmission = sharedSubmissionService.getContestSubmissionInTime(contestInfo)
+        val validSubmission = sharedSubmissionService.getValidContestSubmission(contestInfo)
         if (validSubmission.isEmpty()) {
             // 過去問編集用の処理なので、putContestを行う
             putContestInfo(contestId, putRequestContest, httpServletRequest)
@@ -325,7 +325,7 @@ class ContestService(
         }
         val nowContestProblem = sharedProblemService.getProblemsByContestId(contestId)
         val newProblems = putRequestContest.problems.mapIndexed { index, it ->
-            ProblemInfo(contestId, it.point, it.statement, index, it.answer)
+            ProblemInfo(contestId, it.point, it.statement, index, it.answer, it.isQuiz)
         }
         if (nowContestProblem.size != newProblems.size) {
             throw ResponseStatusException(HttpStatus.BAD_REQUEST)

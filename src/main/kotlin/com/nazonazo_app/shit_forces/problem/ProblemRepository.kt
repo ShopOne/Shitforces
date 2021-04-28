@@ -12,7 +12,8 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
     private val rowMapperForProblem = RowMapper { rs, _ ->
         val id = rs.getInt("id")
         ProblemInfo(rs.getString("contestId"), rs.getInt("point"),
-            rs.getString("statement"), rs.getInt("indexOfContest"), findAnswerById(id), id)
+            rs.getString("statement"), rs.getInt("indexOfContest"),
+            findAnswerById(id), rs.getBoolean("isQuiz"), id)
     }
 
     private fun findAnswerById(id: Int): List<String> =
@@ -21,12 +22,12 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
             """, rowMapperForAnswer, id)
     fun findByContestId(contestId: String): List<ProblemInfo> =
             jdbcTemplate.query("""
-                SELECT id, contestId, contestId, point, statement, indexOfContest FROM problemInfo WHERE contestId = ?
+                SELECT * FROM problemInfo WHERE contestId = ?
                 ORDER BY indexOfContest asc;
             """, rowMapperForProblem, contestId)
     fun findByContestIdAndIndex(contestId: String, indexOfContest: Int): ProblemInfo? {
         val problem = jdbcTemplate.query("""
-                SELECT id, contestId, point, statement, indexOfContest FROM problemInfo 
+                SELECT * FROM problemInfo 
                 WHERE contestId = ? AND indexOfContest = ? order by indexOfContest asc
             """, rowMapperForProblem, contestId, indexOfContest)
         return problem.getOrNull(0)
@@ -47,9 +48,9 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
     }
     private fun addProblem(problem: ProblemInfo) {
         jdbcTemplate.update("""
-            INSERT INTO problemInfo(contestId, indexOfContest, point, statement)
-            VALUES(?, ?, ?, ?)
-        """, problem.contestId, problem.indexOfContest, problem.point, problem.statement)
+            INSERT INTO problemInfo(contestId, indexOfContest, point, statement, isQuiz)
+            VALUES(?, ?, ?, ?, ?)
+        """, problem.contestId, problem.indexOfContest, problem.point, problem.statement, problem.isQuiz)
     }
     fun addProblems(contestId: String, problems: List<ProblemInfo>) {
         problems.forEach {
@@ -62,7 +63,6 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
             }
         }
     }
-
     fun updateProblemStatement(contestId: String, problems: List<ProblemInfo>) {
         problems.forEach {
             jdbcTemplate.update("""
@@ -74,8 +74,7 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
 
     fun findById(id: Int): ProblemInfo? {
         val problem = jdbcTemplate.query("""
-                SELECT id, contestId, contestId, point, statement, indexOfContest FROM problemInfo 
-                WHERE id = ?
+                SELECT * FROM problemInfo WHERE id = ?
             """, rowMapperForProblem, id)
         if (problem.size == 0) return null
         return problem[0]

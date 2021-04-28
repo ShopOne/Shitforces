@@ -32,6 +32,24 @@ class SharedSubmissionService(
     fun getContestSubmissionInTime(contest: ContestInfo): List<SubmissionInfo> =
         submissionRepository.findContestSubmissionInTime(contest.id, contest.startTime, contest.endTime)
 
+    fun getValidContestSubmission(contest: ContestInfo): List<SubmissionInfo> {
+        val submissions = getContestSubmissionInTime(contest)
+        val problems = sharedProblemService.getProblemsByContestId(contest.id)
+        val validSubmissions = mutableListOf<SubmissionInfo>()
+        // Pair<アカウント名, 提出インデックス>
+        val alreadySubmitSet = mutableSetOf<Pair<String, Int>>()
+        submissions.forEach {
+            val pastSubmit = validSubmissions.find { submit ->
+                submit.accountName == it.accountName && submit.indexOfContest == it.indexOfContest
+            }
+            if (!problems[it.indexOfContest].isQuiz || pastSubmit == null) {
+                validSubmissions.add(it)
+                alreadySubmitSet.add(Pair(it.accountName, it.indexOfContest))
+            }
+        }
+        return validSubmissions
+    }
+
     fun getSubmissionOfAccount(accountName: String, contestId: String): List<SubmissionInfo> =
         submissionRepository.findSubmissions(accountName, contestId)
 

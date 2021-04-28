@@ -136,6 +136,10 @@ export interface ProblemInfo {
    * コンテストの何番目の問題か
    */
   indexOfContest: number;
+  /**
+   * 問題形式がQuiz(有効な提出が一度のみ) かどうか
+   */
+  quiz: boolean;
 }
 
 export interface AccountRankingInfo {

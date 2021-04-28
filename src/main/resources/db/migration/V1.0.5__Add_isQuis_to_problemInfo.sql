@@ -1,0 +1,1 @@
+ALTER TABLE problemInfo add COLUMN isQuiz boolean not null DEFAULT false
