@@ -109,7 +109,7 @@ class ContestController(
     ): List<ResponseProblemInfo> {
         val problems = contestService.getContestProblems(contestId, httpServletRequest)
         return problems?.map {
-            ResponseProblemInfo(it.contestId, it.point, it.statement, it.indexOfContest, it.id!!)
+            ResponseProblemInfo(it.contestId, it.point, it.statement, it.indexOfContest, it.isQuiz, it.id!!)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
     @PostMapping("api/contests/{contest_id}/new-rating")

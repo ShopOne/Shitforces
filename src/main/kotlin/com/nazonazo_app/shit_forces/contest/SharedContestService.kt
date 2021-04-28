@@ -21,9 +21,11 @@ class SharedContestService(
         val isAccept: List<Boolean>,
         val penaltyOfWrong: Int
     )
-    fun getSolvedProblemOnContest(contest: ContestInfo): List<Pair<Int, Int>> {
+    fun getSolvedProblemOnContest(
+        contest: ContestInfo,
+        submissionList: List<SubmissionInfo>
+    ): List<Pair<Int, Int>> {
         val contestProblemNum = sharedProblemService.getProblemsByContestId(contest.id).size
-        val submissionList = sharedSubmissionService.getContestSubmissionInTime(contest)
         val submitAccounts = Array<MutableSet<String>>(contestProblemNum) { mutableSetOf() }
         val acceptAccounts = Array<MutableSet<String>>(contestProblemNum) { mutableSetOf() }
         submissionList
@@ -163,7 +165,7 @@ class SharedContestService(
     ): RequestRanking? {
         return try {
             val contest = contestRepository.findByContestId(contestId) ?: throw Error("コンテストが見つかりません")
-            val submissionList = sharedSubmissionService.getContestSubmissionInTime(contest)
+            val submissionList = sharedSubmissionService.getValidContestSubmission(contest)
             val contestProblems = sharedProblemService.getProblemsByContestId(contest.id)
             val rankingList = when (contest.contestType) {
                 ContestInfo.ContestType.ICPC -> getContestRankByICPC(contestProblems,
@@ -176,7 +178,7 @@ class SharedContestService(
                     contest.startTime.time)
                 else -> throw Error("不正なコンテスト形式です")
             }
-            val solvedProblems = getSolvedProblemOnContest(contest)
+            val solvedProblems = getSolvedProblemOnContest(contest, submissionList)
             val requestAccountInfo: ContestRankingAccountInfo? = rankingList.find { it.accountName == requestAccountName }
 
             val requestRankingList: MutableList<ContestRankingAccountInfo> = if (page == null)

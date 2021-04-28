@@ -28,11 +28,13 @@ class EditProblemInfo {
   id: number;
   point: number | undefined;
   answer: string[];
-  constructor(statement: string, id: number, point: number, answer: string[]) {
+  isQuiz: boolean;
+  constructor(statement: string, id: number, point: number, answer: string[], izQuiz: boolean) {
     this.statement = statement;
     this.id = id;
     this.point = point;
     this.answer = answer;
+    this.isQuiz = izQuiz;
   }
 }
 interface EditProblemsElementProps {
@@ -48,6 +50,11 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
     newProblems[idx].statement = statement;
     setProblems(newProblems);
   };
+  const updateProblemQuizMode = (idx: number, isQuiz: boolean) => {
+    const newProblems = [...problems];
+    newProblems[idx].isQuiz = isQuiz;
+    setProblems(newProblems);
+  }
   const updateProblemPoint = (idx: number, point: string) => {
     const newProblems = [...problems];
     let newPoint: number | undefined = parseInt(point);
@@ -67,7 +74,7 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
   const addProblem = () => {
     const newProblems = [...problems];
     let newId = problems.slice(-1)[0].id + 1;
-    newProblems.push(new EditProblemInfo('', newId, 1, ['']));
+    newProblems.push(new EditProblemInfo('', newId, 1, [''], false));
     setProblems(newProblems);
   };
   const setNewAnswer = (idx: number, newAnswer: string[]) => {
@@ -89,48 +96,60 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
       </Popover>
     );
     return (
-      <Form.Row key={problem.id}>
-        <Col>
-          <Form.Label>問題文</Form.Label>
-          <InputGroup className={'mb-3'}>
-            <Form.Control
-              placeholder={'〇〇な△△な〜んだ？'}
-              value={problem.statement}
-              onChange={(e) => updateProblemStatement(idx, e.target.value)}
+        <Form.Row key={problem.id}>
+          <Col>
+            <Form.Label>問題文</Form.Label>
+            <InputGroup className={'mb-3'}>
+              <Form.Control
+                  placeholder={'〇〇な△△な〜んだ？'}
+                  value={problem.statement}
+                  onChange={(e) => updateProblemStatement(idx, e.target.value)}
+              />
+            </InputGroup>
+          </Col>
+          <Col>
+            <Form.Label>点数</Form.Label>
+            <InputGroup className={'mb-3'}>
+              <Form.Control
+                  type={'number'}
+                  value={problem.point}
+                  onChange={(e) => updateProblemPoint(idx, e.target.value)}
+              />
+            </InputGroup>
+          </Col>
+          <Col>
+            <Form.Label>Quizモード</Form.Label>
+            <Form.Switch
+                id={`${problem.id} switch`}
+                type={'switch'}
+                label={'off/on'}
+                defaultChecked={problem.isQuiz}
+                onChange={(e) => {
+                  updateProblemQuizMode(idx, e.target.checked)}
+                }
             />
-          </InputGroup>
-        </Col>
-        <Col>
-          <Form.Label>点数</Form.Label>
-          <InputGroup className={'mb-3'}>
-            <Form.Control
-              type={'number'}
-              value={problem.point}
-              onChange={(e) => updateProblemPoint(problem.id, e.target.value)}
-            />
-          </InputGroup>
-        </Col>
-        <Col>
-          <br />
-          <OverlayTrigger
-            rootClose={true}
-            trigger={'click'}
-            placement={'right'}
-            overlay={popOver}
-          >
-            <Button variant={'primary'}>答え編集</Button>
-          </OverlayTrigger>
-        </Col>
-        <Col>
-          <br />
-          <button type={'button'} onClick={addProblem}>
-            +
-          </button>
-          <button type={'button'} onClick={() => eraseProblem(problem.id)}>
-            -
-          </button>
-        </Col>
-      </Form.Row>
+          </Col>
+          <Col>
+            <br />
+            <OverlayTrigger
+                rootClose={true}
+                trigger={'click'}
+                placement={'right'}
+                overlay={popOver}
+            >
+              <Button variant={'primary'}>答え編集</Button>
+            </OverlayTrigger>
+          </Col>
+          <Col>
+            <br />
+            <button type={'button'} onClick={addProblem}>
+              +
+            </button>
+            <button type={'button'} onClick={() => eraseProblem(problem.id)}>
+              -
+            </button>
+          </Col>
+        </Form.Row>
     );
   });
   return <div>{listGroups}</div>;
@@ -177,14 +196,15 @@ export const ContestEditPage: React.FC = () => {
           answers[idx].push('');
         }
         return new EditProblemInfo(
-          problem.statement,
-          idx,
-          problem.point,
-          answers[idx]
+            problem.statement,
+            idx,
+            problem.point,
+            answers[idx],
+            problem.quiz
         );
       });
       if (problems.length === 0) {
-        problems.push(new EditProblemInfo('', 0, 1, ['']));
+        problems.push(new EditProblemInfo('', 0, 1, [''], false));
       }
       setStatement(contestInfo.statement);
       setPenalty(contestInfo.penalty.toString());
@@ -216,6 +236,7 @@ export const ContestEditPage: React.FC = () => {
         statement: problem.statement,
         point: point,
         answer: problem.answer,
+        isQuiz: problem.isQuiz
       };
     });
     updateFunction(getContestId(), parseInt(penalty), statement, sendProblems)
@@ -232,6 +253,8 @@ export const ContestEditPage: React.FC = () => {
   return (
     <div>
       <p>コンテスト開始後に点数、答え、問題数は変更できません</p>
+      <p>Quizモードにした場合、順位として有効な提出は最初の一回のみとなります</p>
+      <p>問題を選択肢形式にする場合等にご利用下さい</p>
       <Form>
         <Form.Row>
           <Col>
