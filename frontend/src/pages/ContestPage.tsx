@@ -273,6 +273,9 @@ const ProblemsTab: React.FC<ProblemsTabProps> = ({ problems, submissions }) => {
           title={problemTitle}
         >
           <h6>{'point: ' + problem.point}</h6>
+          <h6 style={{color: 'red'}}>
+            {problem.quiz ? '※この問題は一度目の提出のみ有効です！' : ''}
+          </h6>
           <div className={'div-pre'}>
             <p>{problem.statement}</p>
           </div>
