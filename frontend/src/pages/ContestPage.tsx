@@ -8,7 +8,7 @@ import {
   getSubmission,
   updateContestRating,
 } from '../functions/HttpRequest';
-import { getContestId } from '../functions/getContestId';
+import { findContestIdFromPath } from '../functions/findContestIdFromPath';
 
 import { getCookie } from '../functions/getCookie';
 import { ProblemInfo, SubmissionInfo } from '../types';
@@ -29,7 +29,7 @@ export const ContestPage: React.FC = () => {
     display: 'none',
   });
   const ratingUpdate = () => {
-    updateContestRating(getContestId())
+    updateContestRating(findContestIdFromPath())
       .then(() => {
         alert('レート更新が完了しました');
         location.reload();
@@ -41,7 +41,7 @@ export const ContestPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const contestId = getContestId();
+    const contestId = findContestIdFromPath();
     const asyncFunctions = async () => {
       const contestInfo = await getContestInfo(contestId).catch(() => null);
       if (contestInfo === null) {
@@ -53,7 +53,7 @@ export const ContestPage: React.FC = () => {
       const cookieArray = getCookie();
       if (cookieArray['_sforce_account_name']) {
         const accountName = cookieArray['_sforce_account_name'];
-        submissions = await getSubmission(getContestId(), accountName);
+        submissions = await getSubmission(findContestIdFromPath(), accountName);
         const accountInfo = await getAccountInformation(accountName);
         if (
           accountInfo.auth === 'ADMINISTER' &&
@@ -92,7 +92,7 @@ export const ContestPage: React.FC = () => {
       >
         {'レート更新'}
       </Button>
-      <Link to={`/contest/${getContestId()}/edit`}>
+      <Link to={`/contest/${findContestIdFromPath()}/edit`}>
         <Button variant={'info'} style={contestEditButtonStyle}>
           {'コンテスト編集'}
         </Button>

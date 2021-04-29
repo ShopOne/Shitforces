@@ -3,7 +3,7 @@ import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { postSubmission } from '../../functions/HttpRequest';
 import { createEnglishIndex } from '../../functions/createEnglishIndex';
-import { getContestId } from '../../functions/getContestId';
+import { findContestIdFromPath } from '../../functions/findContestIdFromPath';
 import { ProblemInfo, SubmissionInfo } from '../../types';
 import { SubmissionTable } from '../contestPage/SubmissionTable';
 import { AnswerSubmitForm } from './AnswerSubmitForm';
@@ -41,7 +41,7 @@ export const ProblemsTab: VFC<Props> = ({ problems, submissions }) => {
     }
     setComment('');
 
-    postSubmission(getContestId(), key, answerInput.current.value)
+    postSubmission(findContestIdFromPath(), key, answerInput.current.value)
       .then((submitResult) => {
         const newSubmissions = nowSubmissions.slice();
         newSubmissions.unshift(submitResult);

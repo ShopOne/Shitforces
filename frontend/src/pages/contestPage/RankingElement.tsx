@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import { RankingTable } from '../../components/RankingTable';
 import { useAuthentication } from '../../contexts/AuthenticationContext';
 import { getRankingInfo } from '../../functions/HttpRequest';
-import { getContestId } from '../../functions/getContestId';
+import { findContestIdFromPath } from '../../functions/findContestIdFromPath';
 import { ProblemInfo, RankingInfo } from '../../types';
 interface Props {
   problems: ProblemInfo[];
@@ -19,7 +19,7 @@ export const RankingElement: React.FC<Props> = ({
   const [nowRankingVersion, setNowRankingVersion] = useState(0);
 
   const getRanking = () => {
-    getRankingInfo(null, getContestId()).then((rankingInfo) => {
+    getRankingInfo(null, findContestIdFromPath()).then((rankingInfo) => {
       setRanking(rankingInfo);
     });
   };

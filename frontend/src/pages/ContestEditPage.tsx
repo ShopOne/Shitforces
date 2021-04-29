@@ -14,22 +14,24 @@ import {
   patchContestInfo,
   putContestInfo,
 } from '../functions/HttpRequest';
+import { findContestIdFromPath } from '../functions/findContestIdFromPath';
 import { getCookie } from '../functions/getCookie';
 import { ContestCreator } from '../types';
-
 // URL: /contest/$contestName/edit
 
-function getContestId() {
-  const splitPath = window.location.pathname.split('/');
-  return splitPath.slice()[2];
-}
 class EditProblemInfo {
   statement: string;
   id: number;
   point: number | undefined;
   answer: string[];
   isQuiz: boolean;
-  constructor(statement: string, id: number, point: number, answer: string[], izQuiz: boolean) {
+  constructor(
+    statement: string,
+    id: number,
+    point: number,
+    answer: string[],
+    izQuiz: boolean
+  ) {
     this.statement = statement;
     this.id = id;
     this.point = point;
@@ -54,7 +56,7 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
     const newProblems = [...problems];
     newProblems[idx].isQuiz = isQuiz;
     setProblems(newProblems);
-  }
+  };
   const updateProblemPoint = (idx: number, point: string) => {
     const newProblems = [...problems];
     let newPoint: number | undefined = parseInt(point);
@@ -96,60 +98,60 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
       </Popover>
     );
     return (
-        <Form.Row key={problem.id}>
-          <Col>
-            <Form.Label>問題文</Form.Label>
-            <InputGroup className={'mb-3'}>
-              <Form.Control
-                  placeholder={'〇〇な△△な〜んだ？'}
-                  value={problem.statement}
-                  onChange={(e) => updateProblemStatement(idx, e.target.value)}
-              />
-            </InputGroup>
-          </Col>
-          <Col>
-            <Form.Label>点数</Form.Label>
-            <InputGroup className={'mb-3'}>
-              <Form.Control
-                  type={'number'}
-                  value={problem.point}
-                  onChange={(e) => updateProblemPoint(idx, e.target.value)}
-              />
-            </InputGroup>
-          </Col>
-          <Col>
-            <Form.Label>Quizモード</Form.Label>
-            <Form.Switch
-                id={`${problem.id} switch`}
-                type={'switch'}
-                label={'off/on'}
-                defaultChecked={problem.isQuiz}
-                onChange={(e) => {
-                  updateProblemQuizMode(idx, e.target.checked)}
-                }
+      <Form.Row key={problem.id}>
+        <Col>
+          <Form.Label>問題文</Form.Label>
+          <InputGroup className={'mb-3'}>
+            <Form.Control
+              placeholder={'〇〇な△△な〜んだ？'}
+              value={problem.statement}
+              onChange={(e) => updateProblemStatement(idx, e.target.value)}
             />
-          </Col>
-          <Col>
-            <br />
-            <OverlayTrigger
-                rootClose={true}
-                trigger={'click'}
-                placement={'right'}
-                overlay={popOver}
-            >
-              <Button variant={'primary'}>答え編集</Button>
-            </OverlayTrigger>
-          </Col>
-          <Col>
-            <br />
-            <button type={'button'} onClick={addProblem}>
-              +
-            </button>
-            <button type={'button'} onClick={() => eraseProblem(problem.id)}>
-              -
-            </button>
-          </Col>
-        </Form.Row>
+          </InputGroup>
+        </Col>
+        <Col>
+          <Form.Label>点数</Form.Label>
+          <InputGroup className={'mb-3'}>
+            <Form.Control
+              type={'number'}
+              value={problem.point}
+              onChange={(e) => updateProblemPoint(idx, e.target.value)}
+            />
+          </InputGroup>
+        </Col>
+        <Col>
+          <Form.Label>Quizモード</Form.Label>
+          <Form.Switch
+            id={`${problem.id} switch`}
+            type={'switch'}
+            label={'off/on'}
+            defaultChecked={problem.isQuiz}
+            onChange={(e) => {
+              updateProblemQuizMode(idx, e.target.checked);
+            }}
+          />
+        </Col>
+        <Col>
+          <br />
+          <OverlayTrigger
+            rootClose={true}
+            trigger={'click'}
+            placement={'right'}
+            overlay={popOver}
+          >
+            <Button variant={'primary'}>答え編集</Button>
+          </OverlayTrigger>
+        </Col>
+        <Col>
+          <br />
+          <button type={'button'} onClick={addProblem}>
+            +
+          </button>
+          <button type={'button'} onClick={() => eraseProblem(problem.id)}>
+            -
+          </button>
+        </Col>
+      </Form.Row>
     );
   });
   return <div>{listGroups}</div>;
@@ -167,7 +169,7 @@ export const ContestEditPage: React.FC = () => {
   const [startTime, setStartTime] = useState<number>(0);
   useEffect(() => {
     (async () => {
-      const contestId = getContestId();
+      const contestId = findContestIdFromPath();
       const contestInfo = await getContestInfo(contestId).catch(() => null);
       const contestProblems = await getContestProblems(contestId).catch(
         () => null
@@ -196,11 +198,11 @@ export const ContestEditPage: React.FC = () => {
           answers[idx].push('');
         }
         return new EditProblemInfo(
-            problem.statement,
-            idx,
-            problem.point,
-            answers[idx],
-            problem.quiz
+          problem.statement,
+          idx,
+          problem.point,
+          answers[idx],
+          problem.quiz
         );
       });
       if (problems.length === 0) {
@@ -236,13 +238,18 @@ export const ContestEditPage: React.FC = () => {
         statement: problem.statement,
         point: point,
         answer: problem.answer,
-        isQuiz: problem.isQuiz
+        isQuiz: problem.isQuiz,
       };
     });
-    updateFunction(getContestId(), parseInt(penalty), statement, sendProblems)
+    updateFunction(
+      findContestIdFromPath(),
+      parseInt(penalty),
+      statement,
+      sendProblems
+    )
       .then(() => {
         alert('コンテストの編集が完了しました');
-        window.location.href = `/contest/${getContestId()}`;
+        window.location.href = `/contest/${findContestIdFromPath()}`;
       })
       .catch((e) => {
         alert('コンテストの編集に失敗しました');
@@ -253,7 +260,9 @@ export const ContestEditPage: React.FC = () => {
   return (
     <div>
       <p>コンテスト開始後に点数、答え、問題数は変更できません</p>
-      <p>Quizモードにした場合、順位として有効な提出は最初の一回のみとなります</p>
+      <p>
+        Quizモードにした場合、順位として有効な提出は最初の一回のみとなります
+      </p>
       <p>問題を選択肢形式にする場合等にご利用下さい</p>
       <Form>
         <Form.Row>
