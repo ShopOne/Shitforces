@@ -17,6 +17,8 @@ import {
 import { findContestIdFromPath } from '../functions/findContestIdFromPath';
 import { getCookie } from '../functions/getCookie';
 import { ContestCreator } from '../types';
+import './ContestEditPage.css';
+
 // URL: /contest/$contestName/edit
 
 class EditProblemInfo {
@@ -103,6 +105,7 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
           <Form.Label>問題文</Form.Label>
           <InputGroup className={'mb-3'}>
             <Form.Control
+              as={'textarea'}
               placeholder={'〇〇な△△な〜んだ？'}
               value={problem.statement}
               onChange={(e) => updateProblemStatement(idx, e.target.value)}
