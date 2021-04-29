@@ -16,6 +16,7 @@ import {
 } from '../functions/HttpRequest';
 import { getCookie } from '../functions/getCookie';
 import { ContestCreator } from '../types';
+import './ContestEditPage.css';
 
 // URL: /contest/$contestName/edit
 
@@ -96,11 +97,12 @@ const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
       </Popover>
     );
     return (
-        <Form.Row key={problem.id}>
+        <Form.Row key={problem.id} className={'edit-problem-row'}>
           <Col>
             <Form.Label>問題文</Form.Label>
             <InputGroup className={'mb-3'}>
               <Form.Control
+                  as={'textarea'}
                   placeholder={'〇〇な△△な〜んだ？'}
                   value={problem.statement}
                   onChange={(e) => updateProblemStatement(idx, e.target.value)}
