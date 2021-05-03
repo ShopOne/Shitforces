@@ -1,4 +1,11 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  ChangeEventHandler,
+  VFC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -27,7 +34,7 @@ type RowTemplateProps = {
   score: number;
   penalty: number;
 };
-const RowTemplate: React.VFC<RowTemplateProps> = ({
+const RowTemplate: VFC<RowTemplateProps> = ({
   ranking,
   accountName,
   score,
@@ -48,7 +55,7 @@ type PlayerStatusProps = {
   point: number;
   time: number;
 };
-const PlayerStatusOfProblem: React.VFC<PlayerStatusProps> = ({
+const PlayerStatusOfProblem: VFC<PlayerStatusProps> = ({
   problemId,
   point,
   time,
@@ -59,7 +66,7 @@ const PlayerStatusOfProblem: React.VFC<PlayerStatusProps> = ({
   </td>
 );
 
-export const RankingTableRow: React.FC<RankingTableRowProps> = ({
+export const RankingTableRow: VFC<RankingTableRowProps> = ({
   account,
   isMe,
   problems,
@@ -103,18 +110,19 @@ interface Props {
   ranking: RankingInfo;
 }
 
-export const RankingTable: React.FC<Props> = ({
+export const RankingTable: VFC<Props> = ({
   myAccountName,
   problems,
   ranking,
 }) => {
   const [accountNameToSearch, setAccountNameToSearch] = useState('');
 
-  const onChangeAccountName = useCallback<
-    React.ChangeEventHandler<HTMLInputElement>
-  >((event) => {
-    setAccountNameToSearch(event.target.value);
-  }, []);
+  const onChangeAccountName = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (event) => {
+      setAccountNameToSearch(event.target.value);
+    },
+    []
+  );
 
   const onClickReset = useCallback(() => {
     setAccountNameToSearch('');

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from 'react';
+import { createContext, useCallback, useContext, useState, FC } from 'react';
 import { useHistory } from 'react-router-dom';
 import {
   postAccountInformation,
@@ -18,7 +18,7 @@ interface AuthenticationContextValue {
   signUp(accountName: string, password: string): Promise<void>;
 }
 
-const AuthenticationContext = React.createContext<AuthenticationContextValue>({
+const AuthenticationContext = createContext<AuthenticationContextValue>({
   accountName: null,
   changeAccountName: async () => undefined,
   signIn: async () => undefined,
@@ -30,7 +30,7 @@ export function useAuthentication(): AuthenticationContextValue {
   return useContext(AuthenticationContext);
 }
 
-export const AuthenticationProvider: React.FC = ({ children }) => {
+export const AuthenticationProvider: FC = ({ children }) => {
   const history = useHistory();
 
   const [accountName, setAccountName] = useState<string | null>(

@@ -1,4 +1,4 @@
-import React, { VFC, createRef, useState, useEffect } from 'react';
+import { VFC, createRef, useState, useEffect } from 'react';
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
 import { postSubmission } from '../../functions/HttpRequest';

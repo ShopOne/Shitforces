@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { useCallback, useState } from 'react';
+import { FC, useCallback, useState } from 'react';
 import Pagination from 'react-bootstrap/Pagination';
 
 interface PagingElementProps {
@@ -8,7 +8,7 @@ interface PagingElementProps {
   reloadButton?: boolean;
 }
 
-export const PagingElement: React.FC<PagingElementProps> = ({
+export const PagingElement: FC<PagingElementProps> = ({
   pageNum,
   pageChanged,
   reloadButton,

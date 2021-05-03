@@ -1,11 +1,11 @@
-import React from 'react';
+import { FC } from 'react';
 import Button from 'react-bootstrap/Button';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import { Link } from 'react-router-dom';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 
-export const Header: React.FC = () => {
+export const Header: FC = () => {
   let rightHeader;
 
   const { accountName } = useAuthentication();

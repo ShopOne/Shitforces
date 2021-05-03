@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { VFC, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { ContestInfo } from '../types';
 
 const CONTEST_IN_ONE_PAGE = 10;
 
-const ContestList: React.FC = () => {
+const ContestList: VFC = () => {
   const [contests, setContests] = useState<ContestInfo[] | null>(null);
   const [pageNum, setPageNum] = useState<number>(0);
 
@@ -69,6 +69,6 @@ const ContestList: React.FC = () => {
   );
 };
 
-export const MainPage: React.FC = () => {
+export const MainPage: VFC = () => {
   return <ContestList />;
 };

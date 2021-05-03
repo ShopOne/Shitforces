@@ -1,4 +1,11 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import {
+  ChangeEventHandler,
+  FormEventHandler,
+  FC,
+  useCallback,
+  useMemo,
+  useState,
+} from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
@@ -13,7 +20,7 @@ interface Props {
   variant: 'signIn' | 'signUp';
 }
 
-export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
+export const SubmitAccountInfo: FC<Props> = ({ variant }) => {
   const { accountName, signIn, signUp } = useAuthentication();
   const [show, setShow] = useState<boolean>(false);
   const [alertText, setAlertText] = useState<string>('');
@@ -30,17 +37,19 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
   };
   const handleShow = () => setShow(true);
 
-  const onChangeAccountName = useCallback<
-    React.ChangeEventHandler<HTMLInputElement>
-  >((event) => {
-    setAccountNameInput(event.target.value);
-  }, []);
+  const onChangeAccountName = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (event) => {
+      setAccountNameInput(event.target.value);
+    },
+    []
+  );
 
-  const onChangePassword = useCallback<
-    React.ChangeEventHandler<HTMLInputElement>
-  >((event) => {
-    setPassword(event.target.value);
-  }, []);
+  const onChangePassword = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (event) => {
+      setPassword(event.target.value);
+    },
+    []
+  );
 
   const canSubmit = useMemo(
     () =>
@@ -49,7 +58,7 @@ export const SubmitAccountInfo: React.FC<Props> = ({ variant }) => {
     [accountNameInput, password]
   );
 
-  const onSubmit = useCallback<React.FormEventHandler<HTMLElement>>(
+  const onSubmit = useCallback<FormEventHandler<HTMLElement>>(
     async (event) => {
       event.preventDefault();
 

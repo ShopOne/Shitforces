@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { VFC, useState, useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import { RankingTable } from '../../components/RankingTable';
 import { useAuthentication } from '../../contexts/AuthenticationContext';
@@ -10,10 +10,7 @@ interface Props {
   rankingVersion: number;
 }
 
-export const RankingElement: React.FC<Props> = ({
-  problems,
-  rankingVersion,
-}) => {
+export const RankingElement: VFC<Props> = ({ problems, rankingVersion }) => {
   const { accountName } = useAuthentication();
   const [ranking, setRanking] = useState<RankingInfo | null>(null);
   const [nowRankingVersion, setNowRankingVersion] = useState(0);

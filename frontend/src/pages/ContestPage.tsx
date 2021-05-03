@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Link } from 'react-router-dom';
 import {
@@ -16,7 +16,7 @@ import { ProblemsTab } from './contestPage/ProblemsTab';
 import './ContestPage.css';
 
 // URL: /contest/$contestId
-export const ContestPage: React.FC = () => {
+const ContestPage: FC = () => {
   const [contestName, setContestName] = useState('');
   const [statement, setStatement] = useState('');
   const [time, setTime] = useState('');
@@ -110,3 +110,6 @@ export const ContestPage: React.FC = () => {
     </div>
   );
 };
+
+// eslint-disable-next-line import/no-default-export
+export default ContestPage;

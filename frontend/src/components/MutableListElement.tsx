@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -8,7 +8,7 @@ interface MutableListElementProps {
   items: string[];
   setItems(newItems: string[]): void;
 }
-export const MutableListElement: React.FC<MutableListElementProps> = ({
+export const MutableListElement: FC<MutableListElementProps> = ({
   items,
   setItems,
 }) => {

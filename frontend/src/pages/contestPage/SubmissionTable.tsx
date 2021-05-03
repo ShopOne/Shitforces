@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
-import React, { useState } from 'react';
-import { Table } from 'react-bootstrap';
+import { VFC, useState } from 'react';
+import Table from 'react-bootstrap/Table';
 import { PagingElement } from '../../components/PagingElement';
 import { createEnglishIndex } from '../../functions/createEnglishIndex';
 
@@ -9,7 +9,7 @@ interface SubmissionTableProps {
   submissions: any[];
 }
 
-export const SubmissionTable: React.FC<SubmissionTableProps> = ({
+export const SubmissionTable: VFC<SubmissionTableProps> = ({
   problemNum,
   submissions,
 }) => {

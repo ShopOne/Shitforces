@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { VFC, useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
 import { PagingElement } from '../components/PagingElement';
@@ -11,7 +11,7 @@ interface AccountRankingTableProps {
   accounts: AccountInfo[];
   rankStart: number;
 }
-export const AccountRankingTable: React.FC<AccountRankingTableProps> = ({
+export const AccountRankingTable: VFC<AccountRankingTableProps> = ({
   accounts,
   rankStart,
 }) => {
@@ -51,7 +51,7 @@ export const AccountRankingTable: React.FC<AccountRankingTableProps> = ({
   );
 };
 
-export const RankingPage: React.FC = () => {
+const RankingPage: VFC = () => {
   const [accounts, setAccounts] = useState<AccountInfo[]>([]);
   const [nowPage, setNowPage] = useState(0);
   const [pageNum, setPageNum] = useState(0);
@@ -79,3 +79,6 @@ export const RankingPage: React.FC = () => {
     </>
   );
 };
+
+// eslint-disable-next-line import/no-default-export
+export default RankingPage;

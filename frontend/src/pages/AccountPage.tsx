@@ -1,10 +1,14 @@
 import PropTypes from 'prop-types';
-import React, {
+import {
+  VFC,
   useCallback,
   useEffect,
   useMemo,
   useRef,
   useState,
+  FormEventHandler,
+  ChangeEvent,
+  ChangeEventHandler,
 } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
@@ -19,7 +23,7 @@ import { getRatingColor } from '../functions/getRatingColor';
 
 // URL: /account/$accountName
 
-const CreateContestElement: React.FC = () => {
+const CreateContestElement: VFC = () => {
   class ContestCreator {
     accountName: string;
     position: string;
@@ -133,7 +137,7 @@ const CreateContestElement: React.FC = () => {
           <Col>
             <Form.Group
               controlId={'creatorPosition'}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
                 changePosition(e.target.value, idx)
               }
             >
@@ -227,7 +231,7 @@ const CreateContestElement: React.FC = () => {
               <Form.Label>コンテスト形式</Form.Label>
               <Form.Group
                 controlId={'contestTypeForm'}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
                   setContestType(e.target.value)
                 }
               >
@@ -253,7 +257,7 @@ interface AccountInformationBodyProps {
   rating: number;
 }
 
-const AccountInformationBody: React.FC<AccountInformationBodyProps> = ({
+const AccountInformationBody: VFC<AccountInformationBodyProps> = ({
   name,
   rating,
 }) => {
@@ -280,23 +284,24 @@ AccountInformationBody.propTypes = {
   rating: PropTypes.number.isRequired,
 };
 
-const AccountNameChangeForm: React.FC = () => {
+const AccountNameChangeForm: VFC = () => {
   const { accountName, changeAccountName } = useAuthentication();
 
   const [newAccountName, setNewAccountName] = useState('');
   const [password, setPassword] = useState('');
 
   const onChangeNewAccountName = useCallback<
-    React.ChangeEventHandler<HTMLInputElement>
+    ChangeEventHandler<HTMLInputElement>
   >((event) => {
     setNewAccountName(event.target.value);
   }, []);
 
-  const onChangePassword = useCallback<
-    React.ChangeEventHandler<HTMLInputElement>
-  >((event) => {
-    setPassword(event.target.value);
-  }, []);
+  const onChangePassword = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (event) => {
+      setPassword(event.target.value);
+    },
+    []
+  );
 
   const canSubmit = useMemo(
     () =>
@@ -306,7 +311,7 @@ const AccountNameChangeForm: React.FC = () => {
     [accountName, newAccountName, password]
   );
 
-  const onSubmit = useCallback<React.FormEventHandler<HTMLElement>>(
+  const onSubmit = useCallback<FormEventHandler<HTMLElement>>(
     (event) => {
       event.preventDefault();
 
@@ -354,7 +359,7 @@ interface AccountInfoTabsProps {
   rating: number;
   auth: string;
 }
-const AccountInfoTabs: React.FC<AccountInfoTabsProps> = (props) => {
+const AccountInfoTabs: VFC<AccountInfoTabsProps> = (props) => {
   const [key, setKey] = useState<string | null>('profile');
   const tabs = [];
 
@@ -387,7 +392,7 @@ AccountInfoTabs.propTypes = {
   auth: PropTypes.string.isRequired,
 };
 
-const AccountNotFound: React.FC = () => {
+const AccountNotFound: VFC = () => {
   return (
     <div>
       <p>アカウントが見つかりませんでした</p>
@@ -395,7 +400,7 @@ const AccountNotFound: React.FC = () => {
   );
 };
 
-export const AccountPage: React.FC = () => {
+const AccountPage: VFC = () => {
   const [name, setName] = useState('');
   const [rating, setRating] = useState<number | null>(null);
   const [auth, setAuth] = useState<string | null>(null);
@@ -428,3 +433,6 @@ export const AccountPage: React.FC = () => {
 
   return <div>{page}</div>;
 };
+
+// eslint-disable-next-line import/no-default-export
+export default AccountPage;

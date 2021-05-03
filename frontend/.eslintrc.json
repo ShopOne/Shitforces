@@ -32,7 +32,9 @@
     ],
     "react/prop-types": "off",
     "no-unused-vars": "off",
-    "no-var": "error"
+    "no-var": "error",
+    "react/jsx-uses-react": "off",
+    "react/react-in-jsx-scope": "off"
   },
   "settings": {
     "import/resolver": {
