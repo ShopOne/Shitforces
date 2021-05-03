@@ -120,6 +120,7 @@ export interface SubmissionInfo {
    * 提出時間
    */
   submitTime: string;
+  submitTimeAMPM: string;
   result: string;
 }
 

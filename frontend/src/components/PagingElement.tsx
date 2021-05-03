@@ -1,61 +1,40 @@
 import PropTypes from 'prop-types';
-import React, { useCallback, useState } from 'react';
+import React from 'react';
 import Pagination from 'react-bootstrap/Pagination';
 
-interface PagingElementProps {
-  pageChanged(page: number): void;
-  pageNum: number;
-  reloadButton?: boolean;
+interface Props {
+  totalPages: number;
+  currentPage: number;
+  onChange: (page: number) => void;
 }
 
-export const PagingElement: React.FC<PagingElementProps> = ({
-  pageNum,
-  pageChanged,
-  reloadButton,
+export const PagingElement: React.FC<Props> = ({
+  totalPages,
+  currentPage,
+  onChange,
 }) => {
-  const [page, setPage] = useState(() => {
-    pageChanged(0);
-    return 0;
-  });
-
-  const onClick = useCallback((event: any) => {
-    const newPage = parseInt(event.target.text) - 1;
-    let loadPage = page;
-    if (!isNaN(newPage)) {
-      setPage(newPage);
-      loadPage = newPage;
-    }
-    pageChanged(loadPage);
-  }, []);
-
-  const items = [];
-  for (let i = 0; i < pageNum; i++) {
-    items.push(
-      <Pagination.Item key={i} active={i === page} onClick={onClick}>
-        {i + 1}
-      </Pagination.Item>
-    );
-  }
-
-  let reloadButtonElement = <div />;
-  if (reloadButton === true) {
-    reloadButtonElement = (
-      <button type="submit" onClick={onClick}>
-        <img src={window.location.origin + '/reload.png'} alt="再読込" />
-      </button>
-    );
-  }
+  const pageArr = [...Array(totalPages)].map((_, idx) => idx);
 
   return (
     <div>
-      <Pagination>{items}</Pagination>
-      {reloadButtonElement}
+      <Pagination>
+        {pageArr.map((page) => (
+          <Pagination.Item
+            key={page}
+            active={page === currentPage}
+            value={page}
+            onClick={() => onChange(page)}
+          >
+            {page + 1}
+          </Pagination.Item>
+        ))}
+      </Pagination>
     </div>
   );
 };
 
 PagingElement.propTypes = {
-  pageChanged: PropTypes.func.isRequired,
-  pageNum: PropTypes.number.isRequired,
-  reloadButton: PropTypes.bool,
+  onChange: PropTypes.func.isRequired,
+  totalPages: PropTypes.number.isRequired,
+  currentPage: PropTypes.number.isRequired,
 };

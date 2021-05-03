@@ -69,13 +69,18 @@ export const RankingPage: React.FC = () => {
   useEffect(() => {
     getRanking(0);
   }, []);
+
   return (
     <>
       <AccountRankingTable
         accounts={accounts}
         rankStart={nowPage * ACCOUNT_RANKING_ONE_PAGE + 1}
       />
-      <PagingElement pageChanged={getRanking} pageNum={pageNum} />
+      <PagingElement
+        currentPage={nowPage}
+        onChange={getRanking}
+        totalPages={pageNum}
+      />
     </>
   );
 };
