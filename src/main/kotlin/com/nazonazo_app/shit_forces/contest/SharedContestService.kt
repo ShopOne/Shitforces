@@ -1,5 +1,7 @@
 package com.nazonazo_app.shit_forces.contest
 
+import com.nazonazo_app.shit_forces.account.ResponseAccount
+import com.nazonazo_app.shit_forces.account.SharedAccountService
 import com.nazonazo_app.shit_forces.problem.ProblemInfo
 import com.nazonazo_app.shit_forces.problem.SharedProblemService
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
@@ -13,7 +15,8 @@ import org.springframework.transaction.annotation.Transactional
 class SharedContestService(
     private val contestRepository: ContestRepository,
     private val sharedProblemService: SharedProblemService,
-    private val sharedSubmissionService: SharedSubmissionService
+    private val sharedSubmissionService: SharedSubmissionService,
+    private val sharedAccountService: SharedAccountService
 ) {
     data class AccountAcceptInfo(
         val name: String,
@@ -158,6 +161,19 @@ class SharedContestService(
             }
         }
     }
+    private fun getFirstAcceptAccounts(orderedSubmissionInfo: List<SubmissionInfo>, problemNum: Int): List<ResponseAccount?> {
+        val firstAcceptAccounts = MutableList<ResponseAccount?>(problemNum) { null }
+        orderedSubmissionInfo
+            .filter { it.result == SubmissionResult.ACCEPTED }
+            .forEach {
+                if (firstAcceptAccounts[it.indexOfContest] == null) {
+                    val account = sharedAccountService.getAccountByName(it.accountName)!!
+                    firstAcceptAccounts[it.indexOfContest] = ResponseAccount(account.name,
+                        sharedAccountService.calcCorrectionRate(account), account.partNum, account.authority.name)
+                }
+            }
+        return firstAcceptAccounts.toList()
+    }
     fun getContestRanking(
         contestId: String,
         page: Int?,
@@ -194,6 +210,7 @@ class SharedContestService(
             RequestRanking(
                 requestRankingList,
                 solvedProblems,
+                getFirstAcceptAccounts(submissionList, contestProblems.size),
                 rankingList.size,
                 requestAccountInfo?.ranking)
         } catch (e: Error) {

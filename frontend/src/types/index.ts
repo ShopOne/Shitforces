@@ -33,6 +33,10 @@ export interface RankingInfo {
    * AC/Submitの数 .firstにAC人数、.secondに提出人数
    */
   acPerSubmit: { first: number; second: number }[];
+  /**
+   * FAリスト
+   */
+  firstAcceptedList: AccountInfo[];
 }
 
 /**

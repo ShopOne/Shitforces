@@ -1,6 +1,7 @@
 package com.nazonazo_app.shit_forces.contest
 
 import com.nazonazo_app.shit_forces.Utils
+import com.nazonazo_app.shit_forces.account.ResponseAccount
 import com.nazonazo_app.shit_forces.problem.PutRequestProblem
 import java.sql.Timestamp
 
@@ -65,6 +66,7 @@ class RequestContestCreator(
 data class RequestRanking(
     val rankingList: List<ContestRankingAccountInfo>,
     val acPerSubmit: List<Pair<Int, Int>>,
+    val firstAcceptedList: List<ResponseAccount?>,
     val partAccountNum: Int,
     val requestAccountRank: Int?
 )
