@@ -192,6 +192,31 @@ export const RankingTable: React.FC<Props> = ({
     return items;
   }, [paginationIndex, paginationLength]);
 
+  const firstAcceptRow = useMemo(
+    () => (
+      <tr className="small text-center text-nowrap">
+        <th colSpan={3} className="align-middle font-weight-normal">
+          最速正解者
+        </th>
+        {ranking.firstAcceptedList.map((account) => {
+          if (account === null) {
+            return <th />;
+          } else {
+            return (
+              <th
+                key={account.name}
+                className="align-middle font-weight-normal"
+              >
+                {account.name}
+              </th>
+            );
+          }
+        })}
+      </tr>
+    ),
+    [ranking.firstAcceptedList]
+  );
+
   const acPerSubmitRow = useMemo(
     () => (
       <tr className="small text-center text-nowrap">
@@ -256,6 +281,7 @@ export const RankingTable: React.FC<Props> = ({
               isMe={account.accountName === myAccountName}
             />
           ))}
+          {firstAcceptRow}
         </tbody>
         <tfoot>{acPerSubmitRow}</tfoot>
       </Table>

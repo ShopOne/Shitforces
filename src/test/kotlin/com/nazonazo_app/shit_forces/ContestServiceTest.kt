@@ -108,6 +108,7 @@ class ContestServiceTest {
             RequestRanking(
                 ranking0,
                 listOf(),
+                listOf(),
                 20,
                 null
             )
@@ -116,6 +117,7 @@ class ContestServiceTest {
         } returns
                 RequestRanking(
                     ranking1,
+                    listOf(),
                     listOf(),
                     20,
                     null
