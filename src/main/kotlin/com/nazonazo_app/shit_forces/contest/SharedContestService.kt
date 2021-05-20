@@ -182,6 +182,7 @@ class SharedContestService(
         return try {
             val contest = contestRepository.findByContestId(contestId) ?: throw Error("コンテストが見つかりません")
             val submissionList = sharedSubmissionService.getValidContestSubmission(contest)
+                .sortedBy { it.submitTime }
             val contestProblems = sharedProblemService.getProblemsByContestId(contest.id)
             val rankingList = when (contest.contestType) {
                 ContestInfo.ContestType.ICPC -> getContestRankByICPC(contestProblems,
