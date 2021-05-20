@@ -72,6 +72,11 @@ export const ProblemsTab: VFC<Props> = ({ problems, submissions }) => {
           title={problemTitle}
         >
           <h6>{'point: ' + problem.point}</h6>
+          {problem.quiz ? (
+            <h4 style={{ color: 'red' }}>
+              ※この問題は最初の提出のみ有効です！！
+            </h4>
+          ) : null}
           <div className={'div-pre'}>
             <p>{problem.statement}</p>
           </div>
