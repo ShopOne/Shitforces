@@ -17,11 +17,11 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
             rs.getDouble("newRating"), rs.getInt("performance"))
     }
 
-    fun createAccount(accountName: String, password: String): AccountInfo? {
+    fun createAccount(accountName: String, password: String): AccountInfo {
         jdbcTemplate.update("""INSERT INTO accountInfo(name,  passwordHash, permission)
                 VALUES ( ?, ?, ? )""",
             accountName, password, AccountInfo.AccountAuthority.GENERAL.name)
-        return findByAccountName(accountName)
+        return findByAccountName(accountName)!!
     }
     fun getAccountHistory(accountName: String): List<AccountRatingChangeHistory>? =
         jdbcTemplate.query("""SELECT * from accountRatingChangeHistory 
@@ -39,7 +39,7 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
         val partNum = findByAccountName(accountName)!!.partNum
         val prevCalculatedRating = getAccountHistory(accountName)?.getOrNull(0)?.newRating ?: 0
 
-        jdbcTemplate.update("""UPDATE accountInfo SET rating = ?,innerRating = ?, partNum = ?
+        jdbcTemplate.update("""UPDATE accountInfo SET rating = ?, innerRating = ?, partNum = ?
             WHERE name = ?""", rating, innerRating, partNum + 1, accountName)
 
         jdbcTemplate.update("""INSERT INTO 
@@ -50,7 +50,7 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
 
     fun findByAccountName(accountName: String): AccountInfo? {
         val accounts = jdbcTemplate.query(
-            "SELECT name, rating, passwordHash, innerRating, partNum, permission FROM accountInfo WHERE name = ?",
+            "SELECT * FROM accountInfo WHERE name = ?",
             rowMapperForAccountInfo, accountName)
 
         return if (accounts.isEmpty()) null
@@ -62,7 +62,7 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
             newAccountName, password, prevAccountName)
     }
 
-    fun changeAccountRatingChangeHistoryName(prevName: String, newName: String) {
+    fun changeAccountNameOnAccountRatingChangeHistory(prevName: String, newName: String) {
         jdbcTemplate.update("""
             UPDATE accountRatingChangeHistory set accountName = ? where accountName = ?
         """, newName, prevName)

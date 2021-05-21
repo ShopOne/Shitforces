@@ -273,7 +273,7 @@ class ContestService(
         var ratedRank = 0
         contestResult.forEach {
             val accountInfo = sharedAccountService.getAccountByName(it.accountName)
-            if (accountInfo != null && sharedAccountService.calcCorrectionRate(accountInfo) < contestInfo.ratedBound) {
+            if (accountInfo != null && accountInfo.calcCorrectionRate() < contestInfo.ratedBound) {
                 ratedRank += 1
                 var innerRating = accountInfo.innerRating
                 if (accountInfo.partNum == 0) {

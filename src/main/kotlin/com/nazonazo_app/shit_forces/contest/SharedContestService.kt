@@ -1,6 +1,7 @@
 package com.nazonazo_app.shit_forces.contest
 
-import com.nazonazo_app.shit_forces.account.ResponseAccount
+import com.nazonazo_app.shit_forces.account.ResponseAccountInfo
+import com.nazonazo_app.shit_forces.account.ResponseAccountInfoInterface
 import com.nazonazo_app.shit_forces.account.SharedAccountService
 import com.nazonazo_app.shit_forces.problem.ProblemInfo
 import com.nazonazo_app.shit_forces.problem.SharedProblemService
@@ -161,15 +162,14 @@ class SharedContestService(
             }
         }
     }
-    private fun getFirstAcceptAccounts(orderedSubmissionInfo: List<SubmissionInfo>, problemNum: Int): List<ResponseAccount?> {
-        val firstAcceptAccounts = MutableList<ResponseAccount?>(problemNum) { null }
+    private fun getFirstAcceptAccounts(orderedSubmissionInfo: List<SubmissionInfo>, problemNum: Int): List<ResponseAccountInfo?> {
+        val firstAcceptAccounts = MutableList<ResponseAccountInfo?>(problemNum) { null }
         orderedSubmissionInfo
             .filter { it.result == SubmissionResult.ACCEPTED }
             .forEach {
                 if (firstAcceptAccounts[it.indexOfContest] == null) {
                     val account = sharedAccountService.getAccountByName(it.accountName)!!
-                    firstAcceptAccounts[it.indexOfContest] = ResponseAccount(account.name,
-                        sharedAccountService.calcCorrectionRate(account), account.partNum, account.authority.name)
+                    firstAcceptAccounts[it.indexOfContest] = ResponseAccountInfoInterface.build(account)
                 }
             }
         return firstAcceptAccounts.toList()

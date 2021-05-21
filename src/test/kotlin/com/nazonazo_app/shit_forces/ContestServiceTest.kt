@@ -16,8 +16,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
 import java.sql.Timestamp
-import kotlin.math.pow
-import kotlin.math.sqrt
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
@@ -89,18 +87,12 @@ class ContestServiceTest {
             every {
                 sharedAccountService.getAccountByName(it)
             } returns account
-            every {
-                sharedAccountService.calcCorrectionRate(account)
-            } returns calcCorrectionRateTestImpl(account)
         }
         names1.forEach {
             val account = AccountInfo(it, 0.0, 0.0, 0, "", "")
             every {
                 sharedAccountService.getAccountByName(it)
             } returns account
-            every {
-                sharedAccountService.calcCorrectionRate(account)
-            } returns calcCorrectionRateTestImpl(account)
         }
         every {
             sharedContestService.getContestRanking("test0", null, null)
@@ -128,18 +120,12 @@ class ContestServiceTest {
         every {
             contestRepository.changeToEndCalcRating(any())
         } returns Unit
-        every {
-            sharedAccountService.calcCorrectionRate(any())
-        } returns 0
         val result0 = contestService.updateRating(contestInfo0)
         result0.forEach {
             val account = AccountInfo(it.name, it.rating, it.innerRating, 1, "", "")
             every {
                 sharedAccountService.getAccountByName(it.name)
             } returns account
-            every {
-                sharedAccountService.calcCorrectionRate(account)
-            } returns calcCorrectionRateTestImpl(account)
         }
         val result1 = contestService.updateRating(contestInfo1)
         val resultCorrectionRate = listOf(147, 147, 147, 330, 740, 113, 74, 760, 42, 34,
@@ -147,20 +133,7 @@ class ContestServiceTest {
         result1.forEachIndexed { index, it ->
             val account = AccountInfo(it.name, it.rating, it.innerRating,
                 if (it.name.toIntOrNull() == null) 2 else 1, "", "")
-            assertThat(resultCorrectionRate[index], `is`(calcCorrectionRateTestImpl(account)))
+            assertThat(resultCorrectionRate[index], `is`(account.calcCorrectionRate()))
         }
-    }
-    private fun calcCorrectionRateTestImpl(account: AccountInfo): Int {
-        if (account.partNum == 0) return 0
-        val r = account.rating
-        val p = account.partNum
-        val minus = (sqrt(1 - 0.81.pow(p)) / (1 - 0.9.pow(p)) - 1) / (sqrt(19.0) - 1) * 1200
-        val miRating = r - minus
-        var ret = miRating
-        if (miRating <= 400) {
-            val diff = (400 - miRating) / 400
-            ret = (400 * Math.E.pow(-diff))
-        }
-        return ret.toInt()
     }
 }
