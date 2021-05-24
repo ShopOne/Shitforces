@@ -15,7 +15,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
 import { getAccountInformation, createContest } from '../functions/HttpRequest';
-import { getCookie } from "../functions/getCookie";
+import { getCookie } from '../functions/getCookie';
 import { getRatingColor } from '../functions/getRatingColor';
 
 // URL: /account/$accountName
@@ -314,15 +314,15 @@ const AccountNameChangeForm: React.FC = () => {
       if (!accountName || !canSubmit) return;
 
       changeAccountName(accountName, newAccountName, password)
-          .then(() => {
-            alert('アカウント名の変更が完了しました');
-          })
-          .catch((e) => {
-            console.error(e);
-            alert(
-                'アカウント名の変更に失敗しました。名前が重複しているかパスワードが間違っています。'
-            );
-          })
+        .then(() => {
+          alert('アカウント名の変更が完了しました');
+        })
+        .catch((e) => {
+          console.error(e);
+          alert(
+            'アカウント名の変更に失敗しました。名前が重複しているかパスワードが間違っています。'
+          );
+        });
     },
     [accountName, changeAccountName, canSubmit, newAccountName, password]
   );
@@ -368,15 +368,15 @@ const AccountInfoTabs: React.FC<AccountInfoTabsProps> = (props) => {
   );
   if (cookie['_sforce_account_name'] === props.name) {
     tabs.push(
-        <Tab eventKey={'changeName'} title={'アカウント名の変更'}>
-          <AccountNameChangeForm />
-        </Tab>
+      <Tab eventKey={'changeName'} title={'アカウント名の変更'}>
+        <AccountNameChangeForm />
+      </Tab>
     );
     if (props.auth === 'ADMINISTER') {
       tabs.push(
-          <Tab eventKey={'createContest'} title={'コンテスト作成'}>
-            <CreateContestElement />
-          </Tab>
+        <Tab eventKey={'createContest'} title={'コンテスト作成'}>
+          <CreateContestElement />
+        </Tab>
       );
     }
   }
@@ -407,7 +407,7 @@ export const AccountPage: React.FC = () => {
   const getAccountName = () => {
     const splitUrl = window.location.href.split('/');
     return splitUrl[splitUrl.length - 1];
-  }
+  };
   const getAccount = useCallback(() => {
     getAccountInformation(getAccountName())
       .then((account) => {
