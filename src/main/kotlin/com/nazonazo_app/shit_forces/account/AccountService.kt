@@ -23,6 +23,7 @@ class AccountService(
     private fun createConnectedPassword(accountName: String, password: String): String {
         return Base64.getEncoder().encodeToString("$accountName:$password".toByteArray())
     }
+
     private fun createHashPassword(accountName: String, password: String): String {
         val bcrypt = BCryptPasswordEncoder()
         return bcrypt.encode(createConnectedPassword(accountName, password))
@@ -33,24 +34,19 @@ class AccountService(
         return BCryptPasswordEncoder().matches(createConnectedPassword(name, password), savedPasswordHash)
     }
 
-    fun createAccount(requestAccount: RequestAccount): AccountInfo? =
-        try {
-            if (requestAccount.name.length < 4) {
-                throw Error("名前が短すぎます")
-            }
-            if (accountInfoRepository.findByAccountName(requestAccount.name) != null) {
-                throw Error("名前が重複しています")
-            }
-            val account = accountInfoRepository.createAccount(
-                requestAccount.name,
-                createHashPassword(requestAccount.name, requestAccount.password)) ?: throw Error("アカウント作成に失敗しました")
-            account
-        } catch (e: Error) {
-            print(e)
-            null
+    fun createAccount(requestAccount: RequestAccountForCertification): AccountInfo {
+        if (requestAccount.name.length < 4) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
+        if (accountInfoRepository.findByAccountName(requestAccount.name) != null) {
+            throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        }
+        return accountInfoRepository.createAccount(
+            requestAccount.name,
+            createHashPassword(requestAccount.name, requestAccount.password))
+    }
 
-    fun loginAccount(requestAccount: RequestAccount, servletResponse: HttpServletResponse): Boolean =
+    fun loginAccount(requestAccount: RequestAccountForCertification, servletResponse: HttpServletResponse): Boolean =
         if (!isSamePassword(requestAccount.name, requestAccount.password)) {
             false
         } else {
@@ -59,7 +55,7 @@ class AccountService(
 
     fun changeAccountName(
         prevAccountName: String,
-        requestAccount: RequestAccount,
+        requestAccount: RequestAccountForCertification,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse
     ) {
@@ -71,15 +67,14 @@ class AccountService(
         sharedSessionService.deleteSession(prevAccountName)
         sharedSessionService.createNewSession(requestAccount.name, httpServletResponse)
         sharedSubmissionService.changeSubmissionAccountName(prevAccountName, requestAccount.name)
-        accountInfoRepository.changeAccountRatingChangeHistoryName(prevAccountName, requestAccount.name)
+        accountInfoRepository.changeAccountNameOnAccountRatingChangeHistory(prevAccountName, requestAccount.name)
     }
 
     fun getAccountRanking(page: Int): ResponseAccountRanking {
         val accounts = accountInfoRepository.findAllAccount()
             .filter { it.partNum != 0 }
         val responseAccounts = accounts
-            .map { ResponseAccount(it.name, sharedAccountService.calcCorrectionRate(it),
-                it.partNum, it.authority.name) }
+            .map { ResponseAccountInfoInterface.build(it) }
             .sortedBy { -it.rating }
             .filterIndexed { idx, _ ->
                 page * ACCOUNT_RANKING_ONE_PAGE <= idx && idx < (page + 1) * ACCOUNT_RANKING_ONE_PAGE }

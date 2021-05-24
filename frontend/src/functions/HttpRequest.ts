@@ -4,7 +4,7 @@ import type {
   ContestInfo,
   LatestContestsInfo,
   ProblemInfo,
-  RankingInfo,
+  ContestStandingsInfo,
   SubmissionInfo,
   SubmissionResult,
 } from '../types';
@@ -17,7 +17,7 @@ export async function httpRequest(
   if (process?.env?.REACT_APP_BACKEND_URL !== undefined) {
     fetchTo = process.env.REACT_APP_BACKEND_URL + fetchTo;
   }
-  let initState: any = undefined;
+  let initState: any;
   if (method === 'GET' || method === 'HEAD') {
     if (params !== undefined) {
       fetchTo += '?' + new URLSearchParams(params);
@@ -75,19 +75,19 @@ export function postSubmission(
  * @param page 順位表何ページ目かの指定 1ページ20 (+1 ログインアカウント用 未実装) nullの場合は順位表全体を返す
  * @param contestId コンテスト短縮名(urlの名前)
  */
-export function getRankingInfo(
+export function getContestStandingsInfo(
   page: number | null,
   contestId: string
-): Promise<RankingInfo> {
+): Promise<ContestStandingsInfo> {
   const params: any = {};
   if (page !== null) {
     params.page = page;
   }
   return httpRequest(
-    `/api/contests/${contestId}/ranking`,
+    `/api/contests/${contestId}/standings`,
     'GET',
     params
-  ) as Promise<RankingInfo>;
+  ) as Promise<ContestStandingsInfo>;
 }
 
 /**

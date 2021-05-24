@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import Pagination from 'react-bootstrap/Pagination';
 import Table from 'react-bootstrap/Table';
 import { toProblemLabel } from '../functions/toProblemLabel';
-import { ProblemInfo, RankingInfo, RankingInfoAccount } from '../types';
+import { ProblemInfo, ContestStandingsInfo, AccountInfoOnContestStandings } from '../types';
 
 const ACCOUNTS_PER_PAGE = 20;
 
@@ -15,26 +15,26 @@ function formatSecondToMMSS(ms: number): string {
   return `${mm}:${ss}`;
 }
 
-interface RankingTableRowProps {
-  account: RankingInfoAccount;
+interface ContestStandingsTableRowProps {
+  account: AccountInfoOnContestStandings;
   isMe: boolean;
   problems: ProblemInfo[];
 }
 
 type RowTemplateProps = {
-  ranking: number;
+  rank: number;
   accountName: string;
   score: number;
   penalty: number;
 };
 const RowTemplate: React.VFC<RowTemplateProps> = ({
-  ranking,
+  rank,
   accountName,
   score,
   penalty,
 }) => (
   <>
-    <td className="align-middle text-center">{ranking}</td>
+    <td className="align-middle text-center">{rank}</td>
     <td className="align-middle font-weight-bold">{accountName}</td>
     <td className="align-middle text-center">
       <div className="font-weight-bold text-primary">{score}</div>
@@ -59,7 +59,7 @@ const PlayerStatusOfProblem: React.VFC<PlayerStatusProps> = ({
   </td>
 );
 
-export const RankingTableRow: React.FC<RankingTableRowProps> = ({
+export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> = ({
   account,
   isMe,
   problems,
@@ -67,17 +67,14 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
   return (
     <tr className={isMe ? 'table-info' : undefined}>
       <RowTemplate
-        ranking={account.ranking}
+        rank={account.rank}
         accountName={account.accountName}
         score={account.score}
         penalty={account.penalty}
       />
 
       {problems.map((problem) => {
-        const accountAcceptIdx = account.acceptList.findIndex(
-          (v) => v === problem.indexOfContest
-        );
-        if (accountAcceptIdx === -1) {
+        if (!account.acceptList[problem.indexOfContest]) {
           return (
             <td key={problem.id} className="align-middle text-center">
               -
@@ -100,13 +97,13 @@ export const RankingTableRow: React.FC<RankingTableRowProps> = ({
 interface Props {
   myAccountName: string | null;
   problems: ProblemInfo[];
-  ranking: RankingInfo;
+  standings: ContestStandingsInfo;
 }
 
-export const RankingTable: React.FC<Props> = ({
+export const ContestStandingsTable: React.FC<Props> = ({
   myAccountName,
   problems,
-  ranking,
+  standings,
 }) => {
   const [accountNameToSearch, setAccountNameToSearch] = useState('');
 
@@ -126,8 +123,8 @@ export const RankingTable: React.FC<Props> = ({
   );
 
   const filteredAccounts = useMemo(() => {
-    const uniqueAccounts = new Map<string, RankingInfoAccount>();
-    for (const account of ranking.rankingList) {
+    const uniqueAccounts = new Map<string, AccountInfoOnContestStandings>();
+    for (const account of standings.accountStandings) {
       uniqueAccounts.set(account.accountName, account);
     }
 
@@ -138,12 +135,12 @@ export const RankingTable: React.FC<Props> = ({
     );
 
     accounts = accounts.sort((a, b) => {
-      if (a.ranking !== b.ranking) return a.ranking - b.ranking;
+      if (a.rank !== b.rank) return a.rank - b.rank;
       return a.penalty - b.penalty;
     });
 
     return accounts;
-  }, [ranking.rankingList, accountNameToSearch]);
+  }, [standings.accountStandings, accountNameToSearch]);
 
   const paginationLength = useMemo(
     () => Math.ceil(filteredAccounts.length / ACCOUNTS_PER_PAGE),
@@ -163,7 +160,7 @@ export const RankingTable: React.FC<Props> = ({
     }
   }, [paginationIndex, paginationLength]);
 
-  const pagenatedAccounts = useMemo(
+  const paginatedAccounts = useMemo(
     () =>
       filteredAccounts.filter(
         (v, i) =>
@@ -198,7 +195,7 @@ export const RankingTable: React.FC<Props> = ({
         <th colSpan={3} className="align-middle font-weight-normal">
           最速正解者
         </th>
-        {ranking.firstAcceptedList.map((account) => {
+        {standings.firstAcceptedList.map((account) => {
           if (account === null) {
             return <th />;
           } else {
@@ -214,7 +211,7 @@ export const RankingTable: React.FC<Props> = ({
         })}
       </tr>
     ),
-    [ranking.firstAcceptedList]
+    [standings.firstAcceptedList]
   );
 
   const acPerSubmitRow = useMemo(
@@ -224,7 +221,7 @@ export const RankingTable: React.FC<Props> = ({
           <span className="font-weight-bold text-success">正解者数</span> /
           提出者数
         </th>
-        {ranking.acPerSubmit.map(({ first, second }, i) => (
+        {standings.acPerSubmit.map(({ first, second }, i) => (
           <th key={i} className="align-middle font-weight-normal">
             <span className="font-weight-bold text-success">{first}</span> /{' '}
             {second}
@@ -232,10 +229,10 @@ export const RankingTable: React.FC<Props> = ({
         ))}
       </tr>
     ),
-    [ranking.acPerSubmit]
+    [standings.acPerSubmit]
   );
 
-  if (problems.length && problems.length !== ranking.acPerSubmit.length) {
+  if (problems.length && problems.length !== standings.acPerSubmit.length) {
     return <Alert variant="danger">Error</Alert>;
   }
 
@@ -243,12 +240,12 @@ export const RankingTable: React.FC<Props> = ({
     <>
       <div className="mb-4">
         <Form inline>
-          <Form.Label className="mr-2" htmlFor="ranking-table-form-username">
+          <Form.Label className="mr-2" htmlFor="contest-standings-table-form-username">
             ユーザ名
           </Form.Label>
           <Form.Control
             className="mr-2"
-            id="ranking-table-form-username"
+            id="contest-standings-table-form-username"
             onChange={onChangeAccountName}
             value={accountNameToSearch}
           />
@@ -273,8 +270,8 @@ export const RankingTable: React.FC<Props> = ({
         </thead>
         <tbody>
           {acPerSubmitRow}
-          {pagenatedAccounts.map((account, i) => (
-            <RankingTableRow
+          {paginatedAccounts.map((account, i) => (
+            <ContestStandingsTableRow
               key={i}
               account={account}
               problems={sortedProblems}

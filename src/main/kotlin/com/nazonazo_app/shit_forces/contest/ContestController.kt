@@ -2,6 +2,7 @@ package com.nazonazo_app.shit_forces.contest
 
 import com.nazonazo_app.shit_forces.account.AccountInfo
 import com.nazonazo_app.shit_forces.account.SharedAccountService
+import com.nazonazo_app.shit_forces.contest.standings.ContestStandingsInfo
 import com.nazonazo_app.shit_forces.problem.ResponseProblemInfo
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.RequestSubmission
@@ -24,7 +25,7 @@ const val ONE_PAGE_SIZE = 20
 const val SUBMIT_INTERVAL_TIME = 5 * 1000
 const val LATEST_CONTEST_PAGE_SIZE = 10
 
-@CrossOrigin(origins = arrayOf("http://localhost:3000"), allowCredentials = "true")
+@CrossOrigin(origins = ["http://localhost:3000"], allowCredentials = "true")
 @RestController
 class ContestController(
     val contestService: ContestService,
@@ -38,32 +39,25 @@ class ContestController(
         @PathVariable("contest-id") contestId: String,
         httpServletRequest: HttpServletRequest
     ) {
-        val contest = contestService.getContestInfoByContestId(contestId)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
-            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
-        val accountInfo = sharedAccountService.getAccountByName(sessionAccountName)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        if (accountInfo.authority !== AccountInfo.AccountAuthority.ADMINISTER) {
-            throw ResponseStatusException(HttpStatus.FORBIDDEN)
-        }
-        contestService.updateRating(contest)
+        contestService.updateRating(contestId, httpServletRequest)
     }
-    @GetMapping("api/contests/{contest-id}/ranking")
-    fun getContestRankingResponse(
+
+    @GetMapping("api/contests/{contest-id}/standings")
+    fun getContestStandingsResponse(
         @PathVariable("contest-id") contestId: String,
         @RequestParam(value = "page", required = false) page: Int?,
         httpServletRequest: HttpServletRequest
-    ): RequestRanking {
+    ): ContestStandingsInfo {
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
-        return sharedContestService.getContestRanking(contestId, page, sessionAccountName)
-            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
+        return sharedContestService.getContestStandings(contestId, page, sessionAccountName)
     }
 
     @GetMapping("api/contests/{contest-id}")
-    fun getContestInfoByContestIdResponse(@PathVariable("contest-id") contestId: String): ContestInfo {
-        return contestService.getContestInfoByContestId(contestId)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+    fun getContestInfoByContestIdResponse(@PathVariable("contest-id") contestId: String): ResponseContestInfo {
+        return ResponseContestInfoInterface.build(
+            contestService.getContestInfoByContestId(contestId)
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        )
     }
 
     @GetMapping("api/contests/latest")
@@ -73,7 +67,7 @@ class ContestController(
 
     @PostMapping("api/contests", headers = ["Content-Type=application/json"])
     fun addContestResponse(
-        @RequestBody requestContest: RequestContest,
+        @RequestBody requestContest: RequestContestInfoForUpdate,
         httpServletRequest: HttpServletRequest
     ) {
         val sessionAccountName = sharedSessionService.getSessionAccountName(httpServletRequest)
@@ -92,8 +86,8 @@ class ContestController(
         httpServletRequest: HttpServletRequest
     ): List<SubmissionInfo> {
         return contestService.getAccountSubmissionOfContest(accountName, contestId, httpServletRequest)
-            ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
+
     @PostMapping("api/submissions", headers = ["Content-Type=application/json"])
     fun submitAnswerResponse(
         @RequestBody requestSubmission: RequestSubmission,
@@ -102,6 +96,7 @@ class ContestController(
     ): SubmissionInfo {
         return contestService.submitAnswerToContest(requestSubmission, httpServletRequest, httpServletResponse)
     }
+
     @GetMapping("api/contests/{contest_id}/problems")
     fun getContestProblemsResponse(
         @PathVariable("contest_id") contestId: String,
@@ -112,27 +107,11 @@ class ContestController(
             ResponseProblemInfo(it.contestId, it.point, it.statement, it.indexOfContest, it.isQuiz, it.id!!)
         } ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
-    @PostMapping("api/contests/{contest_id}/new-rating")
-    fun updateRatingByContestResultResponse(
-        @PathVariable("contest_id") contestId: String,
-        httpServletRequest: HttpServletRequest
-    ) {
-
-        val contestInfo = contestService.getContestInfoByContestId(contestId)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        val accountName = sharedSessionService.getSessionAccountName(httpServletRequest)
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
-        val requestAccount = sharedAccountService.getAccountByName(accountName)
-        if (requestAccount?.authority != AccountInfo.AccountAuthority.ADMINISTER) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
-        }
-        contestService.updateRating(contestInfo)
-    }
 
     @PutMapping("api/contests/{contest_id}")
     fun putContestInfoResponse(
         @PathVariable("contest_id") contestId: String,
-        @RequestBody putRequestContest: PutRequestContest,
+        @RequestBody putRequestContest: RequestContestForPut,
         httpServletRequest: HttpServletRequest
     ) {
         contestService.putContestInfo(contestId, putRequestContest, httpServletRequest)
@@ -141,7 +120,7 @@ class ContestController(
     @PatchMapping("api/contests/{contest_id}")
     fun patchContestInfoResponse(
         @PathVariable("contest_id") contestId: String,
-        @RequestBody putRequestContest: PutRequestContest,
+        @RequestBody putRequestContest: RequestContestForPut,
         httpServletRequest: HttpServletRequest
     ) {
         contestService.patchContestInfo(contestId, putRequestContest, httpServletRequest)

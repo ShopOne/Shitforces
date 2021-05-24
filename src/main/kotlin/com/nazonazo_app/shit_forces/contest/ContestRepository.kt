@@ -79,7 +79,7 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         }
     }
 
-    fun updateContestInfoByPutRequestContest(contestId: String, putContest: PutRequestContest) {
+    fun updateContestInfoByPutRequestContest(contestId: String, putContest: RequestContestForPut) {
         jdbcTemplate.update(
             """
             UPDATE contestInfo SET statement = ?, penalty = ?
