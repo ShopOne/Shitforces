@@ -86,12 +86,12 @@ class SharedContestStandingsService {
         accountAcceptedProblemInfo.forEach {
             var score = 0
             var penaResult = it.penaltyOfWrong
-            val acceptProblem = mutableListOf<Int>()
+            val acceptProblem = MutableList(problemsInfo.size) { false }
             it.isAccept.forEachIndexed { index, result ->
                 if (result) {
                     score += problemsInfo[index].point
                     penaResult += it.submitTime[index]
-                    acceptProblem.add(index)
+                    acceptProblem[index] = true
                 }
             }
             standings.add(AccountInfoOnContestStandings(it.name,
@@ -114,12 +114,12 @@ class SharedContestStandingsService {
         accountAcceptedProblemInfo.forEach {
             var score = 0
             var latestSubmit = 0
-            val acceptProblem = mutableListOf<Int>()
+            val acceptProblem = MutableList(problemsInfo.size) { false }
             it.isAccept.forEachIndexed { index, result ->
                 if (result) {
                     score += problemsInfo[index].point
-                    acceptProblem.add(index)
                     latestSubmit = latestSubmit.coerceAtLeast(it.submitTime[index])
+                    acceptProblem[index] = true
                 }
             }
             standings.add(AccountInfoOnContestStandings(it.name,

@@ -13,7 +13,7 @@ data class AccountInfoOnContestStandings(
     val accountName: String,
     val score: Int,
     val penalty: Int,
-    val acceptList: List<Int>,
+    val acceptList: List<Boolean>,
     val acceptTimeList: List<Int>,
     var rank: Int
 ) : Comparable<AccountInfoOnContestStandings> {

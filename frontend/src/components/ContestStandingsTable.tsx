@@ -74,10 +74,7 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
       />
 
       {problems.map((problem) => {
-        const accountAcceptIdx = account.acceptList.findIndex(
-          (v) => v === problem.indexOfContest
-        );
-        if (accountAcceptIdx === -1) {
+        if (account.acceptList.find(result => result) === undefined) {
           return (
             <td key={problem.id} className="align-middle text-center">
               -
@@ -163,7 +160,7 @@ export const ContestStandingsTable: React.FC<Props> = ({
     }
   }, [paginationIndex, paginationLength]);
 
-  const pagenatedAccounts = useMemo(
+  const paginatedAccounts = useMemo(
     () =>
       filteredAccounts.filter(
         (v, i) =>
@@ -273,7 +270,7 @@ export const ContestStandingsTable: React.FC<Props> = ({
         </thead>
         <tbody>
           {acPerSubmitRow}
-          {pagenatedAccounts.map((account, i) => (
+          {paginatedAccounts.map((account, i) => (
             <ContestStandingsTableRow
               key={i}
               account={account}

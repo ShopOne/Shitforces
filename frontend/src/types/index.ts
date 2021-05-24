@@ -47,7 +47,7 @@ export interface AccountInfoOnContestStandings {
   /**
    * ACした問題リスト
    */
-  acceptList: number[];
+  acceptList: boolean[];
   /**
    * このアカウントの現在順位
    */
