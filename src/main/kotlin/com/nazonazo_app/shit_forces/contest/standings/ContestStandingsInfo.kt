@@ -19,7 +19,7 @@ data class AccountInfoOnContestStandings(
 ) : Comparable<AccountInfoOnContestStandings> {
     override fun compareTo(other: AccountInfoOnContestStandings): Int {
         if (this.score != other.score) {
-            return this.score - other.score
+            return other.score - this.score
         }
         return this.penalty - other.penalty
     }
