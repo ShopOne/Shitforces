@@ -3,14 +3,10 @@ package com.nazonazo_app.shit_forces
 import com.nazonazo_app.shit_forces.account.AccountInfo
 import com.nazonazo_app.shit_forces.account.SharedAccountService
 import com.nazonazo_app.shit_forces.contest.ContestInfo
-import com.nazonazo_app.shit_forces.contest.ContestRankingAccountInfo
-import com.nazonazo_app.shit_forces.contest.ContestRepository
-import com.nazonazo_app.shit_forces.contest.ContestService
-import com.nazonazo_app.shit_forces.contest.RequestRanking
 import com.nazonazo_app.shit_forces.contest.SharedContestService
-import com.nazonazo_app.shit_forces.problem.SharedProblemService
-import com.nazonazo_app.shit_forces.session.SharedSessionService
-import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
+import com.nazonazo_app.shit_forces.contest.rating.SharedCalcRatingService
+import com.nazonazo_app.shit_forces.contest.standings.AccountInfoOnContestStandings
+import com.nazonazo_app.shit_forces.contest.standings.ContestStandingsInfo
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
@@ -28,17 +24,8 @@ class ContestServiceTest {
     private lateinit var sharedContestService: SharedContestService
     @MockK
     private lateinit var sharedAccountService: SharedAccountService
-    @MockK
-    private lateinit var contestRepository: ContestRepository
-    @MockK
-    private lateinit var sharedSessionService: SharedSessionService
-    @MockK
-    private lateinit var sharedProblemService: SharedProblemService
-    @MockK
-    private lateinit var sharedSubmissionService: SharedSubmissionService
-
     @InjectMockKs
-    private lateinit var contestService: ContestService
+    private lateinit var sharedCalcRatingService: SharedCalcRatingService
 
     @Before
     fun setUp() = MockKAnnotations.init(this)
@@ -58,29 +45,29 @@ class ContestServiceTest {
             "k", "l", "m", "n", "o", "p", "q", "r", "s", "t")
         val names1 = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
         val ranking0 = names0.mapIndexed { index, name ->
-            ContestRankingAccountInfo(name, 0, 0, listOf(), listOf(), index + 1)
+            AccountInfoOnContestStandings(name, 0, 0, listOf(), listOf(), index + 1)
         }
         val ranking1 = listOf(
-            ContestRankingAccountInfo("1", 0, 0, listOf(), listOf(), 1),
-            ContestRankingAccountInfo("2", 0, 0, listOf(), listOf(), 2),
-            ContestRankingAccountInfo("3", 0, 0, listOf(), listOf(), 3),
-            ContestRankingAccountInfo("q", 0, 0, listOf(), listOf(), 4),
-            ContestRankingAccountInfo("a", 0, 0, listOf(), listOf(), 5),
-            ContestRankingAccountInfo("h", 0, 0, listOf(), listOf(), 6),
-            ContestRankingAccountInfo("t", 0, 0, listOf(), listOf(), 7),
-            ContestRankingAccountInfo("4", 0, 0, listOf(), listOf(), 8),
-            ContestRankingAccountInfo("g", 0, 0, listOf(), listOf(), 9),
-            ContestRankingAccountInfo("5", 0, 0, listOf(), listOf(), 10),
-            ContestRankingAccountInfo("6", 0, 0, listOf(), listOf(), 11),
-            ContestRankingAccountInfo("7", 0, 0, listOf(), listOf(), 12),
-            ContestRankingAccountInfo("8", 0, 0, listOf(), listOf(), 13),
-            ContestRankingAccountInfo("9", 0, 0, listOf(), listOf(), 14),
-            ContestRankingAccountInfo("k", 0, 0, listOf(), listOf(), 15),
-            ContestRankingAccountInfo("10", 0, 0, listOf(), listOf(), 16),
-            ContestRankingAccountInfo("j", 0, 0, listOf(), listOf(), 17),
-            ContestRankingAccountInfo("11", 0, 0, listOf(), listOf(), 18),
-            ContestRankingAccountInfo("d", 0, 0, listOf(), listOf(), 19),
-            ContestRankingAccountInfo("12", 0, 0, listOf(), listOf(), 20)
+            AccountInfoOnContestStandings("1", 0, 0, listOf(), listOf(), 1),
+            AccountInfoOnContestStandings("2", 0, 0, listOf(), listOf(), 2),
+            AccountInfoOnContestStandings("3", 0, 0, listOf(), listOf(), 3),
+            AccountInfoOnContestStandings("q", 0, 0, listOf(), listOf(), 4),
+            AccountInfoOnContestStandings("a", 0, 0, listOf(), listOf(), 5),
+            AccountInfoOnContestStandings("h", 0, 0, listOf(), listOf(), 6),
+            AccountInfoOnContestStandings("t", 0, 0, listOf(), listOf(), 7),
+            AccountInfoOnContestStandings("4", 0, 0, listOf(), listOf(), 8),
+            AccountInfoOnContestStandings("g", 0, 0, listOf(), listOf(), 9),
+            AccountInfoOnContestStandings("5", 0, 0, listOf(), listOf(), 10),
+            AccountInfoOnContestStandings("6", 0, 0, listOf(), listOf(), 11),
+            AccountInfoOnContestStandings("7", 0, 0, listOf(), listOf(), 12),
+            AccountInfoOnContestStandings("8", 0, 0, listOf(), listOf(), 13),
+            AccountInfoOnContestStandings("9", 0, 0, listOf(), listOf(), 14),
+            AccountInfoOnContestStandings("k", 0, 0, listOf(), listOf(), 15),
+            AccountInfoOnContestStandings("10", 0, 0, listOf(), listOf(), 16),
+            AccountInfoOnContestStandings("j", 0, 0, listOf(), listOf(), 17),
+            AccountInfoOnContestStandings("11", 0, 0, listOf(), listOf(), 18),
+            AccountInfoOnContestStandings("d", 0, 0, listOf(), listOf(), 19),
+            AccountInfoOnContestStandings("12", 0, 0, listOf(), listOf(), 20)
         )
         names0.forEach {
             val account = AccountInfo(it, 0.0, 0.0, 0, "", "")
@@ -95,9 +82,9 @@ class ContestServiceTest {
             } returns account
         }
         every {
-            sharedContestService.getContestRanking("test0", null, null)
+            sharedContestService.getContestStandings("test0", null, null)
         } returns
-            RequestRanking(
+            ContestStandingsInfo(
                 ranking0,
                 listOf(),
                 listOf(),
@@ -105,9 +92,9 @@ class ContestServiceTest {
                 null
             )
         every {
-            sharedContestService.getContestRanking("test1", null, null)
+            sharedContestService.getContestStandings("test1", null, null)
         } returns
-                RequestRanking(
+                ContestStandingsInfo(
                     ranking1,
                     listOf(),
                     listOf(),
@@ -117,17 +104,14 @@ class ContestServiceTest {
         every {
             sharedAccountService.updateAccountRating(any(), any(), any(), any(), any())
         } returns Unit
-        every {
-            contestRepository.changeToEndCalcRating(any())
-        } returns Unit
-        val result0 = contestService.updateRating(contestInfo0)
+        val result0 = sharedCalcRatingService.calcAndUpdateRating(contestInfo0)
         result0.forEach {
             val account = AccountInfo(it.name, it.rating, it.innerRating, 1, "", "")
             every {
                 sharedAccountService.getAccountByName(it.name)
             } returns account
         }
-        val result1 = contestService.updateRating(contestInfo1)
+        val result1 = sharedCalcRatingService.calcAndUpdateRating(contestInfo1)
         val resultCorrectionRate = listOf(147, 147, 147, 330, 740, 113, 74, 760, 42, 34,
         28, 24, 20, 561, 14, 598, 9, 905, 3)
         result1.forEachIndexed { index, it ->
