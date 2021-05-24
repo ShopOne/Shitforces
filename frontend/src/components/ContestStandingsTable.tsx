@@ -74,7 +74,7 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
       />
 
       {problems.map((problem) => {
-        if (account.acceptList.find(result => result) === undefined) {
+        if (!account.acceptList[problem.indexOfContest]) {
           return (
             <td key={problem.id} className="align-middle text-center">
               -
