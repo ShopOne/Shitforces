@@ -168,7 +168,10 @@ export const ProblemsTab: VFC<Props> = ({ problems, submissions }) => {
 
       <p>{comment}</p>
       <hr />
-      <ContestStandingsElement problems={problems} standingsVersion={standingsVersion} />
+      <ContestStandingsElement
+        problems={problems}
+        standingsVersion={standingsVersion}
+      />
     </div>
   );
 };

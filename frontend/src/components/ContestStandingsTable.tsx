@@ -5,7 +5,11 @@ import Form from 'react-bootstrap/Form';
 import Pagination from 'react-bootstrap/Pagination';
 import Table from 'react-bootstrap/Table';
 import { toProblemLabel } from '../functions/toProblemLabel';
-import { ProblemInfo, ContestStandingsInfo, AccountInfoOnContestStandings } from '../types';
+import {
+  ProblemInfo,
+  ContestStandingsInfo,
+  AccountInfoOnContestStandings,
+} from '../types';
 
 const ACCOUNTS_PER_PAGE = 20;
 
@@ -240,7 +244,10 @@ export const ContestStandingsTable: React.FC<Props> = ({
     <>
       <div className="mb-4">
         <Form inline>
-          <Form.Label className="mr-2" htmlFor="contest-standings-table-form-username">
+          <Form.Label
+            className="mr-2"
+            htmlFor="contest-standings-table-form-username"
+          >
             ユーザ名
           </Form.Label>
           <Form.Control

@@ -19,9 +19,11 @@ export const ContestStandingsElement: React.FC<Props> = ({
   const [nowStandingsVersion, setNowStandingsVersion] = useState(0);
 
   const getStandings = () => {
-    getContestStandingsInfo(null, findContestIdFromPath()).then((standingsInfo) => {
-      setStandings(standingsInfo);
-    });
+    getContestStandingsInfo(null, findContestIdFromPath()).then(
+      (standingsInfo) => {
+        setStandings(standingsInfo);
+      }
+    );
   };
 
   if (nowStandingsVersion !== standingsVersion) {
