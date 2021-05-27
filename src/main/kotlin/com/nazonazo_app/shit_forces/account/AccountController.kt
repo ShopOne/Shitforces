@@ -30,21 +30,18 @@ class AccountController(
         headers = ["Content-Type=application/json"],
         method = [RequestMethod.POST])
     fun createAccountResponse(
-        @RequestBody requestAccount: RequestAccount,
+        @RequestBody requestAccount: RequestAccountForCertification,
         httpServletResponse: HttpServletResponse
     ): AccountInfo {
         val account = accountService.createAccount(requestAccount)
-            ?: throw ResponseStatusException(HttpStatus.CONFLICT)
-
         sharedSessionService.createNewSession(account.name, httpServletResponse)
-
         return account
     }
 
     @PostMapping("api/login",
         headers = ["Content-Type=application/json"])
     fun loginAccountResponse(
-        @RequestBody requestAccount: RequestAccount,
+        @RequestBody requestAccount: RequestAccountForCertification,
         httpServletResponse: HttpServletResponse
     ): EmptyResponse {
         val result = accountService.loginAccount(requestAccount, httpServletResponse)
@@ -53,17 +50,16 @@ class AccountController(
     }
 
     @GetMapping("api/account/{accountName}")
-    fun getAccountByNameResponse(@PathVariable("accountName") accountName: String): ResponseAccount {
+    fun getAccountByNameResponse(@PathVariable("accountName") accountName: String): ResponseAccountInfo {
         val account = sharedAccountService.getAccountByName(accountName)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
-        return ResponseAccount(account.name, sharedAccountService.calcCorrectionRate(account),
-            account.partNum, account.authority.name)
+        return ResponseAccountInfoInterface.build(account)
     }
 
     @PutMapping("api/account/{accountName}/name")
     fun changeAccountNameResponse(
         @PathVariable("accountName") accountName: String,
-        @RequestBody requestAccount: RequestAccount,
+        @RequestBody requestAccount: RequestAccountForCertification,
         httpServletRequest: HttpServletRequest,
         httpServletResponse: HttpServletResponse
     ) {

@@ -19,6 +19,7 @@ import Tabs from 'react-bootstrap/Tabs';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
 import { getAccountInformation, createContest } from '../functions/HttpRequest';
+import { getCookie } from '../functions/getCookie';
 import { getRatingColor } from '../functions/getRatingColor';
 
 // URL: /account/$accountName
@@ -317,15 +318,16 @@ const AccountNameChangeForm: VFC = () => {
 
       if (!accountName || !canSubmit) return;
 
-      try {
-        changeAccountName(accountName, newAccountName, password);
-        alert('アカウント名の変更が完了しました');
-      } catch (e) {
-        console.error(e);
-        alert(
-          'アカウント名の変更に失敗しました。名前が重複しているかパスワードが間違っています。'
-        );
-      }
+      changeAccountName(accountName, newAccountName, password)
+        .then(() => {
+          alert('アカウント名の変更が完了しました');
+        })
+        .catch((e) => {
+          console.error(e);
+          alert(
+            'アカウント名の変更に失敗しました。名前が重複しているかパスワードが間違っています。'
+          );
+        });
     },
     [accountName, changeAccountName, canSubmit, newAccountName, password]
   );
@@ -361,6 +363,7 @@ interface AccountInfoTabsProps {
 }
 const AccountInfoTabs: VFC<AccountInfoTabsProps> = (props) => {
   const [key, setKey] = useState<string | null>('profile');
+  const cookie = getCookie();
   const tabs = [];
 
   tabs.push(
@@ -368,17 +371,19 @@ const AccountInfoTabs: VFC<AccountInfoTabsProps> = (props) => {
       <AccountInformationBody name={props.name} rating={props.rating} />
     </Tab>
   );
-  tabs.push(
-    <Tab eventKey={'changeName'} title={'アカウント名の変更'}>
-      <AccountNameChangeForm />
-    </Tab>
-  );
-  if (props.auth === 'ADMINISTER') {
+  if (cookie['_sforce_account_name'] === props.name) {
     tabs.push(
-      <Tab eventKey={'createContest'} title={'コンテスト作成'}>
-        <CreateContestElement />
+      <Tab eventKey={'changeName'} title={'アカウント名の変更'}>
+        <AccountNameChangeForm />
       </Tab>
     );
+    if (props.auth === 'ADMINISTER') {
+      tabs.push(
+        <Tab eventKey={'createContest'} title={'コンテスト作成'}>
+          <CreateContestElement />
+        </Tab>
+      );
+    }
   }
   return (
     <Tabs id={'account-info-tab'} activeKey={key} onSelect={(k) => setKey(k)}>
@@ -404,11 +409,12 @@ const AccountPage: VFC = () => {
   const [name, setName] = useState('');
   const [rating, setRating] = useState<number | null>(null);
   const [auth, setAuth] = useState<string | null>(null);
-
-  const getAccount = useCallback(() => {
+  const getAccountName = () => {
     const splitUrl = window.location.href.split('/');
-    const accountName = splitUrl[splitUrl.length - 1];
-    getAccountInformation(accountName)
+    return splitUrl[splitUrl.length - 1];
+  };
+  const getAccount = useCallback(() => {
+    getAccountInformation(getAccountName())
       .then((account) => {
         setName(account.name);
         setRating(account.rating);
@@ -422,7 +428,7 @@ const AccountPage: VFC = () => {
 
   useEffect(() => {
     getAccount();
-  }, []);
+  }, [getAccountName()]);
 
   let page;
   if (name !== '' && rating !== null) {

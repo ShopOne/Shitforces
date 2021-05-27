@@ -16,7 +16,7 @@ export interface SubmissionResult {
   submitTime: string;
 }
 
-export interface RankingInfo {
+export interface ContestStandingsInfo {
   /**
    * 参加者数
    */
@@ -24,7 +24,7 @@ export interface RankingInfo {
   /**
    * 順位表
    */
-  rankingList: RankingInfoAccount[];
+  accountStandings: AccountInfoOnContestStandings[];
   /**
    * リクエストしたユーザーの順位
    */
@@ -33,23 +33,25 @@ export interface RankingInfo {
    * AC/Submitの数 .firstにAC人数、.secondに提出人数
    */
   acPerSubmit: { first: number; second: number }[];
+  /**
+   * FAリスト
+   */
+  firstAcceptedList: AccountInfo[];
 }
 
 /**
  * 順位表に表示するためのアカウント情報
  */
-// AccountRankingInfoとRankingInfoAccountの区別が付きづらい User_StandingDataなどは？
-// ユーザーの順位に関係するデータだとすぐわかるようにしたいです
-export interface RankingInfoAccount {
+export interface AccountInfoOnContestStandings {
   accountName: string;
   /**
    * ACした問題リスト
    */
-  acceptList: number[];
+  acceptList: boolean[];
   /**
    * このアカウントの現在順位
    */
-  ranking: number;
+  rank: number;
   /**
    * 提出までに経過した秒数
    */
@@ -120,6 +122,7 @@ export interface SubmissionInfo {
    * 提出時間
    */
   submitTime: string;
+  submitTimeAMPM: string;
   result: string;
 }
 

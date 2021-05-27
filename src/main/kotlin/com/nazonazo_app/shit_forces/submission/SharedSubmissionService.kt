@@ -2,14 +2,12 @@ package com.nazonazo_app.shit_forces.submission
 
 import com.nazonazo_app.shit_forces.contest.ContestInfo
 import com.nazonazo_app.shit_forces.problem.SharedProblemService
-import com.nazonazo_app.shit_forces.session.SharedSessionService
 import java.sql.Timestamp
 import org.springframework.stereotype.Service
 
 @Service
 class SharedSubmissionService(
     private val submissionRepository: SubmissionRepository,
-    private val sharedSessionService: SharedSessionService,
     private val sharedProblemService: SharedProblemService
 ) {
 

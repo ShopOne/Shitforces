@@ -1,34 +1,43 @@
 import PropTypes from 'prop-types';
-import { VFC, useState } from 'react';
+import React, { useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import { PagingElement } from '../../components/PagingElement';
 import { createEnglishIndex } from '../../functions/createEnglishIndex';
+import { SubmissionInfo } from '../../types';
 
-interface SubmissionTableProps {
+interface Props {
   problemNum: number;
-  submissions: any[];
+  submissions: SubmissionInfo[];
 }
 
-export const SubmissionTable: VFC<SubmissionTableProps> = ({
+export const SubmissionTable: React.FC<Props> = ({
   problemNum,
   submissions,
 }) => {
-  const [displaySubmissions, setDisplaySubmissions] = useState<any>([]);
+  const [page, setPage] = useState(0);
 
+  const SUBMISSIONS_IN_ONE_PAGE = 5;
+  const totalPages = Math.ceil(submissions.length / SUBMISSIONS_IN_ONE_PAGE);
+
+  const divideContent = (
+    arr: SubmissionInfo[],
+    unit = SUBMISSIONS_IN_ONE_PAGE
+  ) => {
+    let content = [];
+    for (let i = 0; i * unit <= arr.length; i += 1) {
+      content.push(arr.slice(i * unit, Math.min((i + 1) * unit, arr.length)));
+    }
+
+    return content;
+  };
+
+  const pagedContent = React.useMemo(
+    () => divideContent(submissions, SUBMISSIONS_IN_ONE_PAGE),
+    [submissions.length]
+  );
   if (submissions.length === 0) {
     return <div />;
   }
-
-  const SUBMISSIONS_IN_ONE_PAGE = 5;
-  const pageNum = Math.ceil(submissions.length / SUBMISSIONS_IN_ONE_PAGE);
-  const changeDisplaySubmissions = (page: any) => {
-    const newSubmissions = submissions.filter(
-      (_: any, idx: number) =>
-        page * SUBMISSIONS_IN_ONE_PAGE <= idx &&
-        idx < (page + 1) * SUBMISSIONS_IN_ONE_PAGE
-    );
-    setDisplaySubmissions(newSubmissions);
-  };
 
   const createTableBody = () => {
     /**
@@ -37,7 +46,7 @@ export const SubmissionTable: VFC<SubmissionTableProps> = ({
      * @param {String} submit.result - 提出結果
      * @param {String} submit.submitTimeAMPM - 提出時間のフォーマット済の文字列
      */
-    return displaySubmissions.map((submit: any, idx: number) => {
+    return pagedContent[page].map((submit, idx: number) => {
       return (
         <tr key={idx}>
           <td key={idx + 'idx'}>
@@ -64,7 +73,11 @@ export const SubmissionTable: VFC<SubmissionTableProps> = ({
         </thead>
         <tbody>{createTableBody()}</tbody>
       </Table>
-      <PagingElement pageNum={pageNum} pageChanged={changeDisplaySubmissions} />
+      <PagingElement
+        totalPages={totalPages}
+        currentPage={page}
+        onChange={setPage}
+      />
     </div>
   );
 };

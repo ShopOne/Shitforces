@@ -5,9 +5,9 @@ import { postSubmission } from '../../functions/HttpRequest';
 import { createEnglishIndex } from '../../functions/createEnglishIndex';
 import { findContestIdFromPath } from '../../functions/findContestIdFromPath';
 import { ProblemInfo, SubmissionInfo } from '../../types';
-import { SubmissionTable } from '../contestPage/SubmissionTable';
 import { AnswerSubmitForm } from './AnswerSubmitForm';
-import { RankingElement } from './RankingElement';
+import { ContestStandingsElement } from './ContestStandingsElement';
+import { SubmissionTable } from './SubmissionTable';
 
 interface Props {
   contestName: string;
@@ -22,7 +22,7 @@ export const ProblemsTab: VFC<Props> = ({ problems, submissions }) => {
   const [changeColor, setChangeColor] = useState(true);
   const [firstTabRender, setFirstTabRender] = useState(false);
   const [nowSubmissions, setNowSubmission] = useState<any[]>([]);
-  const [rankingVersion, setRankingVersion] = useState(0);
+  const [standingsVersion, setStandingsVersion] = useState(0);
   const TAB_ID = 'tabId';
   if (
     !firstTabRender &&
@@ -47,8 +47,8 @@ export const ProblemsTab: VFC<Props> = ({ problems, submissions }) => {
         newSubmissions.unshift(submitResult);
         setNowSubmission(newSubmissions);
         setComment(submitResult.result);
-        // RankingElement再読込のため、バージョニング
-        setRankingVersion(rankingVersion + 1);
+        // ContestStandingsElement再読込のため、バージョニング
+        setStandingsVersion(standingsVersion + 1);
       })
       .catch((e) => {
         if (e.message === '403') {
@@ -72,6 +72,11 @@ export const ProblemsTab: VFC<Props> = ({ problems, submissions }) => {
           title={problemTitle}
         >
           <h6>{'point: ' + problem.point}</h6>
+          {problem.quiz ? (
+            <h4 style={{ color: 'red' }}>
+              ※この問題は最初の提出のみ有効です！！
+            </h4>
+          ) : null}
           <div className={'div-pre'}>
             <p>{problem.statement}</p>
           </div>
@@ -163,7 +168,10 @@ export const ProblemsTab: VFC<Props> = ({ problems, submissions }) => {
 
       <p>{comment}</p>
       <hr />
-      <RankingElement problems={problems} rankingVersion={rankingVersion} />
+      <ContestStandingsElement
+        problems={problems}
+        standingsVersion={standingsVersion}
+      />
     </div>
   );
 };

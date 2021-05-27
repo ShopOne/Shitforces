@@ -4,7 +4,6 @@ import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { Header } from './components/Header';
 import { AuthenticationProvider } from './contexts/AuthenticationContext';
 import { MainPage } from './pages/MainPage';
-
 import './App.css';
 
 const AccountPage = lazy(() => import('./pages/AccountPage'));

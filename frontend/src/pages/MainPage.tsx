@@ -13,12 +13,15 @@ const CONTEST_IN_ONE_PAGE = 10;
 const ContestList: VFC = () => {
   const [contests, setContests] = useState<ContestInfo[] | null>(null);
   const [pageNum, setPageNum] = useState<number>(0);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const updatePage = (newPage: number) => {
     getLatestContests(newPage).then((latestContestsInfo) => {
       setContests(latestContestsInfo.contests);
+      setCurrentPage(newPage);
     });
   };
+
   useEffect(() => {
     getLatestContests(0).then((latestContestsInfo) => {
       setPageNum(
@@ -61,7 +64,11 @@ const ContestList: VFC = () => {
           ))}
         </tbody>
       </Table>
-      <PagingElement pageChanged={updatePage} pageNum={pageNum} />
+      <PagingElement
+        currentPage={currentPage}
+        onChange={updatePage}
+        totalPages={pageNum}
+      />
       <Link to={'/ranking'}>
         <Button variant={'primary'}>順位表へ</Button>
       </Link>
