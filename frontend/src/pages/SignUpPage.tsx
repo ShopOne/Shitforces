@@ -1,7 +1,10 @@
-import React from 'react';
+import { VFC } from 'react';
 import { SubmitAccountInfo } from '../components/SubmitAccountInfo';
 
 // URL: /sighup
-export const SignUpPage: React.FC = () => {
+const SignUpPage: VFC = () => {
   return <SubmitAccountInfo variant="signUp" />;
 };
+
+// eslint-disable-next-line import/no-default-export
+export default SignUpPage;

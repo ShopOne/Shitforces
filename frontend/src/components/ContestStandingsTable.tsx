@@ -1,4 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  ChangeEventHandler,
+  FC,
+  VFC,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -52,7 +60,7 @@ type PlayerStatusProps = {
   point: number;
   time: number;
 };
-const PlayerStatusOfProblem: React.VFC<PlayerStatusProps> = ({
+const PlayerStatusOfProblem: VFC<PlayerStatusProps> = ({
   problemId,
   point,
   time,
@@ -104,18 +112,19 @@ interface Props {
   standings: ContestStandingsInfo;
 }
 
-export const ContestStandingsTable: React.FC<Props> = ({
+export const ContestStandingsTable: FC<Props> = ({
   myAccountName,
   problems,
   standings,
 }) => {
   const [accountNameToSearch, setAccountNameToSearch] = useState('');
 
-  const onChangeAccountName = useCallback<
-    React.ChangeEventHandler<HTMLInputElement>
-  >((event) => {
-    setAccountNameToSearch(event.target.value);
-  }, []);
+  const onChangeAccountName = useCallback<ChangeEventHandler<HTMLInputElement>>(
+    (event) => {
+      setAccountNameToSearch(event.target.value);
+    },
+    []
+  );
 
   const onClickReset = useCallback(() => {
     setAccountNameToSearch('');

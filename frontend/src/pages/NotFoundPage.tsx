@@ -1,9 +1,12 @@
-import React from 'react';
+import { VFC } from 'react';
 
-export const NotFoundPage: React.FC = () => {
+const NotFoundPage: VFC = () => {
   return (
     <div>
       <p>URLが存在しません</p>
     </div>
   );
 };
+
+// eslint-disable-next-line import/no-default-export
+export default NotFoundPage;

@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import React, { useEffect, useState } from 'react';
+import { FC, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
@@ -45,7 +45,7 @@ interface EditProblemsElementProps {
   problems: EditProblemInfo[];
   setProblems(problems: EditProblemInfo[]): void;
 }
-const EditProblemsElement: React.FC<EditProblemsElementProps> = ({
+const EditProblemsElement: FC<EditProblemsElementProps> = ({
   problems,
   setProblems,
 }) => {
@@ -164,7 +164,7 @@ EditProblemsElement.propTypes = {
   setProblems: PropTypes.func.isRequired,
 };
 
-export const ContestEditPage: React.FC = () => {
+const ContestEditPage: FC = () => {
   const [isValidAccess, setIsValidAccess] = useState<boolean>(false);
   const [statement, setStatement] = useState<string>('');
   const [penalty, setPenalty] = useState<string>('');
@@ -313,3 +313,6 @@ export const ContestEditPage: React.FC = () => {
     </div>
   );
 };
+
+// eslint-disable-next-line import/no-default-export
+export default ContestEditPage;
