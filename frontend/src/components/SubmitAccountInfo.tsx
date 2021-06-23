@@ -73,9 +73,16 @@ export const SubmitAccountInfo: FC<Props> = ({ variant }) => {
             handleShow();
           } catch (e) {
             console.error(e);
-            setAlertText(
-              'ログインに失敗しました。メールアドレスかパスワードが間違っています'
-            );
+            if (e.message === '403') {
+              setAlertText(
+                  '複数回のパスワード間違いによりアカウントが一時的にロックされています ' +
+                  'しばらくお待ちいただくか、Twitterから @shitforces までDMでご連絡下さい'
+              );
+            } else {
+              setAlertText(
+                  'ログインに失敗しました。メールアドレスかパスワードが間違っています'
+              );
+            }
             handleShow();
           }
           break;

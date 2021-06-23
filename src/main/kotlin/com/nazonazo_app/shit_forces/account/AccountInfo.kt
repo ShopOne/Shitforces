@@ -1,5 +1,6 @@
 package com.nazonazo_app.shit_forces.account
 
+import java.sql.Timestamp
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -9,7 +10,9 @@ data class AccountInfo(
     val innerRating: Double,
     val partNum: Int,
     val passwordHash: String,
-    private val auth: String
+    private val auth: String,
+    val loginFailCount: Int,
+    val lockTime: Timestamp
 ) {
     // rating、innerRatingは内部的な値
     // 実際にページで見れるレーティングはこのメソッドで計算したもの

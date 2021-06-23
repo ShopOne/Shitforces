@@ -1,5 +1,6 @@
 package com.nazonazo_app.shit_forces.account
 
+import java.sql.Timestamp
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
@@ -9,7 +10,8 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
     private val rowMapperForAccountInfo = RowMapper { rs, _ ->
         AccountInfo(rs.getString("name"), rs.getDouble("rating"),
             rs.getDouble("innerRating"), rs.getInt("partNum"),
-            rs.getString("passwordHash"), rs.getString("permission"))
+            rs.getString("passwordHash"), rs.getString("permission"),
+            rs.getInt("loginFailCount"), rs.getTimestamp("lockDateTime"))
     }
     private val rowMapperForHistory = RowMapper { rs, _ ->
         AccountRatingChangeHistory(rs.getString("accountName"), rs.getString("contestId"),
@@ -70,5 +72,21 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
 
     fun findAllAccount(): List<AccountInfo> {
         return jdbcTemplate.query("""SELECT * FROM accountInfo""", rowMapperForAccountInfo)
+    }
+
+    fun addLockCount(accountName: String) {
+        jdbcTemplate.update("""UPDATE accountInfo
+            SET loginFailCount = loginFailCount + 1 where name = ?""", accountName)
+    }
+
+    fun lockAccount(accountName: String) {
+        jdbcTemplate.update("""UPDATE accountInfo
+            SET lockDateTime = ?, loginFailCount = ? where name = ?""",
+            Timestamp(System.currentTimeMillis()), 0, accountName)
+    }
+
+    fun resetAccountLock(accountName: String) {
+        jdbcTemplate.update("""UPDATE accountInfo
+            SET lockDateTime = to_timestamp(0), loginFailCount = 0 where name = ?""", accountName)
     }
 }
