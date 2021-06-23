@@ -44,8 +44,7 @@ class AccountController(
         @RequestBody requestAccount: RequestAccountForCertification,
         httpServletResponse: HttpServletResponse
     ): EmptyResponse {
-        val result = accountService.loginAccount(requestAccount, httpServletResponse)
-        if (!result) throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
+        accountService.loginAccount(requestAccount, httpServletResponse)
         return EmptyResponse()
     }
 

@@ -11,12 +11,13 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 
+const val LOCK_TIME = 1000 * 60 * 10
+const val LOCK_COUNT = 10
 @Transactional
 @Service
 class AccountService(
     val accountInfoRepository: AccountInfoRepository,
     val sharedSubmissionService: SharedSubmissionService,
-    val sharedAccountService: SharedAccountService,
     val sharedSessionService: SharedSessionService
 ) {
 
@@ -46,12 +47,25 @@ class AccountService(
             createHashPassword(requestAccount.name, requestAccount.password))
     }
 
-    fun loginAccount(requestAccount: RequestAccountForCertification, servletResponse: HttpServletResponse): Boolean =
-        if (!isSamePassword(requestAccount.name, requestAccount.password)) {
-            false
+    @Transactional(noRollbackForClassName = ["ResponseStatusException"])
+    fun loginAccount(requestAccount: RequestAccountForCertification, servletResponse: HttpServletResponse) {
+        val account = accountInfoRepository.findByAccountName(requestAccount.name)
+            ?: throw ResponseStatusException(HttpStatus.BAD_REQUEST)
+        if (account.lockTime.time + LOCK_TIME > System.currentTimeMillis()) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        } else if (!isSamePassword(requestAccount.name, requestAccount.password)) {
+            if (account.loginFailCount + 1 == LOCK_COUNT) {
+                accountInfoRepository.lockAccount(requestAccount.name)
+            } else {
+                accountInfoRepository.addLockCount(requestAccount.name)
+            }
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED)
         } else {
-            sharedSessionService.createNewSession(requestAccount.name, servletResponse) != null
+            sharedSessionService.createNewSession(requestAccount.name, servletResponse)
+                ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
+            accountInfoRepository.resetAccountLock(requestAccount.name)
         }
+    }
 
     fun changeAccountName(
         prevAccountName: String,
