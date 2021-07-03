@@ -1,0 +1,1 @@
+ALTER TABLE accountRatingChangeHistory ADD COLUMN RANK INT NOT NULL DEFAULT 0;

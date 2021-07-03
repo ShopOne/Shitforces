@@ -15,12 +15,15 @@ import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Tab from 'react-bootstrap/Tab';
+import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
+import {TwitterShareButton, TwitterIcon} from "react-share";
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
-import { getAccountInformation, createContest } from '../functions/HttpRequest';
+import {getAccountInformation, createContest, getAccountContestPartHistory} from '../functions/HttpRequest';
 import { getCookie } from '../functions/getCookie';
 import { getRatingColor } from '../functions/getRatingColor';
+import {AccountContestPartHistory} from "../types";
 
 // URL: /account/$accountName
 
@@ -280,6 +283,69 @@ const AccountInformationBody: VFC<AccountInformationBodyProps> = ({
   );
 };
 
+interface AccountRatingChangeHistoryProps {
+  name: string
+}
+const AccountRatingChangeHistory: VFC<AccountRatingChangeHistoryProps> = (props) => {
+  const [histories, setHistories] = useState<AccountContestPartHistory[]>([]);
+  const getHistory: () => Promise<AccountContestPartHistory[]> = async () => {
+      const rawHistories = await getAccountContestPartHistory(props.name);
+      return rawHistories.sort((a: AccountContestPartHistory, b: AccountContestPartHistory) => {
+            return b.indexOfParticipation - a.indexOfParticipation
+      });
+  }
+  useEffect(() => {
+    (async () => {
+      setHistories(await getHistory());
+    })();
+  }, []);
+  const historyTableBody = () => {
+      return histories.map((history: AccountContestPartHistory) => {
+        const diff = history.newRating - history.prevRating;
+        let sign;
+        if (diff > 0) sign = '+';
+        else if (diff < 0) sign = '-';
+        else sign = '±';
+        const diffText = sign + diff;
+        const resultText = `${props.name}さんの${history.contestName}の結果\n`
+            + `パフォーマンス: ${history.performance}\n`
+            + `レーティング: ${history.prevRating} → ${history.newRating}(${diffText})`;
+          return <tr style={{textAlign: 'center'}} key={history.indexOfParticipation}>
+            <td>{history.rank}</td>
+            <td>{history.contestName}</td>
+            <td>{history.performance}</td>
+            <td>{history.newRating}</td>
+            <td>{sign + diff}</td>
+            <td>
+              <TwitterShareButton
+                  url={window.location.href}
+                  title={resultText}
+                  hashtags={['Shitforces', 'くそなぞなぞ']}>
+                <TwitterIcon size={32} round />
+              </TwitterShareButton>
+            </td>
+          </tr>
+      });
+  }
+  return <div>
+    <Table striped bordered hover>
+      <thead>
+      <tr style={{textAlign: 'center'}}>
+        <th>順位</th>
+        <th>コンテスト名</th>
+        <th>パフォーマンス</th>
+        <th>新レーティング</th>
+        <th>差分</th>
+      </tr>
+      </thead>
+      <tbody>
+      {historyTableBody()}
+      </tbody>
+    </Table>
+    <p>HackerRankからShitforcesへレートの引き継ぎをした場合、初回の差分は正しく表示されません。ご了承下さい。</p>
+  </div>
+}
+
 AccountInformationBody.propTypes = {
   name: PropTypes.string.isRequired,
   rating: PropTypes.number.isRequired,
@@ -371,6 +437,12 @@ const AccountInfoTabs: VFC<AccountInfoTabsProps> = (props) => {
       <AccountInformationBody name={props.name} rating={props.rating} />
     </Tab>
   );
+
+  tabs.push(
+      <Tab eventKey={'history'} title={'参加履歴'}>
+        <AccountRatingChangeHistory name={props.name} />
+      </Tab>
+  )
   if (cookie['_sforce_account_name'] === props.name) {
     tabs.push(
       <Tab eventKey={'changeName'} title={'アカウント名の変更'}>
