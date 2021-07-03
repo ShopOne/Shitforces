@@ -73,4 +73,11 @@ class AccountController(
     fun getAccountsRankingResponse(@RequestParam("page") page: Int): ResponseAccountRanking {
         return accountService.getAccountRanking(page)
     }
+
+    @GetMapping("api/account/{accountName}/history")
+    fun getAccountContestResultHistoryResponse(
+        @PathVariable accountName: String
+    ): List<AccountRatingChangeHistory> {
+        return accountService.getAccountContestResultHistory(accountName)
+    }
 }

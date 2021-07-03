@@ -16,13 +16,14 @@ class SharedAccountService(private val accountInfoRepository: AccountInfoReposit
         accountName: String,
         rating: Double,
         innerRating: Double,
-        performance: Int
+        performance: Int,
+        rank: Int
     ) {
         val prevAccountInfo = accountInfoRepository.findByAccountName(accountName)
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
         val newAccount = prevAccountInfo.copy(rating = rating, innerRating = innerRating,
             partNum = prevAccountInfo.partNum + 1)
         accountInfoRepository.updateRating(contestName, accountName, rating, innerRating,
-            performance, newAccount.calcCorrectionRate())
+            performance, newAccount.calcCorrectionRate(), rank)
     }
 }

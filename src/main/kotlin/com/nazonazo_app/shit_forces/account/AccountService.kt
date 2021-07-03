@@ -94,4 +94,8 @@ class AccountService(
                 page * ACCOUNT_RANKING_ONE_PAGE <= idx && idx < (page + 1) * ACCOUNT_RANKING_ONE_PAGE }
         return ResponseAccountRanking(responseAccounts, accounts.size)
     }
+
+    fun getAccountContestResultHistory(name: String): List<AccountRatingChangeHistory> {
+        return accountInfoRepository.getAccountHistory(name)
+    }
 }

@@ -45,7 +45,8 @@ data class AccountRatingChangeHistory(
     val indexOfParticipation: Int,
     val prevRating: Double,
     val newRating: Double,
-    val performance: Int
+    val performance: Int,
+    val rank: Int
 )
 data class RequestAccountForCertification(
     val name: String,

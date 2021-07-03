@@ -16,7 +16,7 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
     private val rowMapperForHistory = RowMapper { rs, _ ->
         AccountRatingChangeHistory(rs.getString("accountName"), rs.getString("contestId"),
             rs.getInt("indexOfParticipation"), rs.getDouble("prevRating"),
-            rs.getDouble("newRating"), rs.getInt("performance"))
+            rs.getDouble("newRating"), rs.getInt("performance"), rs.getInt("rank"))
     }
 
     fun createAccount(accountName: String, password: String): AccountInfo {
@@ -25,7 +25,7 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
             accountName, password, AccountInfo.AccountAuthority.GENERAL.name)
         return findByAccountName(accountName)!!
     }
-    fun getAccountHistory(accountName: String): List<AccountRatingChangeHistory>? =
+    fun getAccountHistory(accountName: String): List<AccountRatingChangeHistory> =
         jdbcTemplate.query("""SELECT * from accountRatingChangeHistory 
          where accountName = ? order by indexOfParticipation
      """, rowMapperForHistory, accountName)
@@ -36,18 +36,20 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
         rating: Double,
         innerRating: Double,
         performance: Int,
-        calculatedRating: Int
+        calculatedRating: Int,
+        rank: Int
     ) {
         val partNum = findByAccountName(accountName)!!.partNum
-        val prevCalculatedRating = getAccountHistory(accountName)?.getOrNull(0)?.newRating ?: 0
+        val prevCalculatedRating = getAccountHistory(accountName).getOrNull(0)?.newRating ?: 0
 
         jdbcTemplate.update("""UPDATE accountInfo SET rating = ?, innerRating = ?, partNum = ?
             WHERE name = ?""", rating, innerRating, partNum + 1, accountName)
 
         jdbcTemplate.update("""INSERT INTO 
-            accountRatingChangeHistory(accountName, contestId, indexOfParticipation, newRating, prevRating, performance)
-            VALUES( ?, ?, ?, ?, ?, ?)""",
-            accountName, contestId, partNum + 1, calculatedRating, prevCalculatedRating, performance)
+            accountRatingChangeHistory(accountName, contestId, indexOfParticipation, 
+            newRating, prevRating, performance, rank)
+            VALUES( ?, ?, ?, ?, ?, ?, ?)""",
+            accountName, contestId, partNum + 1, calculatedRating, prevCalculatedRating, performance, rank)
     }
 
     fun findByAccountName(accountName: String): AccountInfo? {

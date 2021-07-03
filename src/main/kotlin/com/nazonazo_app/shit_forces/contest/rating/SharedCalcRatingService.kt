@@ -23,7 +23,8 @@ class SharedCalcRatingService(
         val name: String,
         val innerRating: Double,
         val rating: Double,
-        val perf: Double
+        val perf: Double,
+        val rank: Int
     )
     private fun calcInnerPerformance(rank: Int, participants: List<ParticipantInfo>): Double {
         val ratingLimit = 6000.0
@@ -72,7 +73,7 @@ class SharedCalcRatingService(
                 newRating = g(0.9 * f(it.rating) + 0.1 * f(rPerf))
                 newInnerRating = 0.9 * it.innerRating + 0.1 * perf
             }
-            resultParticipants.add(ParticipantResult(it.name, newInnerRating, newRating, rPerf))
+            resultParticipants.add(ParticipantResult(it.name, newInnerRating, newRating, rPerf, it.rank))
         }
         return resultParticipants
     }
@@ -104,7 +105,7 @@ class SharedCalcRatingService(
         val participantsResult = calcParticipantsResult(participants, contestInfo.ratedBound)
         participantsResult.forEach {
             sharedAccountService.updateAccountRating(contestInfo.id, it.name,
-                it.rating, it.innerRating, it.perf.toInt())
+                it.rating, it.innerRating, it.perf.toInt(), it.rank)
         }
         return participantsResult
     }

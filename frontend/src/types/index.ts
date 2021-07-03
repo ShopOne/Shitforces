@@ -151,3 +151,31 @@ export interface AccountRankingInfo {
   accounts: AccountInfo[];
   validAccountNum: number;
 }
+
+export interface AccountContestPartHistory {
+  accountName: string;
+  /**
+   * コンテスト名(IDではない)
+   */
+  contestName: string;
+  /**
+   * 何回目の参加履歴か
+   */
+  indexOfParticipation: number;
+  /**
+   * 一つ前のレーティング
+   */
+  prevRating: number;
+  /**
+   * 新しいレーティング
+   */
+  newRating: number;
+  /**
+   * パフォ
+   */
+  performance: number;
+  /**
+   * 順位
+   */
+  rank: number;
+}
