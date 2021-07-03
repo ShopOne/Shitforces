@@ -6,7 +6,8 @@ import type {
   ProblemInfo,
   ContestStandingsInfo,
   SubmissionInfo,
-  SubmissionResult, AccountContestPartHistory,
+  SubmissionResult,
+  AccountContestPartHistory,
 } from '../types';
 
 export async function httpRequest(
@@ -300,8 +301,9 @@ export function getAccountRankingInfo(
  * @param accountName
  */
 export function getAccountContestPartHistory(
-    accountName: string
+  accountName: string
 ): Promise<AccountContestPartHistory[]> {
-  return httpRequest(`/api/account/${accountName}/history`, 'GET'
-  ) as Promise<AccountContestPartHistory[]>;
+  return httpRequest(`/api/account/${accountName}/history`, 'GET') as Promise<
+    AccountContestPartHistory[]
+  >;
 }
