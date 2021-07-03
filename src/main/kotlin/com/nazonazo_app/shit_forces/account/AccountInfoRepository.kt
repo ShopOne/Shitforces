@@ -14,7 +14,7 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
             rs.getInt("loginFailCount"), rs.getTimestamp("lockDateTime"))
     }
     private val rowMapperForHistory = RowMapper { rs, _ ->
-        AccountRatingChangeHistory(rs.getString("accountName"), rs.getString("contestId"),
+        AccountRatingChangeHistory(rs.getString("accountName"), rs.getString("contestName"),
             rs.getInt("indexOfParticipation"), rs.getDouble("prevRating"),
             rs.getDouble("newRating"), rs.getInt("performance"), rs.getInt("rank"))
     }
@@ -31,7 +31,7 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
      """, rowMapperForHistory, accountName)
 
     fun updateRating(
-        contestId: String,
+        contestName: String,
         accountName: String,
         rating: Double,
         innerRating: Double,
@@ -40,16 +40,16 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
         rank: Int
     ) {
         val partNum = findByAccountName(accountName)!!.partNum
-        val prevCalculatedRating = getAccountHistory(accountName).getOrNull(0)?.newRating ?: 0
+        val prevCalculatedRating = getAccountHistory(accountName).maxBy { it.indexOfParticipation }?.newRating ?: 0
 
         jdbcTemplate.update("""UPDATE accountInfo SET rating = ?, innerRating = ?, partNum = ?
             WHERE name = ?""", rating, innerRating, partNum + 1, accountName)
 
         jdbcTemplate.update("""INSERT INTO 
-            accountRatingChangeHistory(accountName, contestId, indexOfParticipation, 
+            accountRatingChangeHistory(accountName, contestName, indexOfParticipation, 
             newRating, prevRating, performance, rank)
             VALUES( ?, ?, ?, ?, ?, ?, ?)""",
-            accountName, contestId, partNum + 1, calculatedRating, prevCalculatedRating, performance, rank)
+            accountName, contestName, partNum + 1, calculatedRating, prevCalculatedRating, performance, rank)
     }
 
     fun findByAccountName(accountName: String): AccountInfo? {
