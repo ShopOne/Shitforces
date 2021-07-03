@@ -104,7 +104,7 @@ class SharedCalcRatingService(
         }
         val participantsResult = calcParticipantsResult(participants, contestInfo.ratedBound)
         participantsResult.forEach {
-            sharedAccountService.updateAccountRating(contestInfo.id, it.name,
+            sharedAccountService.updateAccountRating(contestInfo.name, it.name,
                 it.rating, it.innerRating, it.perf.toInt(), it.rank)
         }
         return participantsResult
