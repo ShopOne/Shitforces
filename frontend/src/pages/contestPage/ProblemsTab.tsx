@@ -51,7 +51,7 @@ export const ProblemsTab: VFC<Props> = ({ problems, submissions }) => {
         setStandingsVersion(standingsVersion + 1);
       })
       .catch((e) => {
-        if (e.message === '403') {
+        if (e.message === '401') {
           setComment('5秒間隔を空けて提出して下さい'); // このあたりの実装はクライアントで責任をもちたい
         } else if (e.message === '400') {
           setComment('ログインして下さい');
