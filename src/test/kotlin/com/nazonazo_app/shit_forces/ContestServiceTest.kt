@@ -70,13 +70,17 @@ class ContestServiceTest {
             AccountInfoOnContestStandings("12", 0, 0, listOf(), listOf(), 20)
         )
         names0.forEach {
-            val account = AccountInfo(it, 0.0, 0.0, 0, "", "")
+            val account = AccountInfo(it, 0.0, 0.0, 0, "", "",
+            0, Timestamp(0)
+            )
             every {
                 sharedAccountService.getAccountByName(it)
             } returns account
         }
         names1.forEach {
-            val account = AccountInfo(it, 0.0, 0.0, 0, "", "")
+            val account = AccountInfo(it, 0.0, 0.0, 0, "", "",
+            0, Timestamp(0)
+            )
             every {
                 sharedAccountService.getAccountByName(it)
             } returns account
@@ -102,11 +106,12 @@ class ContestServiceTest {
                     null
                 )
         every {
-            sharedAccountService.updateAccountRating(any(), any(), any(), any(), any())
+            sharedAccountService.updateAccountRating(any(), any(), any(), any(), any(), any())
         } returns Unit
         val result0 = sharedCalcRatingService.calcAndUpdateRating(contestInfo0)
         result0.forEach {
-            val account = AccountInfo(it.name, it.rating, it.innerRating, 1, "", "")
+            val account = AccountInfo(it.name, it.rating, it.innerRating, 1, "", "",
+                0, Timestamp(0))
             every {
                 sharedAccountService.getAccountByName(it.name)
             } returns account
@@ -116,7 +121,9 @@ class ContestServiceTest {
         28, 24, 20, 561, 14, 598, 9, 905, 3)
         result1.forEachIndexed { index, it ->
             val account = AccountInfo(it.name, it.rating, it.innerRating,
-                if (it.name.toIntOrNull() == null) 2 else 1, "", "")
+                if (it.name.toIntOrNull() == null) 2 else 1, "", "",
+                0, Timestamp(0)
+            )
             assertThat(resultCorrectionRate[index], `is`(account.calcCorrectionRate()))
         }
     }
