@@ -19,6 +19,7 @@ import './ContestPage.css';
 const ContestPage: FC = () => {
   const [contestName, setContestName] = useState('');
   const [statement, setStatement] = useState('');
+  const [contestType, setContestType] = useState('');
   const [time, setTime] = useState('');
   const [submissions, setSubmissions] = useState<SubmissionInfo[]>([]);
   const [problems, setProblems] = useState<ProblemInfo[]>([]);
@@ -75,6 +76,7 @@ const ContestPage: FC = () => {
       }
       setContestName(contestInfo.name);
       setStatement(contestInfo.statement);
+      setContestType(contestInfo.contestType);
       setTime(`${contestInfo.startTimeAMPM} ~ ${contestInfo.endTimeAMPM}`);
       setProblems(problems);
       setSubmissions(submissions);
@@ -106,6 +108,7 @@ const ContestPage: FC = () => {
         problems={problems}
         contestName={contestName}
         submissions={submissions}
+        contestType={contestType}
       />
     </div>
   );

@@ -29,3 +29,19 @@ data class RequestSubmission constructor(
     val indexOfContest: Int,
     val statement: String
 )
+
+data class ResponseContestSubmissionOfRaid(
+    val statement: String,
+    val submitCount: Int,
+    val isAccepted: Boolean
+) : Comparable<ResponseContestSubmissionOfRaid> {
+    override fun compareTo(other: ResponseContestSubmissionOfRaid): Int {
+        return if (this.isAccepted && !other.isAccepted) {
+            -1
+        } else if (!this.isAccepted && other.isAccepted) {
+            1
+        } else {
+            other.submitCount - this.submitCount
+        }
+    }
+}

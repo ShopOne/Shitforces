@@ -55,7 +55,7 @@ export interface AccountInfoOnContestStandings {
   /**
    * 提出までに経過した秒数
    */
-  acceptTimeList: number[];
+  acceptTimeList: (number | null)[];
   score: number;
   penalty: number;
 }
@@ -178,4 +178,10 @@ export interface AccountContestPartHistory {
    * 順位
    */
   rank: number;
+}
+
+export interface ContestSubmissionOfRaid {
+    statement: string;
+    submitCount: number;
+    accepted: boolean;
 }

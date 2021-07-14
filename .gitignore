@@ -38,3 +38,5 @@ out/
 
 db.mv.db
 db.trace.db
+
+node_modules/

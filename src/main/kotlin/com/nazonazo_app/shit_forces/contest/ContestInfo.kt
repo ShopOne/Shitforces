@@ -18,6 +18,7 @@ data class ContestInfo(
     enum class ContestType(val textName: String) {
         ICPC("ICPC"),
         ATCODER("AtCoder"),
+        RAID("RAID"),
         INVALID("INVALID")
     }
 }

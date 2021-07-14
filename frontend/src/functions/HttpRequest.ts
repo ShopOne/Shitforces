@@ -8,6 +8,7 @@ import type {
   SubmissionInfo,
   SubmissionResult,
   AccountContestPartHistory,
+  ContestSubmissionOfRaid,
 } from '../types';
 
 export async function httpRequest(
@@ -306,4 +307,18 @@ export function getAccountContestPartHistory(
   return httpRequest(`/api/account/${accountName}/history`, 'GET') as Promise<
     AccountContestPartHistory[]
   >;
+}
+
+/**
+ * @param contestId
+ * @param indexOfContest
+ */
+export function getContestSubmissionsOfRaid(
+    contestId: string,
+    indexOfContest: number
+): Promise<ContestSubmissionOfRaid[]> {
+  return httpRequest(`/api/submissions/${contestId}/raid`, 'GET',
+      {index_of_contest: indexOfContest}) as Promise<
+      ContestSubmissionOfRaid[]
+      >;
 }

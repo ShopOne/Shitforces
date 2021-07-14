@@ -7,8 +7,10 @@ import com.nazonazo_app.shit_forces.problem.ProblemInfo
 import com.nazonazo_app.shit_forces.problem.SharedProblemService
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.RequestSubmission
+import com.nazonazo_app.shit_forces.submission.ResponseContestSubmissionOfRaid
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
 import com.nazonazo_app.shit_forces.submission.SubmissionInfo
+import com.nazonazo_app.shit_forces.submission.SubmissionResult
 import java.sql.Timestamp
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -159,6 +161,7 @@ class ContestService(
         val contestType = when (requestContest.contestType) {
             ContestInfo.ContestType.ICPC.textName -> ContestInfo.ContestType.ICPC
             ContestInfo.ContestType.ATCODER.textName -> ContestInfo.ContestType.ATCODER
+            ContestInfo.ContestType.RAID.textName -> ContestInfo.ContestType.RAID
             else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
         val creators = requestContest.creators.map {
@@ -277,5 +280,37 @@ class ContestService(
             throw ResponseStatusException(HttpStatus.FORBIDDEN)
         }
         return sharedProblemService.getAnswersById(id)
+    }
+
+    fun getContestSubmissionOfRaid(
+        contestId: String,
+        indexOfContest: Int
+    ): List<ResponseContestSubmissionOfRaid> {
+        val contestInfo = contestRepository.findByContestId(contestId)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND)
+        if (contestInfo.contestType != ContestInfo.ContestType.RAID) {
+            throw ResponseStatusException(HttpStatus.FORBIDDEN)
+        }
+        val submissionList = mutableListOf<ResponseContestSubmissionOfRaid>()
+        val submitCount = mutableMapOf<String, Int>()
+        val acceptSet = mutableSetOf<String>()
+        sharedSubmissionService.getContestSubmissionInTime(contestInfo).forEach {
+            if (it.indexOfContest == indexOfContest) {
+                val count = submitCount.getOrDefault(it.statement, 0)
+                if (it.result == SubmissionResult.ACCEPTED) {
+                    acceptSet.add(it.statement)
+                }
+                submitCount[it.statement] = count + 1
+            }
+        }
+        submitCount.forEach { submit ->
+            submissionList.add(ResponseContestSubmissionOfRaid(
+                submit.key,
+                submit.value,
+                acceptSet.find { it == submit.key } != null
+            ))
+        }
+        val llt = submissionList.sorted()
+        return submissionList.sorted()
     }
 }

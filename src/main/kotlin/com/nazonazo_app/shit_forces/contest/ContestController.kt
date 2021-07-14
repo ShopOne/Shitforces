@@ -6,6 +6,7 @@ import com.nazonazo_app.shit_forces.contest.standings.ContestStandingsInfo
 import com.nazonazo_app.shit_forces.problem.ResponseProblemInfo
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.RequestSubmission
+import com.nazonazo_app.shit_forces.submission.ResponseContestSubmissionOfRaid
 import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -86,6 +87,14 @@ class ContestController(
         httpServletRequest: HttpServletRequest
     ): List<SubmissionInfo> {
         return contestService.getAccountSubmissionOfContest(accountName, contestId, httpServletRequest)
+    }
+
+    @GetMapping("api/submissions/{contest_id}/raid")
+    fun getContestSubmissionOfRaidResponse(
+        @PathVariable("contest_id") contestId: String,
+        @RequestParam("index_of_contest") indexOfContest: Int
+    ): List<ResponseContestSubmissionOfRaid> {
+        return contestService.getContestSubmissionOfRaid(contestId, indexOfContest)
     }
 
     @PostMapping("api/submissions", headers = ["Content-Type=application/json"])

@@ -12,6 +12,7 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         val contestType = when (rs.getString("contestType")) {
             ContestInfo.ContestType.ATCODER.textName -> ContestInfo.ContestType.ATCODER
             ContestInfo.ContestType.ICPC.textName -> ContestInfo.ContestType.ICPC
+            ContestInfo.ContestType.RAID.textName -> ContestInfo.ContestType.RAID
             else -> ContestInfo.ContestType.INVALID
         }
         val id = rs.getString("id")
