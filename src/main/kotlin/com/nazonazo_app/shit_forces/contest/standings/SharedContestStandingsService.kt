@@ -12,8 +12,8 @@ import org.springframework.web.server.ResponseStatusException
 class SharedContestStandingsService {
     data class AccountAcceptInfo(
         val name: String,
-        val submitTime: List<Int>,
-        val isAccept: List<Boolean>,
+        val submitTime: List<Int?>,
+        val isAcceptList: List<Boolean>,
         val penaltyOfWrong: Int
     )
     private fun setRankToAccountInfosOnContestStandings(
@@ -38,7 +38,7 @@ class SharedContestStandingsService {
         penalty: Int
     ): List<AccountAcceptInfo> {
         val countOfSubmit: MutableMap<String, MutableList<Int>> = mutableMapOf()
-        val timeOfSubmit: MutableMap<String, MutableList<Int>> = mutableMapOf()
+        val timeOfSubmit: MutableMap<String, MutableList<Int?>> = mutableMapOf()
         val solvedProblem: MutableMap<String, MutableList<Boolean>> = mutableMapOf()
         val submitAccount = mutableSetOf<String>()
         submissionList
@@ -46,7 +46,8 @@ class SharedContestStandingsService {
             .forEach {
                 val accountCountOfSubmit = countOfSubmit.getOrDefault(it.accountName, MutableList(problemNum) { 0 })
                 val accountSolvedProblem = solvedProblem.getOrDefault(it.accountName, MutableList(problemNum) { false })
-                val accountTimeOfSubmit = timeOfSubmit.getOrDefault(it.accountName, MutableList(problemNum) { 0 })
+                val accountTimeOfSubmit: MutableList<Int?> =
+                    timeOfSubmit.getOrDefault(it.accountName, MutableList<Int?>(problemNum) { null })
                 submitAccount.add(it.accountName)
                 if (it.result === SubmissionResult.ACCEPTED && !accountSolvedProblem[it.indexOfContest]) {
                     accountSolvedProblem[it.indexOfContest] = true
@@ -87,10 +88,10 @@ class SharedContestStandingsService {
             var score = 0
             var penaResult = it.penaltyOfWrong
             val acceptProblem = MutableList(problemsInfo.size) { false }
-            it.isAccept.forEachIndexed { index, result ->
+            it.isAcceptList.forEachIndexed { index, result ->
                 if (result) {
                     score += problemsInfo[index].point
-                    penaResult += it.submitTime[index]
+                    penaResult += it.submitTime[index]!!
                     acceptProblem[index] = true
                 }
             }
@@ -115,10 +116,10 @@ class SharedContestStandingsService {
             var score = 0
             var latestSubmit = 0
             val acceptProblem = MutableList(problemsInfo.size) { false }
-            it.isAccept.forEachIndexed { index, result ->
+            it.isAcceptList.forEachIndexed { index, result ->
                 if (result) {
                     score += problemsInfo[index].point
-                    latestSubmit = latestSubmit.coerceAtLeast(it.submitTime[index])
+                    latestSubmit = latestSubmit.coerceAtLeast(it.submitTime[index]!!)
                     acceptProblem[index] = true
                 }
             }
@@ -131,6 +132,38 @@ class SharedContestStandingsService {
         }
         return setRankToAccountInfosOnContestStandings(standings)
     }
+    private fun getAccountInfosOnContestStandingsByRaid(
+        problemsInfo: List<ProblemInfo>,
+        submissionList: List<SubmissionInfo>,
+        penalty: Int,
+        startTime: Long
+    ): List<AccountInfoOnContestStandings> {
+        val accountAcceptedProblemInfo = getAccountsAcceptInfo(submissionList, problemsInfo.size, startTime, penalty)
+        val acceptProblem = MutableList(problemsInfo.size) { false }
+        val acceptSubmitTime = MutableList<Int?>(problemsInfo.size) { null }
+        var score = 0
+        accountAcceptedProblemInfo.forEach {
+            it.isAcceptList.forEachIndexed { index, result ->
+                if (result) {
+                    if (!acceptProblem[index]) {
+                        score += problemsInfo[index].point
+                    }
+                    acceptProblem[index] = true
+                    acceptSubmitTime[index] =
+                        (acceptSubmitTime[index] ?: Int.MAX_VALUE).coerceAtMost(it.submitTime[index]!!)
+                }
+            }
+        }
+        return mutableListOf(AccountInfoOnContestStandings(
+                "みんな",
+                score,
+                acceptSubmitTime.filterNotNull().sum(),
+                acceptProblem,
+                acceptSubmitTime,
+                1
+            )
+        )
+    }
     fun getAccountInfosOnContestStandings(
         contest: ContestInfo,
         submissionList: List<SubmissionInfo>,
@@ -139,6 +172,7 @@ class SharedContestStandingsService {
         val getStandingsFunction = when (contest.contestType) {
             ContestInfo.ContestType.ATCODER -> ::getAccountInfosOnContestStandingsByAtCoder
             ContestInfo.ContestType.ICPC -> ::getAccountInfosOnContestStandingsByICPC
+            ContestInfo.ContestType.RAID -> ::getAccountInfosOnContestStandingsByRaid
             else -> throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
         }
         return getStandingsFunction(

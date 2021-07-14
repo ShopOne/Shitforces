@@ -93,12 +93,13 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
             </td>
           );
         }
+        // timeがnullであることは無いが、コンパイルのため || 0 としている
         return (
           <PlayerStatusOfProblem
             key={problem.id}
             problemId={problem.id}
             point={problem.point}
-            time={account.acceptTimeList[problem.indexOfContest]}
+            time={account.acceptTimeList[problem.indexOfContest] || 0}
           />
         );
       })}

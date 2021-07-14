@@ -246,6 +246,7 @@ const CreateContestElement: VFC = () => {
                 <Form.Control as={'select'}>
                   <option>AtCoder</option>
                   <option>ICPC</option>
+                  <option>RAID</option>
                 </Form.Control>
               </Form.Group>
             </Form>

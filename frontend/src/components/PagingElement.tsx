@@ -6,18 +6,26 @@ interface Props {
   totalPages: number;
   currentPage: number;
   onChange: (page: number) => void;
+  marginPx?: number;
 }
 
 export const PagingElement: React.FC<Props> = ({
   totalPages,
   currentPage,
   onChange,
+  marginPx,
 }) => {
   const pageArr = [...Array(totalPages)].map((_, idx) => idx);
+  let style = {};
+  if (marginPx !== undefined) {
+    style = {
+      margin: marginPx + 'px',
+    };
+  }
 
   return (
     <div>
-      <Pagination>
+      <Pagination style={style}>
         {pageArr.map((page) => (
           <Pagination.Item
             key={page}

@@ -14,7 +14,7 @@ data class AccountInfoOnContestStandings(
     val score: Int,
     val penalty: Int,
     val acceptList: List<Boolean>,
-    val acceptTimeList: List<Int>,
+    val acceptTimeList: List<Int?>,
     var rank: Int
 ) : Comparable<AccountInfoOnContestStandings> {
     override fun compareTo(other: AccountInfoOnContestStandings): Int {
