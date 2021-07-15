@@ -6,12 +6,10 @@ import { createEnglishIndex } from '../../functions/createEnglishIndex';
 import { SubmissionInfo } from '../../types';
 
 interface Props {
-  problemNum: number;
   submissions: SubmissionInfo[];
 }
 
 export const SubmissionTable: React.FC<Props> = ({
-  problemNum,
   submissions,
 }) => {
   const [page, setPage] = useState(0);
@@ -50,7 +48,7 @@ export const SubmissionTable: React.FC<Props> = ({
       return (
         <tr key={idx}>
           <td key={idx + 'idx'}>
-            {createEnglishIndex(submit.indexOfContest, problemNum)}
+            {createEnglishIndex(submit.indexOfContest)}
           </td>
           <td key={idx + 'stm'}>{submit.statement}</td>
           <td key={idx + 'res'}>{submit.result}</td>
@@ -83,6 +81,5 @@ export const SubmissionTable: React.FC<Props> = ({
 };
 
 SubmissionTable.propTypes = {
-  problemNum: PropTypes.number.isRequired,
   submissions: PropTypes.array.isRequired,
 };

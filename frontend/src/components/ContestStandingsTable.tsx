@@ -12,7 +12,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Pagination from 'react-bootstrap/Pagination';
 import Table from 'react-bootstrap/Table';
-import { toProblemLabel } from '../functions/toProblemLabel';
+import { createEnglishIndex } from '../functions/createEnglishIndex';
 import {
   ProblemInfo,
   ContestStandingsInfo,
@@ -280,7 +280,7 @@ export const ContestStandingsTable: FC<Props> = ({
             <th style={{ minWidth: '4em' }}>得点</th>
             {sortedProblems.map((problem) => (
               <th key={problem.id} style={{ minWidth: '4em' }}>
-                {toProblemLabel(problem.indexOfContest)}
+                {createEnglishIndex(problem.indexOfContest)}
               </th>
             ))}
           </tr>
