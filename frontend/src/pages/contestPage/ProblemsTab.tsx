@@ -157,7 +157,7 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({ problems, submissions,conte
 
   const getProblemTabList = () => {
     return problems.map((problem, index: number) => {
-      const problemTitle = createEnglishIndex(index, problems.length);
+      const problemTitle = createEnglishIndex(index);
       return (
         <Tab
           eventKey={index.toString()}
@@ -247,7 +247,6 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({ problems, submissions,conte
       ) : (
         <SubmissionTable
           submissions={nowSubmissions}
-          problemNum={problems.length}
         />
       )}
 
