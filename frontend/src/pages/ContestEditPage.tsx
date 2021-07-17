@@ -86,6 +86,22 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
     newProblems[idx].answer = newAnswer;
     setProblems(newProblems);
   };
+  const UP_REARRANGE = 'UP';
+  const DOWN_REARRANGE = 'DOWN';
+  const rearrangeProblem = (idx: number, direction: string) => {
+    const newProblems = [...problems];
+    if (direction === UP_REARRANGE && idx !== 0) {
+      const tmp = newProblems[idx];
+      newProblems[idx] = newProblems[idx-1];
+      newProblems[idx-1] = tmp;
+    }
+    if (direction === DOWN_REARRANGE && idx !== newProblems.length - 1) {
+      const tmp = newProblems[idx];
+      newProblems[idx] = newProblems[idx+1];
+      newProblems[idx+1] = tmp;
+    }
+    setProblems(newProblems);
+  };
   const listGroups = problems.map((problem, idx) => {
     const popOver = (
       <Popover id={'popover-basic'}>
@@ -150,8 +166,14 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
           <button type={'button'} onClick={addProblem}>
             +
           </button>
-          <button type={'button'} onClick={() => eraseProblem(problem.id)}>
+          <button type={'button'} onClick={() => eraseProblem(idx)}>
             -
+          </button>
+          <button type={'button'} onClick={() => rearrangeProblem(idx, UP_REARRANGE)}>
+            ↑
+          </button>
+          <button type={'button'} onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}>
+            ↓
           </button>
         </Col>
       </Form.Row>
