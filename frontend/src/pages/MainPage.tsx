@@ -67,6 +67,7 @@ const ContestList: VFC = () => {
       <PagingElement
         currentPage={currentPage}
         onChange={updatePage}
+        savePaging={true}
         totalPages={pageNum}
       />
       <Link to={'/ranking'}>

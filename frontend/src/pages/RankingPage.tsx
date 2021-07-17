@@ -79,6 +79,7 @@ const RankingPage: VFC = () => {
       <PagingElement
         currentPage={nowPage}
         onChange={getRanking}
+        savePaging={true}
         totalPages={pageNum}
       />
     </>

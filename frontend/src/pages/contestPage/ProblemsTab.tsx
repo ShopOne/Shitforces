@@ -64,6 +64,7 @@ const ProblemTabElement: VFC<ProblemTabElementProps> = ({problemInfo, contestTyp
                 totalPages={Math.ceil(submissionsOfRaid.length / SUBMISSION_IN_ONE_PAGE)}
                 currentPage={page}
                 onChange={setPage}
+                savePaging={false}
                 marginPx={10}/>
         </div>
     };

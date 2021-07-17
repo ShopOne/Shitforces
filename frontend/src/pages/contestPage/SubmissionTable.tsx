@@ -74,6 +74,7 @@ export const SubmissionTable: React.FC<Props> = ({
       <PagingElement
         totalPages={totalPages}
         currentPage={page}
+        savePaging={false}
         onChange={setPage}
       />
     </div>

@@ -6,6 +6,7 @@ interface Props {
   totalPages: number;
   currentPage: number;
   onChange: (page: number) => void;
+  savePaging: boolean;
   marginPx?: number;
 }
 
@@ -14,8 +15,25 @@ export const PagingElement: React.FC<Props> = ({
   currentPage,
   onChange,
   marginPx,
+  savePaging
 }) => {
   const pageArr = [...Array(totalPages)].map((_, idx) => idx);
+  const params = new URLSearchParams(window.location.search);
+  const paramPage = params.get('page');
+  const onClick = (page: number) => {
+    if (savePaging) {
+      params.set('page', page.toString());
+      history.pushState(null, '', `?${params.toString()}`);
+    }
+    onChange(page);
+  };
+  if (savePaging && paramPage !== null && currentPage.toString() !== paramPage) {
+    const newPage = parseInt(paramPage, 10);
+    if (!isNaN(newPage)) {
+      onChange(newPage);
+      return null;
+    }
+  }
   let style = {};
   if (marginPx !== undefined) {
     style = {
@@ -31,7 +49,7 @@ export const PagingElement: React.FC<Props> = ({
             key={page}
             active={page === currentPage}
             value={page}
-            onClick={() => onChange(page)}
+            onClick={() => onClick(page)}
           >
             {page + 1}
           </Pagination.Item>
