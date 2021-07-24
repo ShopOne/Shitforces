@@ -15,7 +15,7 @@ export const PagingElement: React.FC<Props> = ({
   currentPage,
   onChange,
   marginPx,
-  savePaging
+  savePaging,
 }) => {
   const pageArr = [...Array(totalPages)].map((_, idx) => idx);
   const params = new URLSearchParams(window.location.search);
@@ -27,7 +27,11 @@ export const PagingElement: React.FC<Props> = ({
     }
     onChange(page);
   };
-  if (savePaging && paramPage !== null && currentPage.toString() !== paramPage) {
+  if (
+    savePaging &&
+    paramPage !== null &&
+    currentPage.toString() !== paramPage
+  ) {
     const newPage = parseInt(paramPage, 10);
     if (!isNaN(newPage)) {
       onChange(newPage);

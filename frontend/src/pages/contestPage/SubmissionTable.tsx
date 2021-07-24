@@ -9,9 +9,7 @@ interface Props {
   submissions: SubmissionInfo[];
 }
 
-export const SubmissionTable: React.FC<Props> = ({
-  submissions,
-}) => {
+export const SubmissionTable: React.FC<Props> = ({ submissions }) => {
   const [page, setPage] = useState(0);
 
   const SUBMISSIONS_IN_ONE_PAGE = 5;
@@ -47,9 +45,7 @@ export const SubmissionTable: React.FC<Props> = ({
     return pagedContent[page].map((submit, idx: number) => {
       return (
         <tr key={idx}>
-          <td key={idx + 'idx'}>
-            {createEnglishIndex(submit.indexOfContest)}
-          </td>
+          <td key={idx + 'idx'}>{createEnglishIndex(submit.indexOfContest)}</td>
           <td key={idx + 'stm'}>{submit.statement}</td>
           <td key={idx + 'res'}>{submit.result}</td>
           <td key={idx + 'time'}>{submit.submitTimeAMPM}</td>

@@ -181,7 +181,7 @@ export interface AccountContestPartHistory {
 }
 
 export interface ContestSubmissionOfRaid {
-    statement: string;
-    submitCount: number;
-    accepted: boolean;
+  statement: string;
+  submitCount: number;
+  accepted: boolean;
 }

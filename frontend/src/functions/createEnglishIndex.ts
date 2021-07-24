@@ -4,9 +4,9 @@ export const createEnglishIndex = (index: number) => {
   let alpha = '';
   index++;
   while (index > 0) {
-      index--;
-      alpha += ALPHABETS[index % ALPHABETS_NUM];
-      index = Math.floor(index / ALPHABETS_NUM);
+    index--;
+    alpha += ALPHABETS[index % ALPHABETS_NUM];
+    index = Math.floor(index / ALPHABETS_NUM);
   }
   return alpha.split('').reverse().join('');
 };
