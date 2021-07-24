@@ -198,15 +198,23 @@ const CreateContestElement: VFC = () => {
           <InputGroup className={'mb-3'}>
             <Form.Control
               placeholder={'2021-1-10 21:00:00'}
-              type={'datetime'}
+              type="datetime-local"
               ref={startTimeRef}
+              pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
+              required
             />
           </InputGroup>
         </Col>
         <Col>
           <label>終了日時</label>
           <InputGroup className={'mb-3'}>
-            <Form.Control placeholder={'2021-1-10 21:30:00'} ref={endTimeRef} />
+            <Form.Control
+              placeholder={'2021-1-10 21:30:00'}
+              type="datetime-local"
+              ref={endTimeRef}
+              pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}"
+              required
+            />
           </InputGroup>
         </Col>
       </Form.Row>
