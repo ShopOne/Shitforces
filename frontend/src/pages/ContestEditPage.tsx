@@ -92,13 +92,13 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
     const newProblems = [...problems];
     if (direction === UP_REARRANGE && idx !== 0) {
       const tmp = newProblems[idx];
-      newProblems[idx] = newProblems[idx-1];
-      newProblems[idx-1] = tmp;
+      newProblems[idx] = newProblems[idx - 1];
+      newProblems[idx - 1] = tmp;
     }
     if (direction === DOWN_REARRANGE && idx !== newProblems.length - 1) {
       const tmp = newProblems[idx];
-      newProblems[idx] = newProblems[idx+1];
-      newProblems[idx+1] = tmp;
+      newProblems[idx] = newProblems[idx + 1];
+      newProblems[idx + 1] = tmp;
     }
     setProblems(newProblems);
   };
@@ -169,10 +169,16 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
           <button type={'button'} onClick={() => eraseProblem(idx)}>
             -
           </button>
-          <button type={'button'} onClick={() => rearrangeProblem(idx, UP_REARRANGE)}>
+          <button
+            type={'button'}
+            onClick={() => rearrangeProblem(idx, UP_REARRANGE)}
+          >
             ↑
           </button>
-          <button type={'button'} onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}>
+          <button
+            type={'button'}
+            onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}
+          >
             ↓
           </button>
         </Col>

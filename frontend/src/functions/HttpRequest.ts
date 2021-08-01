@@ -314,11 +314,10 @@ export function getAccountContestPartHistory(
  * @param indexOfContest
  */
 export function getContestSubmissionsOfRaid(
-    contestId: string,
-    indexOfContest: number
+  contestId: string,
+  indexOfContest: number
 ): Promise<ContestSubmissionOfRaid[]> {
-  return httpRequest(`/api/submissions/${contestId}/raid`, 'GET',
-      {index_of_contest: indexOfContest}) as Promise<
-      ContestSubmissionOfRaid[]
-      >;
+  return httpRequest(`/api/submissions/${contestId}/raid`, 'GET', {
+    index_of_contest: indexOfContest,
+  }) as Promise<ContestSubmissionOfRaid[]>;
 }
