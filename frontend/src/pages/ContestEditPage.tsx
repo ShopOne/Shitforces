@@ -22,6 +22,7 @@ import {
 } from '../functions/HttpRequest';
 import { findContestIdFromPath } from '../functions/findContestIdFromPath';
 import { getCookie } from '../functions/getCookie';
+import { isMobile } from '../functions/isMobile';
 import { ContestCreator } from '../types';
 import './ContestEditPage.css';
 
@@ -55,6 +56,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
   problems,
   setProblems,
 }) => {
+  const columnHeight = isMobile() ? 150 : 100;
   const updateProblemStatement = (idx: number, statement: string) => {
     const newProblems = [...problems];
     newProblems[idx].statement = statement;
@@ -108,6 +110,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
     }
     setProblems(newProblems);
   };
+
   const listGroups = problems.map((problem, idx) => {
     const popOver = (
       <Popover id={'popover-basic'}>
@@ -122,7 +125,6 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
       </Popover>
     );
 
-    const columnHeight = 100;
     return (
       <Form.Row key={problem.id}>
         <Col>
@@ -198,25 +200,33 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
           </div>
         </Col>
         <Col>
-          <br />
-          <button type={'button'} onClick={addProblem}>
-            +
-          </button>
-          <button type={'button'} onClick={() => eraseProblem(idx)}>
-            -
-          </button>
-          <button
-            type={'button'}
-            onClick={() => rearrangeProblem(idx, UP_REARRANGE)}
+          <div
+            style={{
+              height: columnHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            ↑
-          </button>
-          <button
-            type={'button'}
-            onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}
-          >
-            ↓
-          </button>
+            <button type={'button'} onClick={addProblem}>
+              +
+            </button>
+            <button type={'button'} onClick={() => eraseProblem(idx)}>
+              -
+            </button>
+            <button
+              type={'button'}
+              onClick={() => rearrangeProblem(idx, UP_REARRANGE)}
+            >
+              ↑
+            </button>
+            <button
+              type={'button'}
+              onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}
+            >
+              ↓
+            </button>
+          </div>
         </Col>
       </Form.Row>
     );
@@ -264,7 +274,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
                     {...provided.dragHandleProps}
                     style={{
                       ...provided.draggableProps.style,
-                      height: 100,
+                      height: columnHeight,
                     }}
                   >
                     <h4>{list}</h4>
@@ -449,6 +459,7 @@ const ContestEditPage: FC = () => {
           </Form>
         </div>
       </div>
+      <div style={{ marginBottom: 20 }}></div>
     </div>
   );
 };
