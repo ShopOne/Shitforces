@@ -1,5 +1,11 @@
 import PropTypes from 'prop-types';
 import { FC, useEffect, useState } from 'react';
+import {
+  DragDropContext,
+  Droppable,
+  Draggable,
+  OnDragEndResponder,
+} from 'react-beautiful-dnd';
 import Button from 'react-bootstrap/Button';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
@@ -16,6 +22,7 @@ import {
 } from '../functions/HttpRequest';
 import { findContestIdFromPath } from '../functions/findContestIdFromPath';
 import { getCookie } from '../functions/getCookie';
+import { isMobile } from '../functions/isMobile';
 import { ContestCreator } from '../types';
 import './ContestEditPage.css';
 
@@ -49,6 +56,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
   problems,
   setProblems,
 }) => {
+  const columnHeight = isMobile() ? 150 : 100;
   const updateProblemStatement = (idx: number, statement: string) => {
     const newProblems = [...problems];
     newProblems[idx].statement = statement;
@@ -102,6 +110,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
     }
     setProblems(newProblems);
   };
+
   const listGroups = problems.map((problem, idx) => {
     const popOver = (
       <Popover id={'popover-basic'}>
@@ -115,6 +124,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
         </Popover.Content>
       </Popover>
     );
+
     return (
       <Form.Row key={problem.id}>
         <Col>
@@ -129,63 +139,155 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
           </InputGroup>
         </Col>
         <Col>
-          <Form.Label>点数</Form.Label>
-          <InputGroup className={'mb-3'}>
-            <Form.Control
-              type={'number'}
-              value={problem.point}
-              onChange={(e) => updateProblemPoint(idx, e.target.value)}
-            />
-          </InputGroup>
-        </Col>
-        <Col>
-          <Form.Label>Quizモード</Form.Label>
-          <Form.Switch
-            id={`${problem.id} switch`}
-            type={'switch'}
-            label={'off/on'}
-            defaultChecked={problem.isQuiz}
-            onChange={(e) => {
-              updateProblemQuizMode(idx, e.target.checked);
+          <div
+            style={{
+              height: columnHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
-          />
+          >
+            <OverlayTrigger
+              rootClose={true}
+              trigger={'click'}
+              placement="bottom"
+              overlay={popOver}
+            >
+              <Button variant={'primary'}>答え編集</Button>
+            </OverlayTrigger>
+          </div>
         </Col>
         <Col>
-          <br />
-          <OverlayTrigger
-            rootClose={true}
-            trigger={'click'}
-            placement={'right'}
-            overlay={popOver}
+          <div
+            style={{
+              height: columnHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            <Button variant={'primary'}>答え編集</Button>
-          </OverlayTrigger>
+            <InputGroup className={'mb-3'}>
+              <Form.Control
+                type={'number'}
+                value={problem.point}
+                onChange={(e) => updateProblemPoint(idx, e.target.value)}
+              />{' '}
+            </InputGroup>
+            <p style={{ marginLeft: 12 }}>点</p>
+          </div>
         </Col>
         <Col>
-          <br />
-          <button type={'button'} onClick={addProblem}>
-            +
-          </button>
-          <button type={'button'} onClick={() => eraseProblem(idx)}>
-            -
-          </button>
-          <button
-            type={'button'}
-            onClick={() => rearrangeProblem(idx, UP_REARRANGE)}
+          {' '}
+          <div
+            style={{
+              height: columnHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              textAlign: 'center',
+              fontSize: '1.125rem',
+            }}
           >
-            ↑
-          </button>
-          <button
-            type={'button'}
-            onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}
+            <Form.Switch
+              id={`${problem.id} switch`}
+              type={'switch'}
+              label={'Enable Quiz Mode'}
+              defaultChecked={problem.isQuiz}
+              onChange={(e) => {
+                updateProblemQuizMode(idx, e.target.checked);
+              }}
+            />
+          </div>
+        </Col>
+        <Col>
+          <div
+            style={{
+              height: columnHeight,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
           >
-            ↓
-          </button>
+            <button type={'button'} onClick={addProblem}>
+              +
+            </button>
+            <button type={'button'} onClick={() => eraseProblem(idx)}>
+              -
+            </button>
+            <button
+              type={'button'}
+              onClick={() => rearrangeProblem(idx, UP_REARRANGE)}
+            >
+              ↑
+            </button>
+            <button
+              type={'button'}
+              onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}
+            >
+              ↓
+            </button>
+          </div>
         </Col>
       </Form.Row>
     );
   });
-  return <div>{listGroups}</div>;
+
+  const onDragEnd: OnDragEndResponder = (result) => {
+    const { destination, source, draggableId } = result;
+
+    if (!destination) {
+      return;
+    }
+
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+
+    const newData = Array.from(problems);
+
+    const DraggedData = newData[parseInt(draggableId, 10)];
+
+    newData.splice(source.index, 1);
+
+    newData.splice(destination.index, 0, DraggedData);
+    setProblems(newData);
+  };
+
+  return (
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId="droppable-1">
+        {(provided) => (
+          <div ref={provided.innerRef} {...provided.droppableProps}>
+            {listGroups.map((list, index) => (
+              <Draggable
+                draggableId={index.toString()}
+                key={index}
+                index={index}
+              >
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    style={{
+                      ...provided.draggableProps.style,
+                      height: columnHeight,
+                    }}
+                  >
+                    <h4>{list}</h4>
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
+  );
 };
 EditProblemsElement.propTypes = {
   problems: PropTypes.array.isRequired,
@@ -289,55 +391,75 @@ const ContestEditPage: FC = () => {
   };
 
   return (
-    <div>
-      <p>コンテスト開始後に点数、答え、問題数は変更できません</p>
-      <p>
-        Quizモードにした場合、順位として有効な提出は最初の一回のみとなります
-      </p>
-      <p>問題を選択肢形式にする場合等にご利用下さい</p>
-      <Form>
-        <Form.Row>
-          <Col>
-            <Form.Label>コンテスト説明</Form.Label>
-            <InputGroup className={'mb-3'}>
-              <Form.Control
-                placeholder={'くそなぞなぞコンテストです\n問題が出ます'}
-                as={'textarea'}
-                value={statement}
-                onChange={(e) => {
-                  setStatement(e.target.value);
-                }}
-              />
-            </InputGroup>
-          </Col>
-          <Col>
-            <Form.Label>ペナルティ(秒)</Form.Label>
-            <InputGroup className={'mb-3'}>
-              <Form.Control
-                placeholder={'300'}
-                value={penalty}
-                type={'number'}
-                onChange={(e) => {
-                  setPenalty(e.target.value);
-                }}
-              />
-            </InputGroup>
-          </Col>
-        </Form.Row>
-        <Form.Row>
-          <Col>
-            <Form.Label>問題</Form.Label>
-            <EditProblemsElement
-              problems={problems}
-              setProblems={setProblems}
-            />
-          </Col>
-        </Form.Row>
-        <br />
-        <Button onClick={updateContestInfoFunction} variant={'success'}>
-          確定
-        </Button>
-      </Form>
+    <div style={{ width: 'inherit' }}>
+      <div
+        style={{
+          width: 'full',
+          height: 'full',
+          marginTop: 30,
+
+          padding: 20,
+        }}
+      >
+        <div style={{ color: '#6B7280', lineHeight: '120%' }}>
+          <p>コンテスト開始後に点数、答え、問題数は変更できません</p>
+          <p>
+            Quizモードにした場合、順位として有効な提出は最初の一回のみとなります
+          </p>
+          <p>問題を選択肢形式にする場合等にご利用下さい</p>
+          <p>
+            <span style={{ fontWeight: 700 }}>New</span>: ドラッグ &
+            ドロップで問題順序が入れ替えられるようになりました
+          </p>
+        </div>
+        <div style={{ width: 'full', marginTop: 50 }}>
+          <Form>
+            <Form.Row>
+              <Col>
+                <Form.Label>コンテスト説明</Form.Label>
+                <InputGroup className={'mb-3'}>
+                  <Form.Control
+                    placeholder={'くそなぞなぞコンテストです\n問題が出ます'}
+                    as="textarea"
+                    value={statement}
+                    onChange={(e) => {
+                      setStatement(e.target.value);
+                    }}
+                  />
+                </InputGroup>
+              </Col>
+              <Col>
+                <Form.Label>ペナルティ(秒)</Form.Label>
+                <InputGroup className={'mb-3'}>
+                  <Form.Control
+                    placeholder={'300'}
+                    value={penalty}
+                    type={'number'}
+                    onChange={(e) => {
+                      setPenalty(e.target.value);
+                    }}
+                  />
+                </InputGroup>
+              </Col>
+            </Form.Row>
+            <div style={{ marginTop: 30 }}>
+              <Form.Row>
+                <Col>
+                  <EditProblemsElement
+                    problems={problems}
+                    setProblems={setProblems}
+                  />
+                </Col>
+              </Form.Row>
+            </div>
+            <br />
+            <Button onClick={updateContestInfoFunction} variant={'success'}>
+              確定
+            </Button>
+          </Form>
+        </div>
+      </div>
+      <div style={{ marginBottom: 20 }}></div>
     </div>
   );
 };
