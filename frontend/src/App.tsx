@@ -1,10 +1,13 @@
 import { FC, lazy, Suspense } from 'react';
 import Container from 'react-bootstrap/Container';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import {Footer} from "./components/Footer";
 import { Header } from './components/Header';
 import { AuthenticationProvider } from './contexts/AuthenticationContext';
 import { MainPage } from './pages/MainPage';
 import './App.css';
+import {PolicyPage} from "./pages/PolicyPage";
+import {TermsPage} from "./pages/TermsPage";
 
 const AccountPage = lazy(() => import('./pages/AccountPage'));
 const ContestEditPage = lazy(() => import('./pages/ContestEditPage'));
@@ -20,45 +23,60 @@ export const App: FC = () => {
     <Router>
       <AuthenticationProvider>
         <Header />
-        <Container className="App-container p-3">
-          <Suspense fallback="loading">
-            <Switch>
-              <Route exact key="/" path="/" component={MainPage} />
-              <Route exact key="/login" path="/login" component={LoginPage} />
-              <Route
-                exact
-                key="/signup"
-                path="/signup"
-                component={SignUpPage}
-              />
-              <Route
-                exact
-                key="/ranking"
-                path="/ranking"
-                component={RankingPage}
-              />
-              <Route
-                exact
-                key="/account"
-                path="/account/:id"
-                component={AccountPage}
-              />
-              <Route
-                exact
-                key="/contest"
-                path="/contest/:contestId"
-                component={ContestPage}
-              />
-              <Route
-                exact
-                key="/contestEdit"
-                path="/contest/:contestId/edit"
-                component={ContestEditPage}
-              />
-              <Route component={NotFoundPage} />
-            </Switch>
-          </Suspense>
-        </Container>
+        <main>
+          <Container className="App-container p-3">
+            <Suspense fallback="loading">
+              <Switch>
+                <Route exact key="/" path="/" component={MainPage} />
+                <Route exact key="/login" path="/login" component={LoginPage} />
+                <Route
+                  exact
+                  key="/signup"
+                  path="/signup"
+                  component={SignUpPage}
+                />
+                <Route
+                  exact
+                  key="/ranking"
+                  path="/ranking"
+                  component={RankingPage}
+                />
+                <Route
+                  exact
+                  key="/account"
+                  path="/account/:id"
+                  component={AccountPage}
+                />
+                <Route
+                  exact
+                  key="/contest"
+                  path="/contest/:contestId"
+                  component={ContestPage}
+                />
+                <Route
+                  exact
+                  key="/contestEdit"
+                  path="/contest/:contestId/edit"
+                  component={ContestEditPage}
+                />
+               <Route
+                  exact
+                  key="/terms"
+                  path="/terms"
+                  component={TermsPage}
+                  />
+                <Route
+                  exact
+                  key="/privacy-policy"
+                  path="/privacy-policy"
+                  component={PolicyPage}
+                />
+                <Route component={NotFoundPage} />
+              </Switch>
+            </Suspense>
+          </Container>
+          </main>
+        <Footer />
       </AuthenticationProvider>
     </Router>
   );
