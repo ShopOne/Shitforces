@@ -8,8 +8,10 @@
   },
   "extends": [
     "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
     "plugin:import/errors",
     "plugin:import/warnings",
+    "plugin:import/typescript",
     "plugin:react/recommended",
     "prettier"
   ],
@@ -21,9 +23,11 @@
   "root": true,
   "rules": {
     "@typescript-eslint/no-unused-vars": "error",
-    "import/no-default-export": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    // "import/no-default-export": "error",
+    "max-lines-per-function": ["warn", 100],
     "import/order": [
-      "error",
+      "warn",
       {
         "alphabetize": {
           "order": "asc"
@@ -34,7 +38,15 @@
     "no-unused-vars": "off",
     "no-var": "error",
     "react/jsx-uses-react": "off",
-    "react/react-in-jsx-scope": "off"
+    "react/react-in-jsx-scope": "off",
+    "padding-line-between-statements": [
+      "error",
+      {
+        "blankLine": "always",
+        "prev": "*",
+        "next": "return"
+      }
+    ]
   },
   "settings": {
     "import/resolver": {
