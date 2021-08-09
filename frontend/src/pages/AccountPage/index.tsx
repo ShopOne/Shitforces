@@ -17,17 +17,17 @@ import Tab from 'react-bootstrap/Tab';
 import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
 import { TwitterShareButton, TwitterIcon } from 'react-share';
-import { useAuthentication } from '../contexts/AuthenticationContext';
-import { isValidAccountNameOrPassWord } from '../functions/AccountInfoSubmitValidation';
+import { ADMINISTRATOR } from '../../constants';
+import { useAuthentication } from '../../contexts/AuthenticationContext';
+import { isValidAccountNameOrPassWord } from '../../functions/AccountInfoSubmitValidation';
 import {
   getAccountInformation,
   createContest,
   getAccountContestPartHistory,
-} from '../functions/HttpRequest';
-import { getCookie } from '../functions/getCookie';
-import { getRatingColor } from '../functions/getRatingColor';
-import { AccountContestPartHistory } from '../types';
-import { ADMINISTRATOR } from '../utils/api';
+} from '../../functions/HttpRequest';
+import { getCookie } from '../../functions/getCookie';
+import { getRatingColor } from '../../functions/getRatingColor';
+import { AccountContestPartHistory } from '../../types';
 
 // URL: /account/$accountName
 
@@ -551,5 +551,4 @@ const AccountPage: VFC = () => {
   );
 };
 
-// eslint-disable-next-line import/no-default-export
 export default AccountPage;
