@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {
   VFC,
   useCallback,
@@ -28,6 +27,7 @@ import {
 import { getCookie } from '../functions/getCookie';
 import { getRatingColor } from '../functions/getRatingColor';
 import { AccountContestPartHistory } from '../types';
+import { ADMINISTRATOR } from '../utils/api';
 
 // URL: /account/$accountName
 
@@ -53,9 +53,16 @@ const CreateContestElement: VFC = () => {
   const [creatorList, setCreatorList] = useState<Array<ContestCreator>>(
     initCreatorArray
   );
-  const submitNewContest = () => {
+  const submitNewContest = async () => {
+    const cookieArray = getCookie();
+    const accountName = cookieArray['_sforce_account_name'];
+    const { auth } = await getAccountInformation(accountName || '');
+    if (auth !== ADMINISTRATOR) {
+      alert('権限がありません');
+      return;
+    }
     const contestId = contestIdRef?.current?.value ?? null;
-    const contestName = contestNameRef.current!.value;
+    const contestName = contestNameRef.current?.value;
     const ratedBound = parseInt(ratedBoundRef.current!.value);
     const penalty = parseInt(penaltyRef.current!.value);
     const contestStartTime = new Date(Date.parse(startTimeRef.current!.value));
@@ -103,8 +110,7 @@ const CreateContestElement: VFC = () => {
         alert('コンテストの作成に成功しました');
         window.location.href = '/';
       })
-      .catch((e) => {
-        console.log(e);
+      .catch(() => {
         alert('コンテストの作成に失敗しました');
       });
   };
@@ -299,55 +305,71 @@ const AccountInformationBody: VFC<AccountInformationBodyProps> = ({
 interface AccountRatingChangeHistoryProps {
   name: string;
 }
-const AccountRatingChangeHistory: VFC<AccountRatingChangeHistoryProps> = (
-  props
-) => {
+const AccountRatingChangeHistory: VFC<AccountRatingChangeHistoryProps> = ({
+  name,
+}) => {
   const [histories, setHistories] = useState<AccountContestPartHistory[]>([]);
+  const { accountName } = useAuthentication();
   const getHistory: () => Promise<AccountContestPartHistory[]> = async () => {
-    const rawHistories = await getAccountContestPartHistory(props.name);
+    const rawHistories = await getAccountContestPartHistory(name);
     return rawHistories.sort(
       (a: AccountContestPartHistory, b: AccountContestPartHistory) => {
         return b.indexOfParticipation - a.indexOfParticipation;
       }
     );
   };
+
   useEffect(() => {
-    (async () => {
-      setHistories(await getHistory());
-    })();
-  }, []);
+    const asyncFunction = async () => {
+      const data = await getHistory();
+      setHistories(data);
+    };
+    asyncFunction();
+  }, [window.location.href]);
   const historyTableBody = () => {
     return histories.map((history: AccountContestPartHistory) => {
       const diff = history.newRating - history.prevRating;
-      let sign;
-      if (diff > 0) sign = '+';
-      else if (diff < 0) sign = '-';
-      else sign = '±';
-      const diffText = sign + diff;
+      const getSignedNumber = (number: number): string => {
+        switch (true) {
+          case diff > 0:
+            return `+${number}`;
+          case diff === 0:
+            return `±${number}`;
+          default:
+            return `${number}`;
+        }
+      };
+      const signedNumber = getSignedNumber(diff);
       const resultText =
-        `${props.name}さんの${history.contestName}の結果\n` +
+        `${name}さんの${history.contestName}の結果\n` +
         `パフォーマンス: ${history.performance}\n` +
-        `レーティング: ${history.prevRating} → ${history.newRating}(${diffText})`;
+        `レーティング: ${history.prevRating} → ${history.newRating}(${signedNumber})`;
       return (
-        <tr style={{ textAlign: 'center' }} key={history.indexOfParticipation}>
+        <tr
+          style={{ textAlign: 'center', fontSize: '1.25rem' }}
+          key={history.indexOfParticipation}
+        >
           <td>{history.rank}</td>
           <td>{history.contestName}</td>
           <td>{history.performance}</td>
           <td>{history.newRating}</td>
-          <td>{sign + diff}</td>
-          <td>
-            <TwitterShareButton
-              url={window.location.href}
-              title={resultText}
-              hashtags={['Shitforces', 'くそなぞなぞ']}
-            >
-              <TwitterIcon size={32} round />
-            </TwitterShareButton>
-          </td>
+          <td>{signedNumber}</td>
+          {name === accountName && (
+            <td>
+              <TwitterShareButton
+                url={window.location.href}
+                title={resultText}
+                hashtags={['Shitforces', 'くそなぞなぞ']}
+              >
+                <TwitterIcon size={32} round />
+              </TwitterShareButton>
+            </td>
+          )}
         </tr>
       );
     });
   };
+
   return (
     <div>
       <Table striped bordered hover>
@@ -367,11 +389,6 @@ const AccountRatingChangeHistory: VFC<AccountRatingChangeHistoryProps> = (
       </p>
     </div>
   );
-};
-
-AccountInformationBody.propTypes = {
-  name: PropTypes.string.isRequired,
-  rating: PropTypes.number.isRequired,
 };
 
 const AccountNameChangeForm: VFC = () => {
@@ -450,46 +467,40 @@ interface AccountInfoTabsProps {
   rating: number;
   auth: string;
 }
-const AccountInfoTabs: VFC<AccountInfoTabsProps> = (props) => {
-  const [key, setKey] = useState<string | null>('profile');
+const AccountInfoTabs: VFC<AccountInfoTabsProps> = ({ name, rating, auth }) => {
+  const [selectedTab, setSelectedTab] = useState<string | null>('profile');
   const cookie = getCookie();
-  const tabs = [];
+  const isMe = cookie['_sforce_account_name'] === name;
 
-  tabs.push(
-    <Tab eventKey={'profile'} title={'プロフィール'}>
-      <AccountInformationBody name={props.name} rating={props.rating} />
-    </Tab>
-  );
-
-  tabs.push(
-    <Tab eventKey={'history'} title={'参加履歴'}>
-      <AccountRatingChangeHistory name={props.name} />
-    </Tab>
-  );
-  if (cookie['_sforce_account_name'] === props.name) {
-    tabs.push(
-      <Tab eventKey={'changeName'} title={'アカウント名の変更'}>
-        <AccountNameChangeForm />
+  return (
+    <Tabs
+      id={'account-info-tab'}
+      activeKey={selectedTab}
+      onSelect={(k) => setSelectedTab(k)}
+      className="mb-4"
+    >
+      <Tab eventKey={'profile'} key={'profile'} title={'プロフィール'}>
+        <AccountInformationBody name={name} rating={rating} />
       </Tab>
-    );
-    if (props.auth === 'ADMINISTER') {
-      tabs.push(
-        <Tab eventKey={'createContest'} title={'コンテスト作成'}>
+      <Tab eventKey={'history'} key={'history'} title={'参加履歴'}>
+        <AccountRatingChangeHistory name={name} />
+      </Tab>
+      {isMe && (
+        <Tab eventKey="changeName" key="changeName" title="アカウント名の変更">
+          <AccountNameChangeForm />
+        </Tab>
+      )}
+      {auth === ADMINISTRATOR && (
+        <Tab
+          eventKey="createContest"
+          key="createContest"
+          title="コンテスト作成"
+        >
           <CreateContestElement />
         </Tab>
-      );
-    }
-  }
-  return (
-    <Tabs id={'account-info-tab'} activeKey={key} onSelect={(k) => setKey(k)}>
-      {tabs}
+      )}
     </Tabs>
   );
-};
-AccountInfoTabs.propTypes = {
-  name: PropTypes.string.isRequired,
-  rating: PropTypes.number.isRequired,
-  auth: PropTypes.string.isRequired,
 };
 
 const AccountNotFound: VFC = () => {
@@ -508,31 +519,36 @@ const AccountPage: VFC = () => {
     const splitUrl = window.location.href.split('/');
     return splitUrl[splitUrl.length - 1];
   };
-  const getAccount = useCallback(() => {
-    getAccountInformation(getAccountName())
-      .then((account) => {
-        setName(account.name);
-        setRating(account.rating);
-        setAuth(account.auth);
-      })
-      .catch(() => {
-        setName('');
-        setRating(null);
-      });
-  }, []);
+  const getAccount = async () => {
+    try {
+      setName('');
+      setRating(null);
+      setAuth(null);
+      const { name, rating, auth } = await getAccountInformation(
+        getAccountName()
+      );
+      setName(name);
+      setRating(rating);
+      setAuth(auth);
+    } catch (error) {
+      setName('');
+      setRating(null);
+    }
+  };
 
   useEffect(() => {
     getAccount();
-  }, [getAccountName()]);
+  }, [window.location.href]);
 
-  let page;
-  if (name !== '' && rating !== null) {
-    page = <AccountInfoTabs name={name} rating={rating} auth={auth!} />;
-  } else {
-    page = <AccountNotFound />;
-  }
-
-  return <div>{page}</div>;
+  return (
+    <div>
+      {name !== '' && rating !== null && auth ? (
+        <AccountInfoTabs name={name} rating={rating} auth={auth} />
+      ) : (
+        <AccountNotFound />
+      )}
+    </div>
+  );
 };
 
 // eslint-disable-next-line import/no-default-export
