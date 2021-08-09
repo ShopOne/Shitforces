@@ -21,5 +21,6 @@ export const getRatingColor = (rating: number): string => {
   } else {
     rateColor = 'red';
   }
+
   return rateColor;
 };

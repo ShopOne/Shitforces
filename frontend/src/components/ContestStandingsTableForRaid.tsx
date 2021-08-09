@@ -11,6 +11,7 @@ import {
 function formatSecondToMMSS(ms: number): string {
   const mm = Math.floor(ms / 60);
   const ss = ('00' + Math.floor(ms % 60)).slice(-2);
+
   return `${mm}:${ss}`;
 }
 
@@ -67,6 +68,7 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
             </td>
           );
         }
+
         // timeがnullであることは無いが、コンパイルのため || 0 としている
         return (
           <PlayerStatusOfProblem

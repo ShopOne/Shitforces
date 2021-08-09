@@ -65,6 +65,7 @@ export const ContestStandingsElement: React.FC<Props> = ({
       );
     }
   };
+
   return (
     <>
       <p>{myRank}</p>

@@ -35,6 +35,7 @@ export const PagingElement: React.FC<Props> = ({
     const newPage = parseInt(paramPage, 10);
     if (!isNaN(newPage)) {
       onChange(newPage);
+
       return null;
     }
   }

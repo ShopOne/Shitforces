@@ -24,6 +24,7 @@ const ACCOUNTS_PER_PAGE = 20;
 function formatSecondToMMSS(ms: number): string {
   const mm = Math.floor(ms / 60);
   const ss = ('00' + Math.floor(ms % 60)).slice(-2);
+
   return `${mm}:${ss}`;
 }
 
@@ -76,6 +77,7 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
   isMe,
   problems,
 }) => {
+  //FIXME: Warning: Each child in a list should have a unique "key" prop.
   return (
     <tr className={isMe ? 'table-info' : undefined}>
       <RowTemplate
@@ -93,6 +95,7 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
             </td>
           );
         }
+
         // timeがnullであることは無いが、コンパイルのため || 0 としている
         return (
           <PlayerStatusOfProblem
@@ -150,6 +153,7 @@ export const ContestStandingsTable: FC<Props> = ({
 
     accounts = accounts.sort((a, b) => {
       if (a.rank !== b.rank) return a.rank - b.rank;
+
       return a.penalty - b.penalty;
     });
 
@@ -166,6 +170,7 @@ export const ContestStandingsTable: FC<Props> = ({
   useEffect(() => {
     if (paginationLength === 0) {
       if (paginationIndex !== 0) setPaginationIndex(0);
+
       return;
     }
 
@@ -200,6 +205,7 @@ export const ContestStandingsTable: FC<Props> = ({
         </Pagination.Item>
       );
     }
+
     return items;
   }, [paginationIndex, paginationLength]);
 

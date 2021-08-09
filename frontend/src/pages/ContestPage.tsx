@@ -1,6 +1,7 @@
 import { FC, useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Link } from 'react-router-dom';
+import { ADMINISTRATOR } from '../constants';
 import {
   getAccountInformation,
   getContestInfo,
@@ -9,7 +10,6 @@ import {
   updateContestRating,
 } from '../functions/HttpRequest';
 import { findContestIdFromPath } from '../functions/findContestIdFromPath';
-
 import { getCookie } from '../functions/getCookie';
 import { ProblemInfo, SubmissionInfo } from '../types';
 import { ProblemsTab } from './contestPage/ProblemsTab';
@@ -47,6 +47,7 @@ const ContestPage: FC = () => {
       const contestInfo = await getContestInfo(contestId).catch(() => null);
       if (contestInfo === null) {
         setContestName('コンテストが見つかりません');
+
         return;
       }
       const problems = await getContestProblems(contestId).catch(() => []);
@@ -57,7 +58,7 @@ const ContestPage: FC = () => {
         submissions = await getSubmission(findContestIdFromPath(), accountName);
         const accountInfo = await getAccountInformation(accountName);
         if (
-          accountInfo.auth === 'ADMINISTER' &&
+          accountInfo.auth === ADMINISTRATOR &&
           !contestInfo.ratingCalculated &&
           contestInfo.ratedBound > 0 &&
           contestInfo.unixEndTime < Date.now()
@@ -101,6 +102,7 @@ const ContestPage: FC = () => {
       </Link>
       <p id={'contestPage-contestName'}>{contestName}</p>
       <p>
+        {/* FIXME: <pre> cannot appear as a descendant of <p>.*/}
         <pre>{statement}</pre>
       </p>
       <p id={'contestPage-timeSpan'}>{time}</p>
@@ -114,5 +116,4 @@ const ContestPage: FC = () => {
   );
 };
 
-// eslint-disable-next-line import/no-default-export
 export default ContestPage;

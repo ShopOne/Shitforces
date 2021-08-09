@@ -19,7 +19,7 @@ export const SubmissionTable: React.FC<Props> = ({ submissions }) => {
     arr: SubmissionInfo[],
     unit = SUBMISSIONS_IN_ONE_PAGE
   ) => {
-    let content = [];
+    const content = [];
     for (let i = 0; i * unit <= arr.length; i += 1) {
       content.push(arr.slice(i * unit, Math.min((i + 1) * unit, arr.length)));
     }

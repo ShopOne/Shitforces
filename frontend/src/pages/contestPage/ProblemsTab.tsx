@@ -34,7 +34,7 @@ const ProblemTabElement: VFC<ProblemTabElementProps> = ({
   >([]);
   const [page, setPage] = useState(0);
   const getSubmissionTableOfRaid = () => {
-    const tBody: any[] = [];
+    const tBody: JSX.Element[] = [];
     submissionsOfRaid.forEach(
       (submission: ContestSubmissionOfRaid, index: number) => {
         if (
@@ -64,6 +64,7 @@ const ProblemTabElement: VFC<ProblemTabElementProps> = ({
       );
       cnt++;
     }
+
     return (
       <div style={{ background: '#ccccff', zIndex: 4 }}>
         <Table striped bordered hover>
@@ -111,6 +112,7 @@ const ProblemTabElement: VFC<ProblemTabElementProps> = ({
       </OverlayTrigger>
     );
   };
+
   return (
     <>
       <h6>{'point: ' + problemInfo.point}</h6>
@@ -186,6 +188,7 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
   const getProblemTabList = () => {
     return problems.map((problem, index: number) => {
       const problemTitle = createEnglishIndex(index);
+
       return (
         <Tab
           eventKey={index.toString()}
@@ -226,6 +229,7 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
           }
         }
       });
+
       return tryingArray;
     };
 
@@ -275,7 +279,6 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
       ) : (
         <SubmissionTable submissions={nowSubmissions} />
       )}
-
       <p>{comment}</p>
       <hr />
       <ContestStandingsElement

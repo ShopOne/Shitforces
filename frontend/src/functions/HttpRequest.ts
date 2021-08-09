@@ -39,11 +39,13 @@ export async function httpRequest(
       credentials: 'include',
     };
   }
+
   return await fetch(fetchTo, initState)
     .then((response) => {
       if (!response.ok) {
         throw new Error(response.status.toString());
       }
+
       return response.text();
     })
     .then((val) => {
@@ -66,6 +68,7 @@ export function postSubmission(
     indexOfContest: indexOfContest,
     statement: statement,
   };
+
   return httpRequest(
     '/api/submissions',
     'POST',
@@ -85,6 +88,7 @@ export function getContestStandingsInfo(
   if (page !== null) {
     params.page = page;
   }
+
   return httpRequest(
     `/api/contests/${contestId}/standings`,
     'GET',
@@ -105,11 +109,12 @@ export function getContestInfo(contestId: string): Promise<ContestInfo> {
 /**
  * @param accountName
  */
-export function getAccountInformation(
+export async function getAccountInformation(
   accountName: string
 ): Promise<AccountInfo> {
-  const fetchTo = '/api/account/' + accountName;
-  return httpRequest(fetchTo, 'GET') as Promise<AccountInfo>;
+  const fetchTo = `/api/account/${accountName}`;
+
+  return (await httpRequest(fetchTo, 'GET')) as Promise<AccountInfo>;
 }
 
 /**
@@ -132,6 +137,7 @@ export function getSubmission(
   const param = {
     ['contest_id']: contestId,
   };
+
   return httpRequest(
     `/api/submissions/${accountName}`,
     'GET',
@@ -162,10 +168,11 @@ export function postAccountInformation(
     name: accountName,
     password: password,
   });
+
   return httpRequest(fetchTo, 'POST', jsonBody) as Promise<void>;
 }
 
-export function updateContestRating(contestId: string) {
+export function updateContestRating(contestId: string): Promise<unknown> {
   return httpRequest(`/api/contests/${contestId}/rating`, 'POST');
 }
 
@@ -185,6 +192,7 @@ export function putAccountName(
     name: newAccountName,
     password: password,
   });
+
   return httpRequest(
     `/api/account/${prevAccountName}/name`,
     'PUT',
@@ -211,7 +219,7 @@ export function createContest(
   penalty: number,
   ratedBound: number,
   contestType: string,
-  creators: object
+  creators: any
 ): Promise<void> {
   const param = {
     id: id,
@@ -223,6 +231,7 @@ export function createContest(
     contestType: contestType,
     creators: creators,
   };
+
   return httpRequest(
     '/api/contests',
     'POST',
@@ -248,6 +257,7 @@ export function putContestInfo(
     statement: statement,
     problems: problems,
   };
+
   return httpRequest(
     `/api/contests/${contestId}`,
     'PUT',
@@ -273,6 +283,7 @@ export function patchContestInfo(
     statement: statement,
     problems: problems,
   };
+
   return httpRequest(
     `/api/contests/${contestId}`,
     'PATCH',

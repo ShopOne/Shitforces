@@ -8,5 +8,6 @@ export const createEnglishIndex = (index: number) => {
     alpha += ALPHABETS[index % ALPHABETS_NUM];
     index = Math.floor(index / ALPHABETS_NUM);
   }
+
   return alpha.split('').reverse().join('');
 };
