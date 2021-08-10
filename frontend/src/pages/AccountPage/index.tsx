@@ -1,6 +1,6 @@
 import { useEffect, useState, VFC } from 'react';
 import { getAccountInformation } from '../../functions/HttpRequest';
-import { AccountInfoTabs } from '../AccountInfoTabs';
+import { AccountInfoTabs } from './AccountInfoTabs';
 import { AccountNotFound } from './AccountNotFound';
 
 // URL: /account/$accountName
@@ -37,7 +37,7 @@ const AccountPage: VFC = () => {
 
   return (
     <div>
-      {name !== '' && rating !== null && auth ? (
+      {name && auth && rating !== null ? (
         <AccountInfoTabs name={name} rating={rating} auth={auth} />
       ) : (
         <AccountNotFound />

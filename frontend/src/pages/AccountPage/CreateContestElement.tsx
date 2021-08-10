@@ -7,6 +7,7 @@ import {
 } from '../../functions/HttpRequest';
 import { getCookie } from '../../functions/getCookie';
 
+// eslint-disable-next-line max-lines-per-function
 export const CreateContestElement: VFC = () => {
   class ContestCreator {
     accountName: string;
@@ -45,7 +46,9 @@ export const CreateContestElement: VFC = () => {
     const contestStartTime = new Date(
       Date.parse(startTimeRef.current?.value ?? '')
     );
-    const contestEndTime = new Date(Date.parse(endTimeRef.current!.value));
+    const contestEndTime = new Date(
+      Date.parse(endTimeRef.current?.value ?? '')
+    );
     const adjustedCreatorList = creatorList
       .filter((creator) => creator.accountName !== '')
       .map((creator) => {
@@ -118,46 +121,43 @@ export const CreateContestElement: VFC = () => {
       newCreatorList[idx].position = newPosition;
       setCreatorList(newCreatorList);
     };
-    const listGroups = creatorList.map((creator, idx) => {
-      return (
-        <Form.Row key={creator.id}>
-          <Col>
-            <InputGroup className={'mb-3'}>
-              <Form.Control
-                placeholder={'shop_one'}
-                onChange={(e) => changeName(e.target.value, idx)}
-              />
-            </InputGroup>
-          </Col>
-          <Col>
-            <Form.Group
-              controlId={'creatorPosition'}
-              onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                changePosition(e.target.value, idx)
-              }
-            >
-              <Form.Control as={'select'}>
-                <option>Coordinator</option>
-                <option>Writer</option>
-              </Form.Control>
-            </Form.Group>
-          </Col>
-          <Col>
-            <button type={'button'} onClick={addNewCreator}>
-              +
-            </button>
-            <button type={'button'} onClick={() => eraseCreator(idx)}>
-              -
-            </button>
-          </Col>
-        </Form.Row>
-      );
-    });
 
     return (
       <div>
         <label>コンテスト関係者</label>
-        {listGroups}
+        {creatorList.map((creator, idx) => (
+          <Form.Row key={creator.id}>
+            <Col>
+              <InputGroup className={'mb-3'}>
+                <Form.Control
+                  placeholder={'shop_one'}
+                  onChange={(e) => changeName(e.target.value, idx)}
+                />
+              </InputGroup>
+            </Col>
+            <Col>
+              <Form.Group
+                controlId={'creatorPosition'}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  changePosition(e.target.value, idx)
+                }
+              >
+                <Form.Control as={'select'}>
+                  <option>Coordinator</option>
+                  <option>Writer</option>
+                </Form.Control>
+              </Form.Group>
+            </Col>
+            <Col>
+              <button type={'button'} onClick={addNewCreator}>
+                +
+              </button>
+              <button type={'button'} onClick={() => eraseCreator(idx)}>
+                -
+              </button>
+            </Col>
+          </Form.Row>
+        ))}
       </div>
     );
   };

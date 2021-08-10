@@ -12,8 +12,9 @@ import {
 import { findContestIdFromPath } from '../functions/findContestIdFromPath';
 import { getCookie } from '../functions/getCookie';
 import { ProblemInfo, SubmissionInfo } from '../types';
-import { ProblemsTab } from './contestPage/ProblemsTab';
+
 import './ContestPage.css';
+import { ProblemsTab } from './ContestPage/ProblemsTab';
 
 // URL: /contest/$contestId
 const ContestPage: FC = () => {
