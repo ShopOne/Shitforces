@@ -25,13 +25,11 @@
   },
   "lint-staged": {
     "*.{?(s)css,htm?(l),json,md,y?(a)ml}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.{js?(x),ts?(x)}": [
       "prettier --write",
-      "eslint --fix",
-      "git add"
+      "eslint --fix"
     ]
   },
   "browserslist": {
