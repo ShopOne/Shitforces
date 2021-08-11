@@ -12,5 +12,6 @@ export function isValidAccountNameOrPassWord(text: string) {
   if (strLen < MIN_LENGTH || strLen > MAX_LENGTH) {
     res = false;
   }
+
   return res;
 }

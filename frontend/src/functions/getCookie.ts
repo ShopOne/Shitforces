@@ -11,5 +11,6 @@ export function getCookie(): CookieObject {
       cookieObject[data[0]] = decodeURIComponent(data[1]);
     }
   }
+
   return cookieObject;
 }

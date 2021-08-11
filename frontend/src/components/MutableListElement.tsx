@@ -78,6 +78,7 @@ export const MutableListElement: FC<MutableListElementProps> = ({
       );
     });
   };
+
   return <div>{listElement()}</div>;
 };
 

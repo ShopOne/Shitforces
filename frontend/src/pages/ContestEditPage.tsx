@@ -85,7 +85,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
   };
   const addProblem = () => {
     const newProblems = [...problems];
-    let newId = problems.slice(-1)[0].id + 1;
+    const newId = problems.slice(-1)[0].id + 1;
     newProblems.push(new EditProblemInfo('', newId, 1, [''], false));
     setProblems(newProblems);
   };
@@ -308,7 +308,7 @@ const ContestEditPage: FC = () => {
         () => null
       );
       const cookie = getCookie();
-      let accountName: String | null = null;
+      let accountName: string | null = null;
       if (cookie['_sforce_account_name']) {
         accountName = cookie['_sforce_account_name'];
       }
@@ -330,6 +330,7 @@ const ContestEditPage: FC = () => {
         if (answers[idx].length === 0) {
           answers[idx].push('');
         }
+
         return new EditProblemInfo(
           problem.statement,
           idx,
@@ -367,6 +368,7 @@ const ContestEditPage: FC = () => {
       if (point === undefined) {
         point = 0;
       }
+
       return {
         statement: problem.statement,
         point: point,
