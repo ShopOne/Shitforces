@@ -11,15 +11,25 @@ import type {
   ContestSubmissionOfRaid,
 } from '../types';
 
-export async function httpRequest(
+type Method =
+  | 'GET'
+  | 'HEAD'
+  | 'POST'
+  | 'PUT'
+  | 'DELETE'
+  | 'CONNECT'
+  | 'OPTIONS'
+  | 'PATCH';
+
+export async function httpRequest<T>(
   fetchTo: string,
-  method: string,
+  method: Method,
   params?: any
-): Promise<unknown> {
+): Promise<T> {
   if (process?.env?.REACT_APP_BACKEND_URL !== undefined) {
     fetchTo = process.env.REACT_APP_BACKEND_URL + fetchTo;
   }
-  let initState: any;
+  let initState: RequestInit;
   if (method === 'GET' || method === 'HEAD') {
     if (params !== undefined) {
       fetchTo += '?' + new URLSearchParams(params);
@@ -69,11 +79,11 @@ export function postSubmission(
     statement: statement,
   };
 
-  return httpRequest(
+  return httpRequest<SubmissionResult>(
     '/api/submissions',
     'POST',
     JSON.stringify(param)
-  ) as Promise<SubmissionResult>;
+  );
 }
 
 /**
@@ -114,16 +124,16 @@ export async function getAccountInformation(
 ): Promise<AccountInfo> {
   const fetchTo = `/api/account/${accountName}`;
 
-  return (await httpRequest(fetchTo, 'GET')) as Promise<AccountInfo>;
+  return await httpRequest<AccountInfo>(fetchTo, 'GET');
 }
 
 /**
  * @param page
  */
 export function getLatestContests(page: number): Promise<LatestContestsInfo> {
-  return httpRequest('/api/contests/latest', 'GET', {
+  return httpRequest<LatestContestsInfo>('/api/contests/latest', 'GET', {
     contest_page: page,
-  }) as Promise<LatestContestsInfo>;
+  });
 }
 
 /**
@@ -138,20 +148,21 @@ export function getSubmission(
     ['contest_id']: contestId,
   };
 
-  return httpRequest(
+  return httpRequest<SubmissionInfo[]>(
     `/api/submissions/${accountName}`,
     'GET',
     param
-  ) as Promise<SubmissionInfo[]>;
+  );
 }
 
 /**
  * @param contestId
  */
 export function getContestProblems(contestId: string): Promise<ProblemInfo[]> {
-  return httpRequest(`/api/contests/${contestId}/problems`, 'GET') as Promise<
-    ProblemInfo[]
-  >;
+  return httpRequest<ProblemInfo[]>(
+    `/api/contests/${contestId}/problems`,
+    'GET'
+  );
 }
 
 /**
@@ -169,7 +180,7 @@ export function postAccountInformation(
     password: password,
   });
 
-  return httpRequest(fetchTo, 'POST', jsonBody) as Promise<void>;
+  return httpRequest<void>(fetchTo, 'POST', jsonBody);
 }
 
 export function updateContestRating(contestId: string): Promise<unknown> {
@@ -193,11 +204,11 @@ export function putAccountName(
     password: password,
   });
 
-  return httpRequest(
+  return httpRequest<void>(
     `/api/account/${prevAccountName}/name`,
     'PUT',
     jsonBody
-  ) as Promise<void>;
+  );
 }
 
 /**
@@ -232,11 +243,7 @@ export function createContest(
     creators: creators,
   };
 
-  return httpRequest(
-    '/api/contests',
-    'POST',
-    JSON.stringify(param)
-  ) as Promise<void>;
+  return httpRequest<void>('/api/contests', 'POST', JSON.stringify(param));
 }
 
 /**
@@ -258,11 +265,11 @@ export function putContestInfo(
     problems: problems,
   };
 
-  return httpRequest(
+  return httpRequest<void>(
     `/api/contests/${contestId}`,
     'PUT',
     JSON.stringify(param)
-  ) as Promise<void>;
+  );
 }
 
 /**
@@ -284,18 +291,18 @@ export function patchContestInfo(
     problems: problems,
   };
 
-  return httpRequest(
+  return httpRequest<void>(
     `/api/contests/${contestId}`,
     'PATCH',
     JSON.stringify(param)
-  ) as Promise<void>;
+  );
 }
 
 /**
  * @param id
  */
 export function getProblemAnswer(id: number): Promise<string[]> {
-  return httpRequest(`/api/problems/${id}/answer`, 'GET') as Promise<string[]>;
+  return httpRequest<string[]>(`/api/problems/${id}/answer`, 'GET');
 }
 
 /**
@@ -304,9 +311,9 @@ export function getProblemAnswer(id: number): Promise<string[]> {
 export function getAccountRankingInfo(
   page: number
 ): Promise<AccountRankingInfo> {
-  return httpRequest('/api/ranking', 'GET', {
+  return httpRequest<AccountRankingInfo>('/api/ranking', 'GET', {
     page: page,
-  }) as Promise<AccountRankingInfo>;
+  });
 }
 
 /**
@@ -315,9 +322,10 @@ export function getAccountRankingInfo(
 export function getAccountContestPartHistory(
   accountName: string
 ): Promise<AccountContestPartHistory[]> {
-  return httpRequest(`/api/account/${accountName}/history`, 'GET') as Promise<
-    AccountContestPartHistory[]
-  >;
+  return httpRequest<AccountContestPartHistory[]>(
+    `/api/account/${accountName}/history`,
+    'GET'
+  );
 }
 
 /**
@@ -328,7 +336,11 @@ export function getContestSubmissionsOfRaid(
   contestId: string,
   indexOfContest: number
 ): Promise<ContestSubmissionOfRaid[]> {
-  return httpRequest(`/api/submissions/${contestId}/raid`, 'GET', {
-    index_of_contest: indexOfContest,
-  }) as Promise<ContestSubmissionOfRaid[]>;
+  return httpRequest<ContestSubmissionOfRaid[]>(
+    `/api/submissions/${contestId}/raid`,
+    'GET',
+    {
+      index_of_contest: indexOfContest,
+    }
+  );
 }
