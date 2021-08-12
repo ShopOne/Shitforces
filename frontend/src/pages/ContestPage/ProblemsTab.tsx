@@ -4,6 +4,7 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tab from 'react-bootstrap/Tab';
 import Table from 'react-bootstrap/Table';
 import Tabs from 'react-bootstrap/Tabs';
+import { SelectCallback } from 'react-bootstrap/esm/helpers';
 import { PagingElement } from '../../components/PagingElement';
 import {
   getContestSubmissionsOfRaid,
@@ -13,8 +14,10 @@ import { createEnglishIndex } from '../../functions/createEnglishIndex';
 import { findContestIdFromPath } from '../../functions/findContestIdFromPath';
 import {
   ContestSubmissionOfRaid,
+  ContestType,
   ProblemInfo,
   SubmissionInfo,
+  SubmissionResultType,
 } from '../../types';
 import { AnswerSubmitForm } from './AnswerSubmitForm';
 import { ContestStandingsElement } from './ContestStandingsElement';
@@ -131,23 +134,76 @@ interface ProblemsTabProps {
   contestName: string;
   problems: ProblemInfo[];
   submissions: SubmissionInfo[];
-  contestType: string;
+  contestType: ContestType;
 }
 
-const KEY_OF_MY_SUBMISSIONS = 'mySubmit';
+const KEY_OF_SUBMISSIONS_TAB = 'mySubmit';
 export const ProblemsTab: VFC<ProblemsTabProps> = ({
   problems,
   submissions,
   contestType,
 }) => {
+  const {
+    TAB_ID,
+    selectedTab,
+    selectTab,
+    answerInput,
+    submitAnswer,
+    nowSubmissions,
+    comment,
+    standingsVersion,
+  } = useProblemsTab(problems, submissions);
+
+  return (
+    <>
+      <Tabs id={TAB_ID} activeKey={selectedTab} onSelect={selectTab}>
+        {problems.map((problem, index: number) => (
+          <Tab
+            eventKey={index.toString()}
+            key={problem.indexOfContest}
+            title={createEnglishIndex(index)}
+          >
+            <ProblemTabElement
+              problemInfo={problem}
+              contestType={contestType}
+            />
+          </Tab>
+        ))}
+        <Tab eventKey={'mySubmit'} key={'mySubmit'} title={'自分の提出'} />
+      </Tabs>
+      {selectedTab !== KEY_OF_SUBMISSIONS_TAB ? (
+        <AnswerSubmitForm
+          answerInput={answerInput}
+          submitAnswer={submitAnswer}
+        />
+      ) : (
+        <SubmissionTable submissions={nowSubmissions} />
+      )}
+      <p>{comment}</p>
+      <hr />
+      {/* TODO: contestランキングをリフトアップする。problemsTabとContestStandingsは従属関係にないため。*/}
+      <ContestStandingsElement
+        problems={problems}
+        standingsVersion={standingsVersion}
+        contestType={contestType}
+      />
+    </>
+  );
+};
+
+const useProblemsTab = (
+  problems: ProblemInfo[],
+  submissions: SubmissionInfo[]
+) => {
   const answerInput = createRef<HTMLInputElement>();
   const [comment, setComment] = useState('');
-  const [key, setKey] = useState(KEY_OF_MY_SUBMISSIONS);
+  const [selectedTab, setSelectedTab] = useState(KEY_OF_SUBMISSIONS_TAB);
   const [changeColor, setChangeColor] = useState(true);
   const [firstTabRender, setFirstTabRender] = useState(false);
-  const [nowSubmissions, setNowSubmission] = useState<any[]>([]);
+  const [nowSubmissions, setNowSubmission] = useState<SubmissionInfo[]>([]);
   const [standingsVersion, setStandingsVersion] = useState(0);
   const TAB_ID = 'tabId';
+
   if (
     !firstTabRender &&
     ((problems.length !== 0 && submissions.length !== 0) ||
@@ -165,9 +221,14 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
     }
     setComment('');
 
-    postSubmission(findContestIdFromPath(), key, answerInput.current.value)
+    postSubmission(
+      findContestIdFromPath(),
+      selectedTab,
+      answerInput.current.value
+    )
       .then((submitResult) => {
         const newSubmissions = nowSubmissions.slice();
+
         newSubmissions.unshift(submitResult);
         setNowSubmission(newSubmissions);
         setComment(submitResult.result);
@@ -176,7 +237,7 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
       })
       .catch((e) => {
         if (e.message === '401') {
-          setComment('5秒間隔を空けて提出して下さい'); // このあたりの実装はクライアントで責任をもちたい
+          setComment('5秒間隔を空けて提出して下さい');
         } else if (e.message === '400') {
           setComment('ログインして下さい');
         } else {
@@ -185,26 +246,10 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
       });
   };
 
-  const getProblemTabList = () => {
-    return problems.map((problem, index: number) => {
-      const problemTitle = createEnglishIndex(index);
-
-      return (
-        <Tab
-          eventKey={index.toString()}
-          key={problem.indexOfContest}
-          title={problemTitle}
-        >
-          <ProblemTabElement problemInfo={problem} contestType={contestType} />
-        </Tab>
-      );
-    });
-  };
-
-  const selectTab = (key: any) => {
+  const selectTab: SelectCallback = (key) => {
     setComment('');
     setChangeColor(true);
-    setKey((key ?? '').toString());
+    setSelectedTab((key ?? '').toString());
     if (answerInput.current) {
       answerInput.current.value = '';
     }
@@ -213,24 +258,25 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
   useEffect(() => {
     const getSubmitResultArray = () => {
       //初期化時はprops、そうでない場合nowSubmissionsが新しい値 更新されている場合、要素数が多い
-      let useSubmissions;
-      if (nowSubmissions.length < submissions.length) {
-        useSubmissions = submissions;
-      } else {
-        useSubmissions = nowSubmissions;
-      }
-      const tryingArray = new Array(problems.length).fill('NO_SUB');
-      useSubmissions.map((submit: any) => {
+      const useSubmissions =
+        nowSubmissions.length < submissions.length
+          ? submissions
+          : nowSubmissions;
+
+      const submissionResults: (SubmissionResultType | 'NO_SUB')[] = new Array(
+        problems.length
+      ).fill('NO_SUB');
+      useSubmissions.map((submit: SubmissionInfo) => {
         if (submit.result === 'ACCEPTED') {
-          tryingArray[submit.indexOfContest] = 'ACCEPTED';
+          submissionResults[submit.indexOfContest] = 'ACCEPTED';
         } else if (submit.result === 'WRONG_ANSWER') {
-          if (tryingArray[submit.indexOfContest] === 'NO_SUB') {
-            tryingArray[submit.indexOfContest] = 'WRONG_ANSWER';
+          if (submissionResults[submit.indexOfContest] === 'NO_SUB') {
+            submissionResults[submit.indexOfContest] = 'WRONG_ANSWER';
           }
         }
       });
 
-      return tryingArray;
+      return submissionResults;
     };
 
     const setColor = () => {
@@ -238,17 +284,16 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
       problems.map((_: ProblemInfo, index: number) => {
         const element = document.getElementById(TAB_ID + '-tab-' + index);
         element?.classList.remove('bg-success', 'text-white', 'bg-warning');
-        if (submitResult) {
-          switch (submitResult[index]) {
-            case 'ACCEPTED':
-              element?.classList.add('bg-success');
-              element?.classList.add('text-white');
-              break;
-            case 'WRONG_ANSWER':
-              element?.classList.add('bg-warning');
-              element?.classList.add('text-white');
-              break;
-          }
+
+        switch (submitResult[index]) {
+          case 'ACCEPTED':
+            element?.classList.add('bg-success');
+            element?.classList.add('text-white');
+            break;
+          case 'WRONG_ANSWER':
+            element?.classList.add('bg-warning');
+            element?.classList.add('text-white');
+            break;
         }
       });
     };
@@ -263,29 +308,16 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
   useEffect(() => {
     const ele = answerInput.current;
     ele?.focus();
-  }, [key]);
+  }, [selectedTab]);
 
-  return (
-    <div>
-      <Tabs id={TAB_ID} activeKey={key} onSelect={selectTab}>
-        {getProblemTabList()}
-        <Tab eventKey={'mySubmit'} key={'mySubmit'} title={'自分の提出'} />
-      </Tabs>
-      {key !== KEY_OF_MY_SUBMISSIONS ? (
-        <AnswerSubmitForm
-          answerInput={answerInput}
-          submitAnswer={submitAnswer}
-        />
-      ) : (
-        <SubmissionTable submissions={nowSubmissions} />
-      )}
-      <p>{comment}</p>
-      <hr />
-      <ContestStandingsElement
-        problems={problems}
-        standingsVersion={standingsVersion}
-        contestType={contestType}
-      />
-    </div>
-  );
+  return {
+    TAB_ID,
+    selectedTab,
+    selectTab,
+    answerInput,
+    submitAnswer,
+    nowSubmissions,
+    comment,
+    standingsVersion,
+  };
 };

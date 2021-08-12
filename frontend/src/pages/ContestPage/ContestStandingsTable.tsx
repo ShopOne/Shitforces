@@ -8,25 +8,19 @@ import React, {
   useState,
 } from 'react';
 import Alert from 'react-bootstrap/Alert';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
 import Pagination from 'react-bootstrap/Pagination';
 import Table from 'react-bootstrap/Table';
-import { createEnglishIndex } from '../functions/createEnglishIndex';
+import Button from 'react-bootstrap/esm/Button';
+import { createEnglishIndex } from '../../functions/createEnglishIndex';
+import { formatSecondToMMSS } from '../../functions/formatSecondToMMSS';
 import {
   ProblemInfo,
   ContestStandingsInfo,
   AccountInfoOnContestStandings,
-} from '../types';
+} from '../../types';
+import SearchBar from './SearchBar';
 
 const ACCOUNTS_PER_PAGE = 20;
-
-function formatSecondToMMSS(ms: number): string {
-  const mm = Math.floor(ms / 60);
-  const ss = ('00' + Math.floor(ms % 60)).slice(-2);
-
-  return `${mm}:${ss}`;
-}
 
 interface ContestStandingsTableRowProps {
   account: AccountInfoOnContestStandings;
@@ -110,84 +104,58 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
   );
 };
 
-interface Props {
-  myAccountName: string | null;
-  problems: ProblemInfo[];
-  standings: ContestStandingsInfo;
-}
-
-export const ContestStandingsTable: FC<Props> = ({
-  myAccountName,
-  problems,
-  standings,
-}) => {
+const useContestStandingsTable = (
+  problems: ProblemInfo[],
+  standings: ContestStandingsInfo,
+  myAccountName: string | null
+) => {
   const [accountNameToSearch, setAccountNameToSearch] = useState('');
-
+  const [paginationIndex, setPaginationIndex] = useState(0);
   const onChangeAccountName = useCallback<ChangeEventHandler<HTMLInputElement>>(
     (event) => {
+      event.preventDefault();
       setAccountNameToSearch(event.target.value);
     },
     []
   );
 
-  const onClickReset = useCallback(() => {
-    setAccountNameToSearch('');
-  }, []);
+  const onClickReset = useCallback(() => setAccountNameToSearch(''), []);
 
-  const sortedProblems = useMemo(
-    () => problems.sort((a, b) => a.indexOfContest - b.indexOfContest),
-    [problems]
-  );
-
-  const filteredAccounts = useMemo(() => {
+  const SearchResult = useMemo(() => {
     const uniqueAccounts = new Map<string, AccountInfoOnContestStandings>();
     for (const account of standings.accountStandings) {
       uniqueAccounts.set(account.accountName, account);
     }
 
-    let accounts = Array.from(uniqueAccounts.values());
+    const allUsername = Array.from(uniqueAccounts.values());
 
-    accounts = accounts.filter((v) =>
+    const matchedUser = allUsername.filter((v) =>
       v.accountName.startsWith(accountNameToSearch)
     );
 
-    accounts = accounts.sort((a, b) => {
+    const sortedMatchedUser = matchedUser.sort((a, b) => {
       if (a.rank !== b.rank) return a.rank - b.rank;
 
       return a.penalty - b.penalty;
     });
 
-    return accounts;
+    return sortedMatchedUser;
   }, [standings.accountStandings, accountNameToSearch]);
 
   const paginationLength = useMemo(
-    () => Math.ceil(filteredAccounts.length / ACCOUNTS_PER_PAGE),
-    [filteredAccounts.length]
+    () => Math.ceil(SearchResult.length / ACCOUNTS_PER_PAGE),
+    [SearchResult.length]
   );
-
-  const [paginationIndex, setPaginationIndex] = useState(0);
-
-  useEffect(() => {
-    if (paginationLength === 0) {
-      if (paginationIndex !== 0) setPaginationIndex(0);
-
-      return;
-    }
-
-    if (paginationLength <= paginationIndex) {
-      setPaginationIndex(paginationLength - 1);
-    }
-  }, [paginationIndex, paginationLength]);
 
   const paginatedAccounts = useMemo(
     () =>
-      filteredAccounts.filter(
+      SearchResult.filter(
         (v, i) =>
           (paginationIndex * ACCOUNTS_PER_PAGE <= i &&
             i < (paginationIndex + 1) * ACCOUNTS_PER_PAGE) ||
           v.accountName === myAccountName
       ),
-    [myAccountName, filteredAccounts, paginationIndex]
+    [myAccountName, SearchResult, paginationIndex]
   );
 
   const paginationItems = useMemo(() => {
@@ -209,6 +177,100 @@ export const ContestStandingsTable: FC<Props> = ({
     return items;
   }, [paginationIndex, paginationLength]);
 
+  useEffect(() => {
+    if (paginationLength === 0) {
+      if (paginationIndex !== 0) setPaginationIndex(0);
+
+      return;
+    }
+
+    if (paginationLength <= paginationIndex) {
+      setPaginationIndex(paginationLength - 1);
+    }
+  }, [paginationIndex, paginationLength]);
+
+  return {
+    onChangeAccountName,
+    accountNameToSearch,
+    onClickReset,
+    paginatedAccounts,
+    paginationItems,
+  };
+};
+
+interface Props {
+  myAccountName: string | null;
+  problems: ProblemInfo[];
+  standings: ContestStandingsInfo;
+  getStandings: () => void;
+}
+
+export const ContestStandingsTable: FC<Props> = ({
+  myAccountName,
+  problems,
+  standings,
+  getStandings,
+}) => {
+  const {
+    onChangeAccountName,
+    accountNameToSearch,
+    paginatedAccounts,
+    paginationItems,
+  } = useContestStandingsTable(problems, standings, myAccountName);
+
+  if (problems.length && problems.length !== standings.acPerSubmit.length) {
+    return <Alert variant="danger">Error</Alert>;
+  }
+
+  return (
+    <>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          margin: 40,
+          height: 30,
+        }}
+      >
+        <SearchBar
+          changeAccountName={onChangeAccountName}
+          searchTerm={accountNameToSearch}
+        />
+        <Button onClick={getStandings} variant="secondary">
+          ランキング更新
+        </Button>
+      </div>
+      <StandingsTable
+        standings={standings}
+        problems={problems}
+        paginatedAccounts={paginatedAccounts}
+        myAccountName={myAccountName}
+      />
+
+      <Pagination className="justify-content-center">
+        {paginationItems}
+      </Pagination>
+      <div className="mb-4" />
+    </>
+  );
+};
+
+type StandingsTableProps = {
+  standings: ContestStandingsInfo;
+  problems: ProblemInfo[];
+  paginatedAccounts: AccountInfoOnContestStandings[];
+  myAccountName: string | null;
+};
+const StandingsTable: VFC<StandingsTableProps> = ({
+  standings,
+  problems,
+  paginatedAccounts,
+  myAccountName,
+}) => {
+  const sortedProblems = useMemo(
+    () => problems.sort((a, b) => a.indexOfContest - b.indexOfContest),
+    [problems]
+  );
   const firstAcceptRow = useMemo(
     () => (
       <tr className="small text-center text-nowrap">
@@ -252,65 +314,33 @@ export const ContestStandingsTable: FC<Props> = ({
     [standings.acPerSubmit]
   );
 
-  if (problems.length && problems.length !== standings.acPerSubmit.length) {
-    return <Alert variant="danger">Error</Alert>;
-  }
-
   return (
-    <>
-      <div className="mb-4">
-        <Form inline>
-          <Form.Label
-            className="mr-2"
-            htmlFor="contest-standings-table-form-username"
-          >
-            ユーザ名
-          </Form.Label>
-          <Form.Control
-            className="mr-2"
-            id="contest-standings-table-form-username"
-            onChange={onChangeAccountName}
-            value={accountNameToSearch}
-          />
-          <Button onClick={onClickReset} variant="secondary">
-            リセット
-          </Button>
-        </Form>
-      </div>
-
-      <Table size="sm" striped bordered hover responsive>
-        <thead>
-          <tr className="text-center text-nowrap">
-            <th style={{ minWidth: '3em' }}>順位</th>
-            <th style={{ minWidth: '10em' }}>ユーザ</th>
-            <th style={{ minWidth: '4em' }}>得点</th>
-            {sortedProblems.map((problem) => (
-              <th key={problem.id} style={{ minWidth: '4em' }}>
-                {createEnglishIndex(problem.indexOfContest)}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {acPerSubmitRow}
-          {paginatedAccounts.map((account, i) => (
-            <ContestStandingsTableRow
-              key={i}
-              account={account}
-              problems={sortedProblems}
-              isMe={account.accountName === myAccountName}
-            />
+    <Table size="sm" striped bordered hover responsive>
+      <thead>
+        <tr className="text-center text-nowrap">
+          <th style={{ minWidth: '3em' }}>順位</th>
+          <th style={{ minWidth: '10em' }}>ユーザ</th>
+          <th style={{ minWidth: '4em' }}>得点</th>
+          {standings.acPerSubmit.map((_, index) => (
+            <th key={index} style={{ minWidth: '4em' }}>
+              {createEnglishIndex(index)}
+            </th>
           ))}
-          {firstAcceptRow}
-        </tbody>
-        <tfoot>{acPerSubmitRow}</tfoot>
-      </Table>
-
-      <div className="mb-4">
-        <Pagination className="justify-content-center">
-          {paginationItems}
-        </Pagination>
-      </div>
-    </>
+        </tr>
+      </thead>
+      <tbody>
+        {acPerSubmitRow}
+        {paginatedAccounts.map((account, i) => (
+          <ContestStandingsTableRow
+            key={i}
+            account={account}
+            problems={sortedProblems}
+            isMe={account.accountName === myAccountName}
+          />
+        ))}
+        {firstAcceptRow}
+      </tbody>
+      <tfoot>{acPerSubmitRow}</tfoot>
+    </Table>
   );
 };
