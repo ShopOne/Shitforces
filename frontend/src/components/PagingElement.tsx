@@ -12,7 +12,6 @@ interface Props {
 
 export const PagingElement: React.FC<Props> = memo(
   ({ totalPages, currentPage, onChange, marginPx, savePaging }) => {
-    console.log('rendered');
     const pageArr = [...Array(totalPages)].map((_, idx) => idx);
     const params = new URLSearchParams(window.location.search);
     const paramPage = params.get('page');
