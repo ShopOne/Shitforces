@@ -3,11 +3,18 @@ export interface ContestCreator {
   contestId: string;
   position: string;
 }
+
+interface authorities {
+  GENERAL_USER: 'GENERAL';
+  ADMINISTRATOR: 'ADMINISTER';
+}
+
+export type authority = authorities[keyof authorities];
 export interface AccountInfo {
   name: string;
   rating: number;
   partNum: number;
-  auth: string;
+  auth: authority;
 }
 
 export interface SubmissionResult {

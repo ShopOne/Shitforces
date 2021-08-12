@@ -102,7 +102,7 @@ const useContestPage = () => {
       problems(contestId: string) {
         return getContestProblems(contestId);
       },
-      submissions(contestId: string, accountName: string | undefined) {
+      submissions(accountName: string | undefined) {
         if (accountName === undefined) return [];
 
         return getSubmission(findContestIdFromPath(), accountName);
@@ -123,12 +123,12 @@ const useContestPage = () => {
       return Promise.all([
         request.contestInfo(contestId),
         request.problems(contestId),
-        request.submissions(contestId, accountName),
+        request.submissions(accountName),
         request.accountInfo(accountName),
       ]);
     };
 
-    const asyncFunctions = async () => {
+    const fetchData = async () => {
       const cookieArray = getCookie();
       const accountName = cookieArray['_sforce_account_name'];
       const resources = await fetchResources(contestId, accountName).catch(
@@ -138,8 +138,9 @@ const useContestPage = () => {
       );
 
       if (resources === undefined || resources?.includes(null)) {
-        // TODO: どれがnullかに応じた正しい対応をつくる
-        return setContestName('コンテストが見つかりません');
+        if (!(resources && resources[0])) {
+          return setContestName('コンテストが見つかりません');
+        }
       }
 
       const [contestInfo, problems, submissions, accountInfo] = resources;
@@ -156,11 +157,13 @@ const useContestPage = () => {
           accountInfo: AccountInfo,
           contestInfo: ContestInfo
         ) => {
+          const isRated = (rateBound: number) => rateBound > 0;
+
           return (
             accountInfo.auth === ADMINISTRATOR &&
             !contestInfo.ratingCalculated &&
-            contestInfo.ratedBound > 0 &&
-            contestInfo.unixEndTime < Date.now()
+            contestInfo.unixEndTime < Date.now() &&
+            isRated(contestInfo.ratedBound)
           );
         };
 
@@ -177,7 +180,7 @@ const useContestPage = () => {
       }
     };
 
-    asyncFunctions();
+    fetchData();
   }, []);
 
   return {
