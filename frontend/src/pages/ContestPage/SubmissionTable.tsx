@@ -45,10 +45,10 @@ export const SubmissionTable: React.FC<Props> = ({ submissions }) => {
     return pagedContent[page].map((submit, idx: number) => {
       return (
         <tr key={idx}>
-          <td key={idx + 'idx'}>{createEnglishIndex(submit.indexOfContest)}</td>
-          <td key={idx + 'stm'}>{submit.statement}</td>
-          <td key={idx + 'res'}>{submit.result}</td>
-          <td key={idx + 'time'}>{submit.submitTimeAMPM}</td>
+          <td key={`${idx}idx`}>{createEnglishIndex(submit.indexOfContest)}</td>
+          <td key={`${idx}stm`}>{submit.statement}</td>
+          <td key={`${idx}res`}>{submit.result}</td>
+          <td key={`${idx}time`}>{submit.submitTimeAMPM}</td>
         </tr>
       );
     });
