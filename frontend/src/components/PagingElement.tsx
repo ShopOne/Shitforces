@@ -38,7 +38,7 @@ export const PagingElement: React.FC<Props> = memo(
     let style = {};
     if (marginPx !== undefined) {
       style = {
-        margin: marginPx + 'px',
+        margin: `${marginPx}px`,
       };
     }
 

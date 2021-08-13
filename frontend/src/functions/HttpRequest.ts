@@ -32,7 +32,7 @@ export async function httpRequest<T>(
   let initState: RequestInit;
   if (method === 'GET' || method === 'HEAD') {
     if (params !== undefined) {
-      fetchTo += '?' + new URLSearchParams(params);
+      fetchTo += `?${new URLSearchParams(params)}`;
     }
     initState = {
       mode: 'cors',
@@ -94,26 +94,22 @@ export function getContestStandingsInfo(
   page: number | null,
   contestId: string
 ): Promise<ContestStandingsInfo> {
-  const params: any = {};
+  interface RequestInit {
+    page?: number | null;
+  }
+  const params: RequestInit = {};
   if (page !== null) {
     params.page = page;
   }
 
-  return httpRequest(
-    `/api/contests/${contestId}/standings`,
-    'GET',
-    params
-  ) as Promise<ContestStandingsInfo>;
+  return httpRequest(`/api/contests/${contestId}/standings`, 'GET', params);
 }
 
 /**
  * @param contestId コンテスト短縮名(urlの名前)
  */
 export function getContestInfo(contestId: string): Promise<ContestInfo> {
-  return httpRequest(
-    `/api/contests/${contestId}`,
-    'GET'
-  ) as Promise<ContestInfo>;
+  return httpRequest(`/api/contests/${contestId}`, 'GET');
 }
 
 /**

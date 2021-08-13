@@ -59,7 +59,7 @@ const ProblemTabElement: VFC<ProblemTabElementProps> = ({
     while (tBody.length < SUBMISSION_IN_ONE_PAGE) {
       // : を含む提出は出来ないのでkeyは被らない
       tBody.push(
-        <tr key={cnt + ':'}>
+        <tr key={`${cnt}:`}>
           <td style={{ visibility: 'hidden' }}>{'A'}</td>
           <td style={{ visibility: 'hidden' }}>{'B'}</td>
           <td style={{ visibility: 'hidden' }}>{'C'}</td>
@@ -118,7 +118,7 @@ const ProblemTabElement: VFC<ProblemTabElementProps> = ({
 
   return (
     <>
-      <h6>{'point: ' + problemInfo.point}</h6>
+      <h6>{`point: ${problemInfo.point}`}</h6>
       {problemInfo.quiz ? (
         <h4 style={{ color: 'red' }}>※この問題は最初の提出のみ有効です！！</h4>
       ) : null}
@@ -282,7 +282,7 @@ const useProblemsTab = (
     const setColor = () => {
       const submitResult = getSubmitResultArray();
       problems.map((_: ProblemInfo, index: number) => {
-        const element = document.getElementById(TAB_ID + '-tab-' + index);
+        const element = document.getElementById(`${TAB_ID}-tab-${index}`);
         element?.classList.remove('bg-success', 'text-white', 'bg-warning');
 
         switch (submitResult[index]) {
