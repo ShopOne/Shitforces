@@ -3,18 +3,37 @@ export interface ContestCreator {
   contestId: string;
   position: string;
 }
+
+interface authorities {
+  GENERAL_USER: 'GENERAL';
+  ADMINISTRATOR: 'ADMINISTER';
+}
+
+export type authority = authorities[keyof authorities];
 export interface AccountInfo {
   name: string;
   rating: number;
   partNum: number;
-  auth: string;
+  auth: authority;
 }
 
 export interface SubmissionResult {
-  result: string;
+  result: SubmissionResultType;
   statement: string;
   submitTime: string;
+  submitTimeAMPM: string;
+  contestId: string;
+  indexOfContest: number;
+  accountName: string;
 }
+
+interface SubmissionResults {
+  ACCEPTED: 'ACCEPTED';
+  WRONG_ANSWER: 'WRONG_ANSWER';
+  WAITING_JUDGE: 'WAITING_JUDGE';
+  UNDEFINED: 'UNDEFINED';
+}
+export type SubmissionResultType = SubmissionResults[keyof SubmissionResults];
 
 export interface ContestStandingsInfo {
   /**
@@ -82,7 +101,7 @@ export interface ContestInfo {
   /**
    * コンテスト形式 ICPC,AtCoder形式など
    */
-  contestType: string;
+  contestType: ContestType;
   /**
    * rated上限 0ならばunrated
    */
@@ -123,7 +142,7 @@ export interface SubmissionInfo {
    */
   submitTime: string;
   submitTimeAMPM: string;
-  result: string;
+  result: SubmissionResultType;
 }
 
 export interface ProblemInfo {
@@ -185,3 +204,18 @@ export interface ContestSubmissionOfRaid {
   submitCount: number;
   accepted: boolean;
 }
+
+export interface ContestTypes {
+  ICPC: 'ICPC';
+  ATCODER: 'AtCoder';
+  RAID: 'RAID';
+  INVALID: 'INVALID';
+}
+
+export type ContestType = ContestTypes[keyof ContestTypes];
+
+//TODO: ContestTypeが正常に動作するtestに追加
+// export const raid: ContestType = 'RAID';
+// export const atcoder: ContestType = 'ATCODER';
+// export const omc: ContestType = 'OMC';
+// export const icfpc: ContestType = 'icfpc';

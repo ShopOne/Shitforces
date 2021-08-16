@@ -1,16 +1,16 @@
 import React, { FC, VFC, useMemo } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Table from 'react-bootstrap/Table';
-import { createEnglishIndex } from '../functions/createEnglishIndex';
+import { createEnglishIndex } from '../../functions/createEnglishIndex';
 import {
   ProblemInfo,
   ContestStandingsInfo,
   AccountInfoOnContestStandings,
-} from '../types';
+} from '../../types';
 
 function formatSecondToMMSS(ms: number): string {
   const mm = Math.floor(ms / 60);
-  const ss = ('00' + Math.floor(ms % 60)).slice(-2);
+  const ss = `00${Math.floor(ms % 60)}`.slice(-2);
 
   return `${mm}:${ss}`;
 }
@@ -145,9 +145,9 @@ export const ContestStandingsTableForRaid: FC<Props> = ({
         <thead>
           <tr className="text-center text-nowrap">
             <th style={{ minWidth: '4em' }}>得点</th>
-            {problems.map((problem) => (
-              <th key={problem.id} style={{ minWidth: '4em' }}>
-                {createEnglishIndex(problem.indexOfContest)}
+            {standings.acPerSubmit.map((_, index) => (
+              <th key={index} style={{ minWidth: '4em' }}>
+                {createEnglishIndex(index)}
               </th>
             ))}
           </tr>

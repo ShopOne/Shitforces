@@ -12,7 +12,7 @@ import { TermsPage } from './pages/TermsPage';
 const AccountPage = lazy(() => import(`./pages/AccountPage/index`));
 const ContestEditPage = lazy(() => import('./pages/ContestEditPage'));
 const ContestPage = lazy(
-  () => import(/* webpackPrefetch: true */ './pages/ContestPage')
+  () => import(/* webpackPrefetch: true */ `./pages/ContestPage/index`)
 );
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));

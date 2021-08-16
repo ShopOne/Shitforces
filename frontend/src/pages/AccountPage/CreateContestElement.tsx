@@ -7,7 +7,6 @@ import {
 } from '../../functions/HttpRequest';
 import { getCookie } from '../../functions/getCookie';
 
-// eslint-disable-next-line max-lines-per-function
 export const CreateContestElement: VFC = () => {
   class ContestCreator {
     accountName: string;

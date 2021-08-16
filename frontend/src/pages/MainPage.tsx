@@ -1,4 +1,4 @@
-import { VFC, useEffect, useState } from 'react';
+import { VFC, useEffect, useState, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
@@ -15,12 +15,15 @@ const ContestList: VFC = () => {
   const [pageNum, setPageNum] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const updatePage = (newPage: number) => {
-    getLatestContests(newPage).then((latestContestsInfo) => {
-      setContests(latestContestsInfo.contests);
-      setCurrentPage(newPage);
-    });
-  };
+  const updatePage = useCallback(
+    (newPage: number) => {
+      getLatestContests(newPage).then((latestContestsInfo) => {
+        setContests(latestContestsInfo.contests);
+        setCurrentPage(newPage);
+      });
+    },
+    [pageNum]
+  );
 
   useEffect(() => {
     getLatestContests(0).then((latestContestsInfo) => {

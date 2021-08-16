@@ -9,7 +9,7 @@ import { AccountContestPartHistory } from '../../types';
 interface AccountRatingChangeHistoryProps {
   name: string;
 }
-// eslint-disable-next-line max-lines-per-function
+
 export const AccountRatingChangeHistory: VFC<AccountRatingChangeHistoryProps> = ({
   name,
 }) => {

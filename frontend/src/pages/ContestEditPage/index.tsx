@@ -12,18 +12,18 @@ import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
-import { MutableListElement } from '../components/MutableListElement';
+import { MutableListElement } from '../../components/MutableListElement';
 import {
   getContestInfo,
   getContestProblems,
   getProblemAnswer,
   patchContestInfo,
   putContestInfo,
-} from '../functions/HttpRequest';
-import { findContestIdFromPath } from '../functions/findContestIdFromPath';
-import { getCookie } from '../functions/getCookie';
-import { isMobile } from '../functions/isMobile';
-import { ContestCreator } from '../types';
+} from '../../functions/HttpRequest';
+import { findContestIdFromPath } from '../../functions/findContestIdFromPath';
+import { getCookie } from '../../functions/getCookie';
+import { isMobile } from '../../functions/isMobile';
+import { ContestCreator, ProblemInfo } from '../../types';
 import './ContestEditPage.css';
 
 // URL: /contest/$contestName/edit
@@ -52,6 +52,7 @@ interface EditProblemsElementProps {
   problems: EditProblemInfo[];
   setProblems(problems: EditProblemInfo[]): void;
 }
+
 const EditProblemsElement: FC<EditProblemsElementProps> = ({
   problems,
   setProblems,
@@ -300,6 +301,7 @@ const ContestEditPage: FC = () => {
   const [penalty, setPenalty] = useState<string>('');
   const [problems, setProblems] = useState<EditProblemInfo[]>([]);
   const [startTime, setStartTime] = useState<number>(0);
+
   useEffect(() => {
     (async () => {
       const contestId = findContestIdFromPath();
@@ -308,10 +310,8 @@ const ContestEditPage: FC = () => {
         () => null
       );
       const cookie = getCookie();
-      let accountName: string | null = null;
-      if (cookie['_sforce_account_name']) {
-        accountName = cookie['_sforce_account_name'];
-      }
+      const accountName = cookie['_sforce_account_name'] ?? null;
+
       if (
         !contestInfo ||
         !contestProblems ||
@@ -326,19 +326,21 @@ const ContestEditPage: FC = () => {
           return getProblemAnswer(problem.id);
         })
       );
-      const problems = contestProblems.map((problem: any, idx: number) => {
-        if (answers[idx].length === 0) {
-          answers[idx].push('');
-        }
+      const problems = contestProblems.map(
+        (problem: ProblemInfo, idx: number) => {
+          if (answers[idx].length === 0) {
+            answers[idx].push('');
+          }
 
-        return new EditProblemInfo(
-          problem.statement,
-          idx,
-          problem.point,
-          answers[idx],
-          problem.quiz
-        );
-      });
+          return new EditProblemInfo(
+            problem.statement,
+            idx,
+            problem.point,
+            answers[idx],
+            problem.quiz
+          );
+        }
+      );
       if (problems.length === 0) {
         problems.push(new EditProblemInfo('', 0, 1, [''], false));
       }
@@ -399,7 +401,6 @@ const ContestEditPage: FC = () => {
           width: 'full',
           height: 'full',
           marginTop: 30,
-
           padding: 20,
         }}
       >
@@ -466,5 +467,4 @@ const ContestEditPage: FC = () => {
   );
 };
 
-// eslint-disable-next-line import/no-default-export
 export default ContestEditPage;
