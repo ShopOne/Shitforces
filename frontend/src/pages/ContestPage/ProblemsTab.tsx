@@ -152,6 +152,7 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
     nowSubmissions,
     comment,
     standingsVersion,
+    myScore,
   } = useProblemsTab(problems, submissions);
 
   return (
@@ -177,7 +178,7 @@ export const ProblemsTab: VFC<ProblemsTabProps> = ({
           submitAnswer={submitAnswer}
         />
       ) : (
-        <SubmissionTable submissions={nowSubmissions} />
+        <SubmissionTable submissions={nowSubmissions} score={myScore} />
       )}
       <p>{comment}</p>
       <hr />
@@ -202,6 +203,7 @@ const useProblemsTab = (
   const [firstTabRender, setFirstTabRender] = useState(false);
   const [nowSubmissions, setNowSubmission] = useState<SubmissionInfo[]>([]);
   const [standingsVersion, setStandingsVersion] = useState(0);
+  const [myScore, setMyScore] = useState(0);
   const TAB_ID = 'tabId';
 
   if (
@@ -279,9 +281,10 @@ const useProblemsTab = (
       return submissionResults;
     };
 
+    let sumScore = 0;
     const setColor = () => {
       const submitResult = getSubmitResultArray();
-      problems.map((_: ProblemInfo, index: number) => {
+      problems.map((problemInfo: ProblemInfo, index: number) => {
         const element = document.getElementById(`${TAB_ID}-tab-${index}`);
         element?.classList.remove('bg-success', 'text-white', 'bg-warning');
 
@@ -289,6 +292,7 @@ const useProblemsTab = (
           case 'ACCEPTED':
             element?.classList.add('bg-success');
             element?.classList.add('text-white');
+            sumScore += problemInfo.point;
             break;
           case 'WRONG_ANSWER':
             element?.classList.add('bg-warning');
@@ -300,6 +304,7 @@ const useProblemsTab = (
     setColor();
     setChangeColor(false);
     setFirstTabRender(false);
+    setMyScore(sumScore);
     //初期化時のみ
     if (nowSubmissions.length === 0) {
       setNowSubmission(submissions);
@@ -319,5 +324,6 @@ const useProblemsTab = (
     nowSubmissions,
     comment,
     standingsVersion,
+    myScore,
   };
 };

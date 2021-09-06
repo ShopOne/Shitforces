@@ -7,9 +7,10 @@ import { SubmissionInfo } from '../../types';
 
 interface Props {
   submissions: SubmissionInfo[];
+  score: number;
 }
 
-export const SubmissionTable: React.FC<Props> = ({ submissions }) => {
+export const SubmissionTable: React.FC<Props> = ({ submissions, score }) => {
   const [page, setPage] = useState(0);
 
   const SUBMISSIONS_IN_ONE_PAGE = 5;
@@ -56,6 +57,7 @@ export const SubmissionTable: React.FC<Props> = ({ submissions }) => {
 
   return (
     <div>
+      <p>{`合計得点: ${score}`}</p>
       <Table striped bordered hover>
         <thead>
           <tr>
