@@ -14,6 +14,7 @@ class SharedContestStandingsService {
         val name: String,
         val submitTime: List<Int?>,
         val isAcceptList: List<Boolean>,
+        val penaltySubmitCountList: List<Int>,
         val penaltyOfWrong: Int
     )
     private fun setRankToAccountInfosOnContestStandings(
@@ -62,16 +63,17 @@ class SharedContestStandingsService {
             }
         return submitAccount.map {
             var penaResult = 0
-            val accountCountOFSubmit = countOfSubmit.getOrDefault(it, MutableList(problemNum) { 0 })
+            val accountCountOfSubmit = countOfSubmit.getOrDefault(it, MutableList(problemNum) { 0 })
             solvedProblem[it]?.forEachIndexed { idx, result ->
                 if (result) {
-                    penaResult += penalty * accountCountOFSubmit[idx]
+                    penaResult += penalty * accountCountOfSubmit[idx]
                 }
             }
             AccountAcceptInfo(
                 it,
                 timeOfSubmit[it]?.toList() ?: List(problemNum) { 0 },
                 solvedProblem[it] ?: List(problemNum) { false },
+                accountCountOfSubmit,
                 penaResult
             )
         }
@@ -100,6 +102,7 @@ class SharedContestStandingsService {
                 penaResult,
                 acceptProblem,
                 it.submitTime,
+                it.penaltySubmitCountList,
                 -1))
         }
         return setRankToAccountInfosOnContestStandings(standings)
@@ -128,6 +131,7 @@ class SharedContestStandingsService {
                 it.penaltyOfWrong + latestSubmit,
                 acceptProblem,
                 it.submitTime,
+                it.penaltySubmitCountList,
                 -1))
         }
         return setRankToAccountInfosOnContestStandings(standings)
@@ -155,14 +159,14 @@ class SharedContestStandingsService {
             }
         }
         return mutableListOf(AccountInfoOnContestStandings(
-                "みんな",
-                score,
-                acceptSubmitTime.filterNotNull().sum(),
-                acceptProblem,
-                acceptSubmitTime,
-                1
-            )
-        )
+            "みんな",
+            score,
+            acceptSubmitTime.filterNotNull().sum(),
+            acceptProblem,
+            acceptSubmitTime,
+            List(problemsInfo.size) { 0 },
+            1
+        ))
     }
     fun getAccountInfosOnContestStandings(
         contest: ContestInfo,

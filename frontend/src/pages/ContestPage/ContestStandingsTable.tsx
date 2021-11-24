@@ -33,18 +33,23 @@ type RowTemplateProps = {
   accountName: string;
   score: number;
   penalty: number;
+  penaltySubmitCountSum: number;
 };
 const RowTemplate: React.VFC<RowTemplateProps> = ({
   rank,
   accountName,
   score,
   penalty,
+  penaltySubmitCountSum,
 }) => (
   <>
     <td className="align-middle text-center">{rank}</td>
     <td className="align-middle font-weight-bold">{accountName}</td>
     <td className="align-middle text-center">
-      <div className="font-weight-bold text-primary">{score}</div>
+      <span className="font-weight-bold text-primary">{score}</span>
+      {penaltySubmitCountSum === 0 ? null : (
+        <span className={'wa-color'}>{`(${penaltySubmitCountSum})`}</span>
+      )}
       <div className="text-muted">{formatSecondToMMSS(penalty)}</div>
     </td>
   </>
@@ -54,14 +59,19 @@ type PlayerStatusProps = {
   problemId: number;
   point: number;
   time: number;
+  penaltySubmitCount: number;
 };
 const PlayerStatusOfProblem: VFC<PlayerStatusProps> = ({
   problemId,
   point,
   time,
+  penaltySubmitCount,
 }) => (
   <td key={problemId} className="align-middle text-center">
-    <div className="font-weight-bold text-success">{point}</div>
+    <span className="font-weight-bold text-success">{point}</span>
+    {penaltySubmitCount === 0 ? null : (
+      <span className={'wa-color'}>{`(${penaltySubmitCount})`}</span>
+    )}
     <div className="text-muted">{formatSecondToMMSS(time)}</div>
   </td>
 );
@@ -79,13 +89,31 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
         accountName={account.accountName}
         score={account.score}
         penalty={account.penalty}
+        penaltySubmitCountSum={account.penaltySubmissionCountList.reduce(
+          (s, e, idx) => {
+            let res = s;
+            if (account.acceptList[idx]) {
+              res += e;
+            }
+
+            return res;
+          },
+          0
+        )}
       />
 
       {problems.map((problem) => {
+        const penaltySubmit =
+          account.penaltySubmissionCountList[problem.indexOfContest];
         if (!account.acceptList[problem.indexOfContest]) {
+          let status = <div>{'-'}</div>;
+          if (account.penaltySubmissionCountList[problem.indexOfContest] > 0) {
+            status = <div className={'wa-color'}>{`(${penaltySubmit})`}</div>;
+          }
+
           return (
             <td key={problem.id} className="align-middle text-center">
-              -
+              {status}
             </td>
           );
         }
@@ -97,6 +125,7 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
             problemId={problem.id}
             point={problem.point}
             time={account.acceptTimeList[problem.indexOfContest] || 0}
+            penaltySubmitCount={penaltySubmit}
           />
         );
       })}
@@ -271,6 +300,7 @@ const StandingsTable: VFC<StandingsTableProps> = ({
     () => problems.sort((a, b) => a.indexOfContest - b.indexOfContest),
     [problems]
   );
+  console.log('stand', paginatedAccounts);
   const firstAcceptRow = useMemo(
     () => (
       <tr className="small text-center text-nowrap">

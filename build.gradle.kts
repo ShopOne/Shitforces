@@ -45,7 +45,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework.security:spring-security-web:5.3.3.RELEASE")
-    implementation("com.google.code.gson:gson:2.8.6")
+    implementation("com.google.code.gson:gson:2.8.9")
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation("org.apache.commons:commons-lang3:3.4")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.1")
