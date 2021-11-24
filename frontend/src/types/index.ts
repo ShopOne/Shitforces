@@ -75,6 +75,10 @@ export interface AccountInfoOnContestStandings {
    * 提出までに経過した秒数
    */
   acceptTimeList: (number | null)[];
+  /**
+   * ペナルティの発生する(正答前)の誤答の回数
+   */
+  penaltySubmissionCountList: number[];
   score: number;
   penalty: number;
 }
