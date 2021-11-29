@@ -30,6 +30,7 @@ services:
     depends_on:
       - db
   frontend:
+    user: "${UID}:${GID}"
     image: shitforces_frontend
     build: ./frontend
     ports:
