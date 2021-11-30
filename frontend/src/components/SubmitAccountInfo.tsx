@@ -80,7 +80,7 @@ export const SubmitAccountInfo: FC<Props> = ({ variant }) => {
               );
             } else {
               setAlertText(
-                'ログインに失敗しました。メールアドレスかパスワードが間違っています'
+                'ログインに失敗しました。アカウント名かパスワードが間違っています'
               );
             }
             handleShow();
