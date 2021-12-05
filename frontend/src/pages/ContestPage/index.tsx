@@ -212,7 +212,6 @@ const useContestPage = () => {
 
     fetchData();
   }, []);
-  console.log(writers);
   const tweetContent = [
     '【コンテスト開催のお知らせ】',
     contestName,
