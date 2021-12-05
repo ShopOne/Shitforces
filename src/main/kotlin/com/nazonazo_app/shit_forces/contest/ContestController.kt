@@ -66,6 +66,11 @@ class ContestController(
         return contestService.getLatestContestsInfo(contestPage)
     }
 
+    @GetMapping("api/contests/upcoming")
+    fun getUpcomingContestsInfoResponse(): LatestContestsInfo {
+        return contestService.getUpcomingContestsInfo()
+    }
+
     @PostMapping("api/contests", headers = ["Content-Type=application/json"])
     fun addContestResponse(
         @RequestBody requestContest: RequestContestInfoForUpdate,

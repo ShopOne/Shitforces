@@ -2,7 +2,7 @@ import type {
   AccountInfo,
   AccountRankingInfo,
   ContestInfo,
-  LatestContestsInfo,
+  ContestsInfoList,
   ProblemInfo,
   ContestStandingsInfo,
   SubmissionInfo,
@@ -126,10 +126,17 @@ export async function getAccountInformation(
 /**
  * @param page
  */
-export function getLatestContests(page: number): Promise<LatestContestsInfo> {
-  return httpRequest<LatestContestsInfo>('/api/contests/latest', 'GET', {
+export function getLatestContests(page: number): Promise<ContestsInfoList> {
+  return httpRequest<ContestsInfoList>('/api/contests/latest', 'GET', {
     contest_page: page,
   });
+}
+
+/**
+ * @param page
+ */
+export function getUpcomingContests(): Promise<ContestsInfoList> {
+  return httpRequest<ContestsInfoList>('/api/contests/upcoming', 'GET');
 }
 
 /**
