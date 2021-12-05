@@ -33,6 +33,8 @@ const ContestPage: FC = () => {
     problems,
     submissions,
     contestType,
+    tweetUrl,
+    isAdmin,
   } = useContestPage();
 
   return (
@@ -63,11 +65,30 @@ const ContestPage: FC = () => {
           contestType={contestType}
         />
       )}
+      {isAdmin && (
+        <div>
+          <a
+            href={tweetUrl}
+            className="twitter-share-button"
+            data-show-count="false"
+            target="_blank"
+            rel="noreferrer"
+          >
+            コンテストの通知をツイート
+          </a>
+          <script
+            async
+            src="https://platform.twitter.com/widgets.js"
+            charSet="utf-8"
+          ></script>
+        </div>
+      )}
     </div>
   );
 };
 
 const useContestPage = () => {
+  // TODO useStateの数減らしたくない？
   const [contestName, setContestName] = useState('');
   const [statement, setStatement] = useState('');
   const [contestType, setContestType] = useState<ContestType | null>(null);
@@ -80,6 +101,10 @@ const useContestPage = () => {
   const [contestEditButtonStyle, setContestEditButtonStyle] = useState({
     display: 'none',
   });
+  const [writers, setWriters] = useState<string[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [ratedBound, setRatedBound] = useState(0);
+
   const ratingUpdate = () => {
     updateContestRating(findContestIdFromPath())
       .then(() => {
@@ -151,6 +176,10 @@ const useContestPage = () => {
       setTime(`${contestInfo.startTimeAMPM} ~ ${contestInfo.endTimeAMPM}`);
       setProblems(problems);
       setSubmissions(submissions);
+      setWriters(
+        contestInfo.contestCreators.map((creator) => creator.accountName)
+      );
+      setRatedBound(contestInfo.ratedBound);
 
       if (accountInfo) {
         const youCanUpdateRating = (
@@ -177,11 +206,25 @@ const useContestPage = () => {
         ) {
           setContestEditButtonStyle({ display: 'block' });
         }
+        setIsAdmin(accountInfo.auth == ADMINISTRATOR);
       }
     };
 
     fetchData();
   }, []);
+  const tweetContent = [
+    '【コンテスト開催のお知らせ】',
+    contestName,
+    `writer: ${writers.join(', ')}\n`,
+    time,
+    '',
+    ratedBound > 0
+      ? `0 ~ ${ratedBound}までがrated対象になります。`
+      : 'このコンテストによるレートの変動はありません。',
+  ].join('\n');
+  const tweetUrl = encodeURI(
+    `https://twitter.com/share?ref_src=twsrc%5Etfw&text=${tweetContent}&hashtags=Shitforces,くそなぞなぞ&url=${window.location.href}`
+  );
 
   return {
     ratingUpdate,
@@ -193,6 +236,8 @@ const useContestPage = () => {
     problems,
     submissions,
     contestType,
+    tweetUrl,
+    isAdmin,
   };
 };
 
