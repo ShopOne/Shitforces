@@ -9,6 +9,7 @@ import {
   getPastContests,
 } from '../functions/HttpRequest';
 import { ContestInfo } from '../types';
+import Ranking from './RankingPage';
 
 // URL: /
 
@@ -22,17 +23,17 @@ const ContestList = () => {
     null
   );
   const [pastContests, setPastContests] = useState<ContestInfo[] | null>(null);
-  const [pageNum, setPageNum] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [contestPageNum, setContestPageNum] = useState<number>(0);
+  const [contestCurrentPage, setContestCurrentPage] = useState(0);
 
-  const updatePage = useCallback(
+  const updateContestPage = useCallback(
     (page) => {
       getPastContests(page).then((pastContestsInfo) => {
         setPastContests(pastContestsInfo.contests);
-        setCurrentPage(page);
+        setContestCurrentPage(page);
       });
     },
-    [pageNum]
+    [contestPageNum]
   );
 
   useEffect(() => {
@@ -45,7 +46,7 @@ const ContestList = () => {
     });
 
     getPastContests(0).then((pastContestsInfo) => {
-      setPageNum(
+      setContestPageNum(
         Math.ceil(pastContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
       );
       setPastContests(pastContestsInfo.contests);
@@ -65,11 +66,13 @@ const ContestList = () => {
       <h2>終了したコンテスト</h2>
       <ContestTable contests={pastContests} />
       <PagingElement
-        currentPage={currentPage}
-        onChange={updatePage}
+        currentPage={contestCurrentPage}
+        onChange={updateContestPage}
         savePaging={true}
-        totalPages={pageNum}
+        totalPages={contestPageNum}
       />
+      <h2>ランキング</h2>
+      <Ranking />
       <Link to={'/ranking'}>
         <Button variant={'primary'}>順位表へ</Button>
       </Link>
