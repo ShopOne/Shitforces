@@ -140,6 +140,12 @@ export function getActiveContests(): Promise<ContestsInfoList> {
   return httpRequest<ContestsInfoList>('/api/contests/active', 'GET');
 }
 
+export function getPastContests(page: number): Promise<ContestsInfoList> {
+  return httpRequest<ContestsInfoList>('/api/contests/past', 'GET', {
+    contest_page: page,
+  });
+}
+
 /**
  * @param contestId
  * @param accountName

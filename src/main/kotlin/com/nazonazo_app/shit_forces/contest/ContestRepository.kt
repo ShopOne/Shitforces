@@ -61,7 +61,7 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
     fun findUpcomingContest(): List<ContestInfo> {
         return jdbcTemplate.query("""
             SELECT id, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
-            FROM contestInfo where endTime > now() ORDER BY startTime desc""",
+            FROM contestInfo where startTime > now() ORDER BY startTime desc""",
             rowMapperForContestInfo)
     }
     fun findActiveContest(): List<ContestInfo> {
@@ -69,6 +69,12 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             SELECT id, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
             FROM contestInfo where startTime < now() AND now() < endTime ORDER BY startTime desc""",
             rowMapperForContestInfo)
+    }
+    fun findPastContest(page: Int): List<ContestInfo> {
+        return jdbcTemplate.query("""
+            SELECT id, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
+            FROM contestInfo where now() > endTime ORDER BY startTime desc LIMIT ? OFFSET ?""",
+            rowMapperForContestInfo, LATEST_CONTEST_PAGE_SIZE, page * LATEST_CONTEST_PAGE_SIZE)
     }
     fun findContestCreators(contestId: String): List<ContestCreator> =
         jdbcTemplate.query("""
@@ -83,6 +89,9 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
 
     fun findActiveContestNum(): Int =
         jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo where startTime < now() AND now() < endTime""", Int::class.java)!!
+
+    fun findPastContestNum(): Int =
+        jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo where now() > endTime""", Int::class.java)!!
 
     fun addContest(contest: ContestInfo) {
         jdbcTemplate.update("""

@@ -6,12 +6,13 @@ import { PagingElement } from '../components/PagingElement';
 import {
   getUpcomingContests,
   getActiveContests,
+  getPastContests,
 } from '../functions/HttpRequest';
 import { ContestInfo } from '../types';
 
 // URL: /
 
-// const CONTEST_IN_ONE_PAGE = 10;
+const CONTEST_IN_ONE_PAGE = 10;
 
 const ContestList = () => {
   const [upcomingContests, setUpcomingContests] = useState<
@@ -20,29 +21,34 @@ const ContestList = () => {
   const [activeContests, setActiveContests] = useState<ContestInfo[] | null>(
     null
   );
+  const [pastContests, setPastContests] = useState<ContestInfo[] | null>(null);
   const [pageNum, setPageNum] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState(0);
 
-  const updatePage = useCallback(() => {
-    getUpcomingContests().then((upcomingContestsInfo) => {
-      setUpcomingContests(upcomingContestsInfo.contests);
-      setCurrentPage(0);
-    });
-  }, [pageNum]);
+  const updatePage = useCallback(
+    (page) => {
+      getPastContests(page).then((pastContestsInfo) => {
+        setPastContests(pastContestsInfo.contests);
+        setCurrentPage(page);
+      });
+    },
+    [pageNum]
+  );
 
   useEffect(() => {
     getUpcomingContests().then((upcomingContestsInfo) => {
-      setPageNum(
-        0 // Math.ceil(upcomingContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
-      );
       setUpcomingContests(upcomingContestsInfo.contests);
     });
 
     getActiveContests().then((activeContestsInfo) => {
-      setPageNum(
-        0 // Math.ceil(activeContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
-      );
       setActiveContests(activeContestsInfo.contests);
+    });
+
+    getPastContests(0).then((pastContestsInfo) => {
+      setPageNum(
+        Math.ceil(pastContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
+      );
+      setPastContests(pastContestsInfo.contests);
     });
   }, []);
 
@@ -56,6 +62,8 @@ const ContestList = () => {
       )}
       <h2>予定されたコンテスト</h2>
       <ContestTable contests={upcomingContests} />
+      <h2>終了したコンテスト</h2>
+      <ContestTable contests={pastContests} />
       <PagingElement
         currentPage={currentPage}
         onChange={updatePage}

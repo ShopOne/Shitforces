@@ -171,6 +171,13 @@ class ContestService(
         return LatestContestsInfo(contests, allContestNum)
     }
 
+    fun getPastContestsInfo(contestPage: Int): LatestContestsInfo {
+        val contests = contestRepository.findPastContest(contestPage)
+            .map { ResponseContestInfoInterface.build(it) }
+        val allContestNum = contestRepository.findPastContestNum()
+        return LatestContestsInfo(contests, allContestNum)
+    }
+
     fun addContest(requestContest: RequestContestInfoForUpdate) {
         val contestType = when (requestContest.contestType) {
             ContestInfo.ContestType.ICPC.textName -> ContestInfo.ContestType.ICPC
