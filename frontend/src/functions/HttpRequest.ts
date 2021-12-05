@@ -132,11 +132,12 @@ export function getLatestContests(page: number): Promise<ContestsInfoList> {
   });
 }
 
-/**
- * @param page
- */
 export function getUpcomingContests(): Promise<ContestsInfoList> {
   return httpRequest<ContestsInfoList>('/api/contests/upcoming', 'GET');
+}
+
+export function getActiveContests(): Promise<ContestsInfoList> {
+  return httpRequest<ContestsInfoList>('/api/contests/active', 'GET');
 }
 
 /**

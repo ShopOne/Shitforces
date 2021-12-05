@@ -164,6 +164,13 @@ class ContestService(
         return LatestContestsInfo(contests, allContestNum)
     }
 
+    fun getActiveContestsInfo(): LatestContestsInfo {
+        val contests = contestRepository.findActiveContest()
+            .map { ResponseContestInfoInterface.build(it) }
+        val allContestNum = contestRepository.findActiveContestNum()
+        return LatestContestsInfo(contests, allContestNum)
+    }
+
     fun addContest(requestContest: RequestContestInfoForUpdate) {
         val contestType = when (requestContest.contestType) {
             ContestInfo.ContestType.ICPC.textName -> ContestInfo.ContestType.ICPC
