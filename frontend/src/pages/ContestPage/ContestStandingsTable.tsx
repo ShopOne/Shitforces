@@ -300,7 +300,6 @@ const StandingsTable: VFC<StandingsTableProps> = ({
     () => problems.sort((a, b) => a.indexOfContest - b.indexOfContest),
     [problems]
   );
-  console.log('stand', paginatedAccounts);
   const firstAcceptRow = useMemo(
     () => (
       <tr className="small text-center text-nowrap">

@@ -103,6 +103,7 @@ const useContestPage = () => {
   });
   const [writers, setWriters] = useState<string[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [ratedBound, setRatedBound] = useState(0);
 
   const ratingUpdate = () => {
     updateContestRating(findContestIdFromPath())
@@ -169,7 +170,6 @@ const useContestPage = () => {
 
       const [contestInfo, problems, submissions, accountInfo] = resources;
 
-      console.log(contestInfo);
       setContestName(contestInfo.name);
       setStatement(contestInfo.statement);
       setContestType(contestInfo.contestType);
@@ -179,6 +179,7 @@ const useContestPage = () => {
       setWriters(
         contestInfo.contestCreators.map((creator) => creator.accountName)
       );
+      setRatedBound(contestInfo.ratedBound);
 
       if (accountInfo) {
         const youCanUpdateRating = (
@@ -217,7 +218,10 @@ const useContestPage = () => {
     contestName,
     `writer: ${writers.join(', ')}\n`,
     time,
-    'このコンテストによるレートの変動はありません。',
+    '',
+    ratedBound > 0
+      ? `0 ~ ${ratedBound}までがrated対象になります。`
+      : 'このコンテストによるレートの変動はありません。',
   ].join('\n');
   const tweetUrl = encodeURI(
     `https://twitter.com/share?ref_src=twsrc%5Etfw&text=${tweetContent}&hashtags=Shitforces,くそなぞなぞ&url=${window.location.href}`
