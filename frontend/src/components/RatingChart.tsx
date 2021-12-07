@@ -26,11 +26,11 @@ const options = {
   responsive: true,
   plugins: {
     legend: {
-      position: 'top' as const,
+      display: false,
     },
     title: {
       display: true,
-      text: 'Cart.js Line Chart',
+      text: 'レーティング遷移',
     },
   },
 };
@@ -39,7 +39,7 @@ const createData = (results: AccountContestPartHistory[]) => ({
   labels: results.map(() => ''),
   datasets: [
     {
-      label: 'Dataset 1',
+      label: '',
       data: results.map((result) => result.newRating),
       borderColor: '#888',
       backgroundColor: '#888',
