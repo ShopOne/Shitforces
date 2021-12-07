@@ -62,22 +62,22 @@ class ContestController(
     }
 
     @GetMapping("api/contests/latest")
-    fun getLatestContestsInfoResponse(@RequestParam("contest_page") contestPage: Int): LatestContestsInfo {
+    fun getLatestContestsInfoResponse(@RequestParam("contest_page") contestPage: Int): ContestInfoList {
         return contestService.getLatestContestsInfo(contestPage)
     }
 
     @GetMapping("api/contests/upcoming")
-    fun getUpcomingContestsInfoResponse(): LatestContestsInfo {
+    fun getUpcomingContestsInfoResponse(): ContestInfoList {
         return contestService.getUpcomingContestsInfo()
     }
 
     @GetMapping("api/contests/active")
-    fun getActiveContestsInfoResponse(): LatestContestsInfo {
+    fun getActiveContestsInfoResponse(): ContestInfoList {
         return contestService.getActiveContestsInfo()
     }
 
     @GetMapping("api/contests/past")
-    fun getPastContestsInfoResponse(@RequestParam("contest_page") contestPage: Int): LatestContestsInfo {
+    fun getPastContestsInfoResponse(@RequestParam("contest_page") contestPage: Int): ContestInfoList {
         return contestService.getPastContestsInfo(contestPage)
     }
 

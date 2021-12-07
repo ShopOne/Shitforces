@@ -84,12 +84,6 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
     fun findAllContestNum(): Int =
         jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo""", Int::class.java)!!
 
-    fun findUpcomingContestNum(): Int =
-        jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo where endTime > now()""", Int::class.java)!!
-
-    fun findActiveContestNum(): Int =
-        jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo where startTime < now() AND now() < endTime""", Int::class.java)!!
-
     fun findPastContestNum(): Int =
         jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo where now() > endTime""", Int::class.java)!!
 

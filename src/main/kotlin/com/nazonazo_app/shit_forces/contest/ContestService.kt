@@ -150,32 +150,30 @@ class ContestService(
     fun getContestInfoByContestId(id: String): ContestInfo? =
         contestRepository.findByContestId(id)
 
-    fun getLatestContestsInfo(page: Int): LatestContestsInfo {
+    fun getLatestContestsInfo(page: Int): ContestInfoList {
         val contests = contestRepository.findLatestContest(page)
             .map { ResponseContestInfoInterface.build(it) }
         val allContestNum = contestRepository.findAllContestNum()
-        return LatestContestsInfo(contests, allContestNum)
+        return ContestInfoList(contests, allContestNum)
     }
 
-    fun getUpcomingContestsInfo(): LatestContestsInfo {
+    fun getUpcomingContestsInfo(): ContestInfoList {
         val contests = contestRepository.findUpcomingContest()
             .map { ResponseContestInfoInterface.build(it) }
-        val allContestNum = contestRepository.findUpcomingContestNum()
-        return LatestContestsInfo(contests, allContestNum)
+        return ContestInfoList(contests, contests.size)
     }
 
-    fun getActiveContestsInfo(): LatestContestsInfo {
+    fun getActiveContestsInfo(): ContestInfoList {
         val contests = contestRepository.findActiveContest()
             .map { ResponseContestInfoInterface.build(it) }
-        val allContestNum = contestRepository.findActiveContestNum()
-        return LatestContestsInfo(contests, allContestNum)
+        return ContestInfoList(contests, contests.size)
     }
 
-    fun getPastContestsInfo(contestPage: Int): LatestContestsInfo {
+    fun getPastContestsInfo(contestPage: Int): ContestInfoList {
         val contests = contestRepository.findPastContest(contestPage)
             .map { ResponseContestInfoInterface.build(it) }
         val allContestNum = contestRepository.findPastContestNum()
-        return LatestContestsInfo(contests, allContestNum)
+        return ContestInfoList(contests, allContestNum)
     }
 
     fun addContest(requestContest: RequestContestInfoForUpdate) {
