@@ -57,12 +57,14 @@ export const AccountInformation: VFC<AccountInformationProps> = ({
           </tr>
         </tbody>
       </table>
+      {contestResults.length != 0 && (
+        <RatingChart contestResults={contestResults} />
+      )}
       {accountName !== null && (
         <Button variant="primary mt-5 mb-3" onClick={signOut}>
           ログアウト
         </Button>
       )}
-      <RatingChart contestResults={contestResults} />
     </div>
   );
 };
