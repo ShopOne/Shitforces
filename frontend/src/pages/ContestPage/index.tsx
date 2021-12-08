@@ -219,7 +219,7 @@ const useContestPage = () => {
     time,
     '',
     ratedBound > 0
-      ? `0 ~ ${ratedBound}までがrated対象になります。`
+      ? `0 ~ ${ratedBound - 1}までがrated対象になります。`
       : 'このコンテストによるレートの変動はありません。',
   ].join('\n');
   const tweetUrl = encodeURI(
