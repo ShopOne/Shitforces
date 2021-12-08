@@ -329,7 +329,6 @@ class ContestService(
                 acceptSet.find { it == submit.key } != null
             ))
         }
-        val llt = submissionList.sorted()
         return submissionList.sorted()
     }
 }
