@@ -9,7 +9,7 @@ import {
   getPastContests,
 } from '../functions/HttpRequest';
 import { ContestInfo } from '../types';
-import Ranking from './RankingPage';
+// import Ranking from './RankingPage';
 
 // URL: /
 
@@ -71,8 +71,12 @@ const ContestList = () => {
         savePaging={true}
         totalPages={contestPageNum}
       />
+      {/*
+      pageのクエリパラメータを全てで使っているので、同じページに二つPagingElementがあるとページが同期しちゃう
+      というか上位10~20人だけでもいいかも
       <h2>ランキング</h2>
       <Ranking />
+      */}
       <Link to={'/ranking'}>
         <Button variant={'primary'}>順位表へ</Button>
       </Link>
