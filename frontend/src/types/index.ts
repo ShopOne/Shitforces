@@ -128,7 +128,7 @@ export interface ContestInfo {
   contestCreators: ContestCreator[];
 }
 
-export interface LatestContestsInfo {
+export interface ContestsInfoList {
   contests: ContestInfo[];
   allContestNum: number;
 }

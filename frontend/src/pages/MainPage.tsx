@@ -1,78 +1,78 @@
 import { VFC, useEffect, useState, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
-import Table from 'react-bootstrap/Table';
 import { Link } from 'react-router-dom';
+import { ContestTable } from '../components/ContestTable';
 import { PagingElement } from '../components/PagingElement';
-import { getLatestContests } from '../functions/HttpRequest';
+import {
+  getUpcomingContests,
+  getActiveContests,
+  getPastContests,
+} from '../functions/HttpRequest';
 import { ContestInfo } from '../types';
+import Ranking from './RankingPage';
 
 // URL: /
 
 const CONTEST_IN_ONE_PAGE = 10;
 
-const ContestList: VFC = () => {
-  const [contests, setContests] = useState<ContestInfo[] | null>(null);
-  const [pageNum, setPageNum] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState(0);
+const ContestList = () => {
+  const [upcomingContests, setUpcomingContests] = useState<
+    ContestInfo[] | null
+  >(null);
+  const [activeContests, setActiveContests] = useState<ContestInfo[] | null>(
+    null
+  );
+  const [pastContests, setPastContests] = useState<ContestInfo[] | null>(null);
+  const [contestPageNum, setContestPageNum] = useState<number>(0);
+  const [contestCurrentPage, setContestCurrentPage] = useState(0);
 
-  const updatePage = useCallback(
-    (newPage: number) => {
-      getLatestContests(newPage).then((latestContestsInfo) => {
-        setContests(latestContestsInfo.contests);
-        setCurrentPage(newPage);
+  const updateContestPage = useCallback(
+    (page) => {
+      getPastContests(page).then((pastContestsInfo) => {
+        setPastContests(pastContestsInfo.contests);
+        setContestCurrentPage(page);
       });
     },
-    [pageNum]
+    [contestPageNum]
   );
 
   useEffect(() => {
-    getLatestContests(0).then((latestContestsInfo) => {
-      setPageNum(
-        Math.ceil(latestContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
+    getUpcomingContests().then((upcomingContestsInfo) => {
+      setUpcomingContests(upcomingContestsInfo.contests);
+    });
+
+    getActiveContests().then((activeContestsInfo) => {
+      setActiveContests(activeContestsInfo.contests);
+    });
+
+    getPastContests(0).then((pastContestsInfo) => {
+      setContestPageNum(
+        Math.ceil(pastContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
       );
-      setContests(latestContestsInfo.contests);
+      setPastContests(pastContestsInfo.contests);
     });
   }, []);
 
   return (
     <>
-      <Table bordered hover size="sm" striped>
-        <thead>
-          <tr>
-            <th className="text-center">開始時刻</th>
-            <th className="text-center">コンテスト名</th>
-            <th className="text-center">種類</th>
-            <th className="text-center">時間</th>
-            <th className="text-center">Rated対象</th>
-          </tr>
-        </thead>
-        <tbody>
-          {contests?.map((contest) => (
-            <tr key={contest.id}>
-              <td className="text-center">{contest.startTimeAMPM}</td>
-              <td>
-                <Link to={`/contest/${contest.id}`}>{contest.name}</Link>
-              </td>
-              <td className="text-center">{contest.contestType}</td>
-              <td className="text-center">
-                {Math.floor(
-                  (contest.unixEndTime - contest.unixStartTime) / (60 * 1000)
-                )}
-                分
-              </td>
-              <td className="text-center">
-                {contest.ratedBound > 0 ? `~ ${contest.ratedBound - 1}` : '-'}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
+      <h2>開催中のコンテスト</h2>
+      {activeContests && activeContests.length > 0 ? (
+        <ContestTable contests={activeContests} />
+      ) : (
+        <div>現在開催中のコンテストはありません</div>
+      )}
+      <h2>予定されたコンテスト</h2>
+      <ContestTable contests={upcomingContests} />
+      <h2>終了したコンテスト</h2>
+      <ContestTable contests={pastContests} />
       <PagingElement
-        currentPage={currentPage}
-        onChange={updatePage}
+        currentPage={contestCurrentPage}
+        onChange={updateContestPage}
         savePaging={true}
-        totalPages={pageNum}
+        totalPages={contestPageNum}
       />
+      <h2>ランキング</h2>
+      <Ranking />
       <Link to={'/ranking'}>
         <Button variant={'primary'}>順位表へ</Button>
       </Link>

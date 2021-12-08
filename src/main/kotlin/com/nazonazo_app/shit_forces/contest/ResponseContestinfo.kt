@@ -56,7 +56,7 @@ data class ResponseContestInfo(
     override val endTimeAMPM: String
 ) : ResponseContestInfoInterface
 
-data class LatestContestsInfo(
+data class ContestInfoList(
     val contests: List<ResponseContestInfo>,
     val allContestNum: Int
 )
