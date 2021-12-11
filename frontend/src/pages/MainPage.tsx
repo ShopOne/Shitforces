@@ -1,15 +1,16 @@
 import { VFC, useEffect, useState, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Link } from 'react-router-dom';
+import { AccountRankingTable } from '../components/AccountRankingTable';
 import { ContestTable } from '../components/ContestTable';
 import { PagingElement } from '../components/PagingElement';
 import {
   getUpcomingContests,
   getActiveContests,
   getPastContests,
+  getAccountRankingInfo,
 } from '../functions/HttpRequest';
-import { ContestInfo } from '../types';
-// import Ranking from './RankingPage';
+import { ContestInfo, AccountInfo } from '../types';
 
 // URL: /
 
@@ -25,6 +26,7 @@ const ContestList = () => {
   const [pastContests, setPastContests] = useState<ContestInfo[] | null>(null);
   const [contestPageNum, setContestPageNum] = useState<number>(0);
   const [contestCurrentPage, setContestCurrentPage] = useState(0);
+  const [accounts, setAccounts] = useState<AccountInfo[]>([]);
 
   const updateContestPage = useCallback(
     (page) => {
@@ -51,6 +53,14 @@ const ContestList = () => {
       );
       setPastContests(pastContestsInfo.contests);
     });
+
+    getAccountRankingInfo(0)
+      .then((res) => {
+        setAccounts(res.accounts);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
   }, []);
 
   return (
@@ -71,12 +81,8 @@ const ContestList = () => {
         savePaging={true}
         totalPages={contestPageNum}
       />
-      {/*
-      pageのクエリパラメータを全てで使っているので、同じページに二つPagingElementがあるとページが同期しちゃう
-      というか上位10~20人だけでもいいかも
       <h2>ランキング</h2>
-      <Ranking />
-      */}
+      <AccountRankingTable accounts={accounts} rankStart={1} />
       <Link to={'/ranking'}>
         <Button variant={'primary'}>順位表へ</Button>
       </Link>
