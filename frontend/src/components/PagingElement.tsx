@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import React, { memo } from 'react';
 import Pagination from 'react-bootstrap/Pagination';
+import { useHistory, useLocation } from 'react-router';
 
 interface Props {
   totalPages: number;
@@ -30,11 +31,12 @@ export const PagingElement: React.FC<Props> = memo(
   ({ totalPages, currentPage, onChange, marginPx, savePaging }) => {
     const pageArr = createPageArr(totalPages, currentPage);
     const params = new URLSearchParams(window.location.search);
+    const pathName = useLocation().pathname;
     const paramPage = params.get('page');
+    const history = useHistory();
     const onClick = (page: number) => {
       if (savePaging) {
-        params.set('page', page.toString());
-        history.pushState(null, '', `?${params.toString()}`);
+        history.push(`${pathName}?${params.toString()}`);
       }
       onChange(page);
     };
