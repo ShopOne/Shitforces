@@ -1,3 +1,8 @@
+import {
+  ChakraProvider,
+  useColorMode,
+  useColorModeValue,
+} from '@chakra-ui/react';
 import { StrictMode, FC, lazy, Suspense } from 'react';
 import Container from 'react-bootstrap/Container';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
@@ -9,7 +14,6 @@ import { MainPage } from './pages/MainPage';
 import './App.css';
 import { PolicyPage } from './pages/PolicyPage';
 import { TermsPage } from './pages/TermsPage';
-import { ChakraProvider } from '@chakra-ui/react';
 
 const AccountPage = lazy(() => import(`./pages/AccountPage/index`));
 const ContestEditPage = lazy(() => import('./pages/ContestEditPage'));
@@ -20,6 +24,7 @@ const LoginPage = lazy(() => import('./pages/LoginPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 const RankingPage = lazy(() => import('./pages/RankingPage'));
 const SignUpPage = lazy(() => import('./pages/SignUpPage'));
+
 export const App: FC = () => {
   return (
     <StrictMode>

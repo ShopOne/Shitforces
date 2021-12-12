@@ -7,17 +7,16 @@ import { extendTheme } from '@chakra-ui/react';
 // 2. Add your color mode config
 const config = {
   initialColorMode: 'light',
-  useSystemColorMode: false,
   cssVarPrefix: 'ck',
 };
 
 const styles = {
   global: {
-    // workaround for color-mode override by system-dark/light.
-
     body: {
-      bg: 'white',
+      // workaround for override, just adding same value as src/index.css.
+      bg: '#f5f5f5',
       color: 'gray.800',
+      fontFamily: `-apple-system,BlinkMacSystemFont,"Segoe UI","Roboto","Oxygen","Ubuntu","Cantarell","Fira Sans","Droid Sans","Helvetica Neue",sans-serif`,
     },
   },
 };
