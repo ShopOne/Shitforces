@@ -10,9 +10,25 @@ interface Props {
   marginPx?: number;
 }
 
+const createPageArr = (pageNum: number, nowPage: number): number[] => {
+  const ret = [nowPage];
+  let pow = 1;
+  while (nowPage - pow >= 0) {
+    ret.unshift(Math.max(nowPage - pow, 0));
+    pow *= 2;
+  }
+  pow = 1;
+  while (nowPage + pow < pageNum) {
+    ret.push(Math.min(nowPage + pow, pageNum - 1));
+    pow *= 2;
+  }
+
+  return ret;
+};
+
 export const PagingElement: React.FC<Props> = memo(
   ({ totalPages, currentPage, onChange, marginPx, savePaging }) => {
-    const pageArr = [...Array(totalPages)].map((_, idx) => idx);
+    const pageArr = createPageArr(totalPages, currentPage);
     const params = new URLSearchParams(window.location.search);
     const paramPage = params.get('page');
     const onClick = (page: number) => {
