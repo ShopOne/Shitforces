@@ -13,15 +13,22 @@ interface Props {
 
 const createPageArr = (pageNum: number, nowPage: number): number[] => {
   const ret = [nowPage];
-  let pow = 1;
-  while (nowPage - pow >= 0) {
-    ret.unshift(Math.max(nowPage - pow, 0));
+  let pow = 2;
+  while (nowPage - pow + 1 >= 0) {
+    ret.unshift(nowPage - pow + 1);
     pow *= 2;
   }
-  pow = 1;
-  while (nowPage + pow < pageNum) {
-    ret.push(Math.min(nowPage + pow, pageNum - 1));
+  pow = 2;
+  while (nowPage + pow - 1 < pageNum) {
+    ret.push(nowPage + pow - 1);
     pow *= 2;
+  }
+
+  if (ret[0] !== 0) {
+    ret.unshift(0);
+  }
+  if (ret[ret.length - 1] !== pageNum - 1) {
+    ret.push(pageNum - 1);
   }
 
   return ret;
