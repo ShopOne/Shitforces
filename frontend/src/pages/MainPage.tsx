@@ -2,7 +2,6 @@ import { useColorMode } from '@chakra-ui/react';
 import { VFC, useEffect, useState, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Link } from 'react-router-dom';
-import { theme } from '../chakra/theme';
 import { ContestTable } from '../components/ContestTable';
 import { PagingElement } from '../components/PagingElement';
 import {
@@ -94,9 +93,5 @@ const ContestList = () => {
 };
 
 export const MainPage: VFC = () => {
-  return (
-    // <ChakraProvider theme={theme}>
-    <ContestList />
-    // </ChakraProvider>
-  );
+  return <ContestList />;
 };
