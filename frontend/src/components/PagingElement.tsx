@@ -43,6 +43,7 @@ export const PagingElement: React.FC<Props> = memo(
     const history = useHistory();
     const onClick = (page: number) => {
       if (savePaging) {
+        params.set('page', page.toString());
         history.push(`${pathName}?${params.toString()}`);
       }
       onChange(page);
