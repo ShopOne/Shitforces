@@ -31,7 +31,8 @@ out/
 /.nb-gradle/
 
 ### VS Code ###
-.vscode/
+.vscode/*
+!.vscode/setting.json
 
 ### react file ###
 /src/main/resources/public/
