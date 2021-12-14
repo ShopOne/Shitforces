@@ -22,7 +22,7 @@
   "plugins": ["@typescript-eslint", "react", "jquery"],
   "root": true,
   "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     // "import/no-default-export": "error",
     "max-lines-per-function": ["warn", 100],
