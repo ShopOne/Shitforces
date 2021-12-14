@@ -1,3 +1,4 @@
+import { useColorMode } from '@chakra-ui/react';
 import { VFC, useEffect, useState, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Link } from 'react-router-dom';
@@ -9,8 +10,8 @@ import {
   getPastContests,
 } from '../functions/HttpRequest';
 import { ContestInfo } from '../types';
-// import Ranking from './RankingPage';
 
+// import Ranking from './RankingPage';
 // URL: /
 
 const CONTEST_IN_ONE_PAGE = 10;
@@ -52,6 +53,13 @@ const ContestList = () => {
       setPastContests(pastContestsInfo.contests);
     });
   }, []);
+
+  const { colorMode, toggleColorMode } = useColorMode();
+
+  // workaround for overriding color-mode to system color-mode.
+  if (colorMode === 'dark') {
+    toggleColorMode();
+  }
 
   return (
     <>
