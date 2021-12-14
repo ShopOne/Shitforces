@@ -45,10 +45,14 @@
     ]
   },
   "dependencies": {
+    "@chakra-ui/react": "1.7.3",
+    "@emotion/react": "11.7.0",
+    "@emotion/styled": "11.6.0",
     "@testing-library/jest-dom": "5.11.10",
     "@testing-library/react": "11.2.6",
     "@testing-library/user-event": "13.1.1",
     "chart.js": "3.6.2",
+    "framer-motion": "4.1.17",
     "fs-extra": "9.1.0",
     "jquery": "3.6.0",
     "react": "17.0.2",
