@@ -6,11 +6,11 @@ plugins {
     id("org.springframework.boot") version "2.3.4.RELEASE"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
     id("org.flywaydb.flyway") version "5.2.4"
-    kotlin("jvm") version "1.3.72"
-    kotlin("plugin.spring") version "1.3.72"
-    kotlin("plugin.jpa") version "1.3.72"
+    kotlin("jvm") version "1.6.10"
+    kotlin("plugin.spring") version "1.6.10"
+    kotlin("plugin.jpa") version "1.6.10"
     id("com.moowork.node") version "1.3.1"
-    id("org.jlleitschuh.gradle.ktlint") version "9.2.1"
+    id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
 
 version = "0.0.1-SNAPSHOT"
@@ -73,18 +73,22 @@ tasks.withType<KotlinCompile> {
 }
 
 task<NpmTask>("installNpm") {
-    setExecOverrides(closureOf<ExecSpec> {
-        this.workingDir("./frontend")
-    })
+    setExecOverrides(
+        closureOf<ExecSpec> {
+            this.workingDir("./frontend")
+        }
+    )
     setArgs(listOf("install"))
 }
 task<NpmTask>("buildReact") {
     val args = mutableListOf("run")
     val buildMode = System.getenv("BUILD_MODE") ?: "DEVELOPMENT"
     dependsOn("installNpm")
-    setExecOverrides(closureOf<ExecSpec> {
-        this.workingDir("./frontend")
-    })
+    setExecOverrides(
+        closureOf<ExecSpec> {
+            this.workingDir("./frontend")
+        }
+    )
     if (buildMode == "PRODUCTION") {
         args.add("prodbuild")
     } else {

@@ -1,10 +1,10 @@
 package com.nazonazo_app.shit_forces.session
 
-import java.sql.Timestamp
-import java.util.Calendar
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
+import java.sql.Timestamp
+import java.util.Calendar
 
 @Repository
 class SessionRepository(private val jdbcTemplate: JdbcTemplate) {
@@ -13,22 +13,30 @@ class SessionRepository(private val jdbcTemplate: JdbcTemplate) {
     }
     fun deleteDeadSession() {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
-        jdbcTemplate.update("""DELETE FROM sessionData WHERE expirationDate <=  ?""",
-        nowTimeStamp)
+        jdbcTemplate.update(
+            """DELETE FROM sessionData WHERE expirationDate <=  ?""",
+            nowTimeStamp
+        )
     }
     fun findByName(name: String): SessionData? {
         deleteDeadSession()
-        val sessionList = jdbcTemplate.query("""
+        val sessionList = jdbcTemplate.query(
+            """
           SELECT name, sessionId, expirationDate FROM sessionData
           WHERE name = ?
-        """, rowMapper, name)
+        """,
+            rowMapper, name
+        )
         return sessionList.getOrNull(0)
     }
     fun deleteSessionByName(name: String) {
         deleteDeadSession()
-        jdbcTemplate.update("""
+        jdbcTemplate.update(
+            """
             DELETE FROM sessionData WHERE (name = ?)
-        """, name)
+        """,
+            name
+        )
     }
     private fun getExpirationDate(): Timestamp {
         deleteDeadSession()
@@ -40,13 +48,19 @@ class SessionRepository(private val jdbcTemplate: JdbcTemplate) {
         deleteDeadSession()
         val nowSession = findByName(name)
         if (nowSession === null) {
-            jdbcTemplate.update("""
+            jdbcTemplate.update(
+                """
             INSERT INTO sessionData (name, sessionId, expirationDate) VALUES ( ?, ?, ? )
-        """, name, sessionId, getExpirationDate())
+        """,
+                name, sessionId, getExpirationDate()
+            )
         } else {
-            jdbcTemplate.update("""
+            jdbcTemplate.update(
+                """
                 UPDATE sessionData set expirationDate = ? where name = ?
-            """, getExpirationDate(), name)
+            """,
+                getExpirationDate(), name
+            )
         }
         return findByName(name)
     }

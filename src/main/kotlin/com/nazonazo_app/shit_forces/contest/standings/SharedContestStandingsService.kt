@@ -25,7 +25,8 @@ class SharedContestStandingsService {
         for (idx in standings.indices) {
             if (idx == 0 ||
                 standings[idx - 1].score != standings[idx].score ||
-                standings[idx - 1].penalty != standings[idx].penalty) {
+                standings[idx - 1].penalty != standings[idx].penalty
+            ) {
                 rank = idx + 1
             }
             standings[idx].rank = rank
@@ -97,13 +98,17 @@ class SharedContestStandingsService {
                     acceptProblem[index] = true
                 }
             }
-            standings.add(AccountInfoOnContestStandings(it.name,
-                score,
-                penaResult,
-                acceptProblem,
-                it.submitTime,
-                it.penaltySubmitCountList,
-                -1))
+            standings.add(
+                AccountInfoOnContestStandings(
+                    it.name,
+                    score,
+                    penaResult,
+                    acceptProblem,
+                    it.submitTime,
+                    it.penaltySubmitCountList,
+                    -1
+                )
+            )
         }
         return setRankToAccountInfosOnContestStandings(standings)
     }
@@ -126,13 +131,17 @@ class SharedContestStandingsService {
                     acceptProblem[index] = true
                 }
             }
-            standings.add(AccountInfoOnContestStandings(it.name,
-                score,
-                it.penaltyOfWrong + latestSubmit,
-                acceptProblem,
-                it.submitTime,
-                it.penaltySubmitCountList,
-                -1))
+            standings.add(
+                AccountInfoOnContestStandings(
+                    it.name,
+                    score,
+                    it.penaltyOfWrong + latestSubmit,
+                    acceptProblem,
+                    it.submitTime,
+                    it.penaltySubmitCountList,
+                    -1
+                )
+            )
         }
         return setRankToAccountInfosOnContestStandings(standings)
     }
@@ -158,15 +167,17 @@ class SharedContestStandingsService {
                 }
             }
         }
-        return mutableListOf(AccountInfoOnContestStandings(
-            "みんな",
-            score,
-            acceptSubmitTime.filterNotNull().sum(),
-            acceptProblem,
-            acceptSubmitTime,
-            List(problemsInfo.size) { 0 },
-            1
-        ))
+        return mutableListOf(
+            AccountInfoOnContestStandings(
+                "みんな",
+                score,
+                acceptSubmitTime.filterNotNull().sum(),
+                acceptProblem,
+                acceptSubmitTime,
+                List(problemsInfo.size) { 0 },
+                1
+            )
+        )
     }
     fun getAccountInfosOnContestStandings(
         contest: ContestInfo,
