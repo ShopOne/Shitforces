@@ -3,7 +3,6 @@
     "browser": true,
     "es6": true,
     "jest": true,
-    "jquery": true,
     "node": true
   },
   "extends": [
@@ -19,10 +18,10 @@
   "parserOptions": {
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint", "react", "jquery"],
+  "plugins": ["@typescript-eslint", "react"],
   "root": true,
   "rules": {
-    "@typescript-eslint/no-unused-vars": "error",
+    "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     // "import/no-default-export": "error",
     "max-lines-per-function": ["warn", 100],

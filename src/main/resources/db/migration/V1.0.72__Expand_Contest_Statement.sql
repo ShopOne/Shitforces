@@ -1,0 +1,1 @@
+ALTER TABLE contestInfo ALTER COLUMN statement TYPE VARCHAR(2048);
