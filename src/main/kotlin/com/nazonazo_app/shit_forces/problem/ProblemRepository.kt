@@ -11,46 +11,69 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
     }
     private val rowMapperForProblem = RowMapper { rs, _ ->
         val id = rs.getInt("id")
-        ProblemInfo(rs.getString("contestId"), rs.getInt("point"),
+        ProblemInfo(
+            rs.getString("contestId"), rs.getInt("point"),
             rs.getString("statement"), rs.getInt("indexOfContest"),
-            findAnswerById(id), rs.getBoolean("isQuiz"), id)
+            findAnswerById(id), rs.getBoolean("isQuiz"), id
+        )
     }
 
     private fun findAnswerById(id: Int): List<String> =
-            jdbcTemplate.query("""
+        jdbcTemplate.query(
+            """
                 SELECT answer FROM answerInfo WHERE id = ?
-            """, rowMapperForAnswer, id)
+            """,
+            rowMapperForAnswer, id
+        )
     fun findByContestId(contestId: String): List<ProblemInfo> =
-            jdbcTemplate.query("""
+        jdbcTemplate.query(
+            """
                 SELECT * FROM problemInfo WHERE contestId = ?
                 ORDER BY indexOfContest asc;
-            """, rowMapperForProblem, contestId)
+            """,
+            rowMapperForProblem, contestId
+        )
     fun findByContestIdAndIndex(contestId: String, indexOfContest: Int): ProblemInfo? {
-        val problem = jdbcTemplate.query("""
+        val problem = jdbcTemplate.query(
+            """
                 SELECT * FROM problemInfo 
                 WHERE contestId = ? AND indexOfContest = ? order by indexOfContest asc
-            """, rowMapperForProblem, contestId, indexOfContest)
+            """,
+            rowMapperForProblem, contestId, indexOfContest
+        )
         return problem.getOrNull(0)
     }
     fun deleteProblemById(id: Int) {
-        jdbcTemplate.update("""
+        jdbcTemplate.update(
+            """
             DELETE FROM problemInfo where id = ?
-        """, id)
-        jdbcTemplate.update("""
+        """,
+            id
+        )
+        jdbcTemplate.update(
+            """
             DELETE FROM answerInfo where id = ?
-        """, id)
+        """,
+            id
+        )
     }
     private fun addAnswer(id: Int, answer: String) {
-        jdbcTemplate.update("""
+        jdbcTemplate.update(
+            """
             INSERT INTO answerInfo(id, answer)
             values(?, ?)
-        """, id, answer)
+        """,
+            id, answer
+        )
     }
     private fun addProblem(problem: ProblemInfo) {
-        jdbcTemplate.update("""
+        jdbcTemplate.update(
+            """
             INSERT INTO problemInfo(contestId, indexOfContest, point, statement, isQuiz)
             VALUES(?, ?, ?, ?, ?)
-        """, problem.contestId, problem.indexOfContest, problem.point, problem.statement, problem.isQuiz)
+        """,
+            problem.contestId, problem.indexOfContest, problem.point, problem.statement, problem.isQuiz
+        )
     }
     fun addProblems(contestId: String, problems: List<ProblemInfo>) {
         problems.forEach {
@@ -65,22 +88,30 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
     }
     fun updateProblemStatement(contestId: String, problems: List<ProblemInfo>) {
         problems.forEach {
-            jdbcTemplate.update("""
+            jdbcTemplate.update(
+                """
                 UPDATE problemInfo set statement = ? 
                 WHERE contestId = ? and indexOfContest = ?
-            """, it.statement, contestId, it.indexOfContest)
+            """,
+                it.statement, contestId, it.indexOfContest
+            )
         }
     }
 
     fun findById(id: Int): ProblemInfo? {
-        val problem = jdbcTemplate.query("""
+        val problem = jdbcTemplate.query(
+            """
                 SELECT * FROM problemInfo WHERE id = ?
-            """, rowMapperForProblem, id)
+            """,
+            rowMapperForProblem, id
+        )
         if (problem.size == 0) return null
         return problem[0]
     }
     fun findAnswersById(id: Int): List<String> {
-        return jdbcTemplate.query("SELECT answer from answerInfo WHERE id = ?",
-            rowMapperForAnswer, id)
+        return jdbcTemplate.query(
+            "SELECT answer from answerInfo WHERE id = ?",
+            rowMapperForAnswer, id
+        )
     }
 }

@@ -2,8 +2,8 @@ package com.nazonazo_app.shit_forces.submission
 
 import com.nazonazo_app.shit_forces.contest.ContestInfo
 import com.nazonazo_app.shit_forces.problem.SharedProblemService
-import java.sql.Timestamp
 import org.springframework.stereotype.Service
+import java.sql.Timestamp
 
 @Service
 class SharedSubmissionService(
@@ -64,13 +64,16 @@ class SharedSubmissionService(
             // TODO: インタラクティブにいずれ対応
             val now = Timestamp(System.currentTimeMillis())
             val submission = if (statement in problem.answer ||
-                (problem.answer.isNotEmpty() && specialJudge(problem.answer, statement))) {
-                SubmissionInfo(contestId, indexOfContest,
+                (problem.answer.isNotEmpty() && specialJudge(problem.answer, statement))
+            ) {
+                SubmissionInfo(
+                    contestId, indexOfContest,
                     submitAccountName, statement, now,
                     SubmissionResult.ACCEPTED
                 )
             } else {
-                SubmissionInfo(contestId, indexOfContest,
+                SubmissionInfo(
+                    contestId, indexOfContest,
                     submitAccountName, statement, now,
                     SubmissionResult.WRONG_ANSWER
                 )

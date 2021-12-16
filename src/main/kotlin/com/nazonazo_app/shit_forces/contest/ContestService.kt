@@ -11,13 +11,13 @@ import com.nazonazo_app.shit_forces.submission.ResponseContestSubmissionOfRaid
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
 import com.nazonazo_app.shit_forces.submission.SubmissionInfo
 import com.nazonazo_app.shit_forces.submission.SubmissionResult
-import java.sql.Timestamp
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
+import java.sql.Timestamp
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 @Service
 @Transactional
@@ -39,13 +39,15 @@ class ContestService(
     ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
         val latestSubmit = sharedSubmissionService.getSubmissionOfAccount(sessionAccount.name, contest.id)
-            .maxBy { it.submitTime }
+            .maxByOrNull { it.submitTime }
         val isEnoughInterval = latestSubmit == null ||
             nowTimeStamp.time - latestSubmit.submitTime.time > SUBMIT_INTERVAL_TIME
         return isEnoughInterval &&
-            (contest.startTime <= nowTimeStamp ||
-                sessionAccount.authority == AccountInfo.AccountAuthority.ADMINISTER ||
-                contestCreators.find { it.accountName == sessionAccount.name } != null)
+            (
+                contest.startTime <= nowTimeStamp ||
+                    sessionAccount.authority == AccountInfo.AccountAuthority.ADMINISTER ||
+                    contestCreators.find { it.accountName == sessionAccount.name } != null
+                )
     }
 
     // コンテスト前 -> ADMIN かコンテスト関係者なら閲覧可能
@@ -56,9 +58,11 @@ class ContestService(
         contest: ContestInfo
     ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
-        return (contest.startTime <= nowTimeStamp ||
+        return (
+            contest.startTime <= nowTimeStamp ||
                 sessionAccount?.authority == AccountInfo.AccountAuthority.ADMINISTER ||
-                contestCreators.find { it.accountName == sessionAccount?.name } != null)
+                contestCreators.find { it.accountName == sessionAccount?.name } != null
+            )
     }
 
     // コンテスト終了前 -> ADMIN かコンテスト関係者なら閲覧可能
@@ -69,9 +73,11 @@ class ContestService(
         contest: ContestInfo
     ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
-        return (contest.endTime <= nowTimeStamp ||
+        return (
+            contest.endTime <= nowTimeStamp ||
                 sessionAccount?.authority == AccountInfo.AccountAuthority.ADMINISTER ||
-                contestCreators.find { it.accountName == sessionAccount?.name } != null)
+                contestCreators.find { it.accountName == sessionAccount?.name } != null
+            )
     }
 
     // コンテスト終了 -> 誰のでも見れる
@@ -83,10 +89,12 @@ class ContestService(
         contest: ContestInfo
     ): Boolean {
         val nowTimeStamp = Timestamp(System.currentTimeMillis())
-        return (contest.endTime <= nowTimeStamp ||
+        return (
+            contest.endTime <= nowTimeStamp ||
                 sessionAccount?.authority == AccountInfo.AccountAuthority.ADMINISTER ||
                 sessionAccount?.name == accountName ||
-                contestCreators.find { it.accountName == sessionAccount?.name } != null)
+                contestCreators.find { it.accountName == sessionAccount?.name } != null
+            )
     }
 
     fun getAccountSubmissionOfContest(
@@ -127,8 +135,10 @@ class ContestService(
             throw ResponseStatusException(HttpStatus.FORBIDDEN)
         }
         sharedSessionService.createNewSession(accountName, httpServletResponse)
-        return sharedSubmissionService.submitAnswer(requestSubmission.indexOfContest, contest.id,
-            requestSubmission.statement, account.name)
+        return sharedSubmissionService.submitAnswer(
+            requestSubmission.indexOfContest, contest.id,
+            requestSubmission.statement, account.name
+        )
             ?: throw ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
@@ -191,9 +201,11 @@ class ContestService(
             }
             ContestCreator(it.accountName, it.contestId, position)
         }
-        val contest = ContestInfo(requestContest.id, requestContest.contestName, "",
+        val contest = ContestInfo(
+            requestContest.id, requestContest.contestName, "",
             requestContest.startTime, requestContest.endTime, requestContest.penalty, requestContest.ratedBound,
-            contestType, false, creators)
+            contestType, false, creators
+        )
         contestRepository.addContest(contest)
     }
 
@@ -263,7 +275,8 @@ class ContestService(
         val problemNum = nowContestProblem.size
         for (i in 0 until problemNum) {
             if (nowContestProblem[i].answer != newProblems[i].answer ||
-                    nowContestProblem[i].point != newProblems[i].point) {
+                nowContestProblem[i].point != newProblems[i].point
+            ) {
                 throw ResponseStatusException(HttpStatus.BAD_REQUEST)
             }
         }
@@ -323,11 +336,13 @@ class ContestService(
             }
         }
         submitCount.forEach { submit ->
-            submissionList.add(ResponseContestSubmissionOfRaid(
-                submit.key,
-                submit.value,
-                acceptSet.find { it == submit.key } != null
-            ))
+            submissionList.add(
+                ResponseContestSubmissionOfRaid(
+                    submit.key,
+                    submit.value,
+                    acceptSet.find { it == submit.key } != null
+                )
+            )
         }
         return submissionList.sorted()
     }
