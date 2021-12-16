@@ -16,9 +16,11 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             else -> ContestInfo.ContestType.INVALID
         }
         val id = rs.getString("id")
-        ContestInfo(rs.getString("id"), rs.getString("name"), rs.getString("statement"),
-                rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"),
-            rs.getInt("ratedBound"), contestType, rs.getBoolean("ratingCalculated"), findContestCreators(id))
+        ContestInfo(
+            rs.getString("id"), rs.getString("name"), rs.getString("statement"),
+            rs.getTimestamp("startTime"), rs.getTimestamp("endTime"), rs.getInt("penalty"),
+            rs.getInt("ratedBound"), contestType, rs.getBoolean("ratingCalculated"), findContestCreators(id)
+        )
     }
     private val rowMapperForContestCreator = RowMapper { rs, _ ->
         val position = when (rs.getString("position").toUpperCase()) {
@@ -29,9 +31,12 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         ContestCreator(rs.getString("accountName"), rs.getString("contestId"), position)
     }
     fun findByContestId(id: String): ContestInfo? {
-        val contest = jdbcTemplate.query("""
+        val contest = jdbcTemplate.query(
+            """
             SELECT id, name, statement, startTime, endTime, penalty, contestType, ratedBound, ratingCalculated
-             FROM contestInfo WHERE id = (?)""", rowMapperForContestInfo, id)
+             FROM contestInfo WHERE id = (?)""",
+            rowMapperForContestInfo, id
+        )
         return if (contest.isEmpty()) {
             null
         } else {
@@ -39,9 +44,12 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         }
     }
     fun findByName(contestName: String): ContestInfo? {
-        val contest = jdbcTemplate.query("""
+        val contest = jdbcTemplate.query(
+            """
             SELECT id, name, statement, startTime, endTime, penalty, contestType, ratedBond, ratingCalculated
-            FROM contestInfo WHERE name = (?)""", rowMapperForContestInfo, contestName)
+            FROM contestInfo WHERE name = (?)""",
+            rowMapperForContestInfo, contestName
+        )
         return if (contest.isEmpty()) {
             null
         } else {
@@ -49,37 +57,50 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         }
     }
     fun changeToEndCalcRating(id: String) {
-        jdbcTemplate.update("""UPDATE contestInfo set ratingCalculated = true where id = ?""",
-            id)
+        jdbcTemplate.update(
+            """UPDATE contestInfo set ratingCalculated = true where id = ?""",
+            id
+        )
     }
     fun findLatestContest(page: Int): List<ContestInfo> {
-        return jdbcTemplate.query("""
+        return jdbcTemplate.query(
+            """
             SELECT id, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
             FROM contestInfo ORDER BY startTime desc LIMIT ? OFFSET ?""",
-            rowMapperForContestInfo, LATEST_CONTEST_PAGE_SIZE, page * LATEST_CONTEST_PAGE_SIZE)
+            rowMapperForContestInfo, LATEST_CONTEST_PAGE_SIZE, page * LATEST_CONTEST_PAGE_SIZE
+        )
     }
     fun findUpcomingContest(): List<ContestInfo> {
-        return jdbcTemplate.query("""
+        return jdbcTemplate.query(
+            """
             SELECT id, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
             FROM contestInfo where startTime > now() ORDER BY startTime desc""",
-            rowMapperForContestInfo)
+            rowMapperForContestInfo
+        )
     }
     fun findActiveContest(): List<ContestInfo> {
-        return jdbcTemplate.query("""
+        return jdbcTemplate.query(
+            """
             SELECT id, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
             FROM contestInfo where startTime < now() AND now() < endTime ORDER BY startTime desc""",
-            rowMapperForContestInfo)
+            rowMapperForContestInfo
+        )
     }
     fun findPastContest(page: Int): List<ContestInfo> {
-        return jdbcTemplate.query("""
+        return jdbcTemplate.query(
+            """
             SELECT id, name, statement, startTime, endTime, contestType, ratedBound , penalty, ratingCalculated 
             FROM contestInfo where now() > endTime ORDER BY startTime desc LIMIT ? OFFSET ?""",
-            rowMapperForContestInfo, LATEST_CONTEST_PAGE_SIZE, page * LATEST_CONTEST_PAGE_SIZE)
+            rowMapperForContestInfo, LATEST_CONTEST_PAGE_SIZE, page * LATEST_CONTEST_PAGE_SIZE
+        )
     }
     fun findContestCreators(contestId: String): List<ContestCreator> =
-        jdbcTemplate.query("""
+        jdbcTemplate.query(
+            """
             SELECT accountName, contestId, position FROM contestCreator WHERE contestId = ?
-        """, rowMapperForContestCreator, contestId)
+        """,
+            rowMapperForContestCreator, contestId
+        )
 
     fun findAllContestNum(): Int =
         jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo""", Int::class.java)!!
@@ -88,16 +109,22 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.queryForObject("""SELECT count(*) from contestInfo where now() > endTime""", Int::class.java)!!
 
     fun addContest(contest: ContestInfo) {
-        jdbcTemplate.update("""
+        jdbcTemplate.update(
+            """
             INSERT INTO contestInfo(id, name, statement, startTime, endTime, contestType, ratedBound, penalty)
             VALUES(?, ?, ?, ?, ?, ?, ?, ?)
-        """, contest.id, contest.name, contest.statement, contest.startTime, contest.endTime,
-            contest.contestType.textName, contest.ratedBound, contest.penalty)
+        """,
+            contest.id, contest.name, contest.statement, contest.startTime, contest.endTime,
+            contest.contestType.textName, contest.ratedBound, contest.penalty
+        )
         contest.contestCreators.forEach {
-            jdbcTemplate.update("""
+            jdbcTemplate.update(
+                """
                INSERT INTO contestCreator(accountName, contestId, position) 
                VALUES(?, ?, ?)
-            """, it.accountName, it.contestId, it.position.name)
+            """,
+                it.accountName, it.contestId, it.position.name
+            )
         }
     }
 
@@ -106,7 +133,8 @@ class ContestRepository(val jdbcTemplate: JdbcTemplate) {
             """
             UPDATE contestInfo SET statement = ?, penalty = ?
             WHERE id = ?
-        """, putContest.statement, putContest.penalty, contestId
+        """,
+            putContest.statement, putContest.penalty, contestId
         )
     }
 }

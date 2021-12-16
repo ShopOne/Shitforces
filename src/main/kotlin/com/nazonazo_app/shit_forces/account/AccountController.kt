@@ -2,8 +2,6 @@ package com.nazonazo_app.shit_forces.account
 
 import com.nazonazo_app.shit_forces.EmptyResponse
 import com.nazonazo_app.shit_forces.session.SharedSessionService
-import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.GetMapping
@@ -16,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 const val ACCOUNT_RANKING_ONE_PAGE = 20
 @CrossOrigin(origins = ["http://localhost:3000"], allowCredentials = "true")
@@ -26,9 +26,11 @@ class AccountController(
     private val sharedSessionService: SharedSessionService
 ) {
 
-    @RequestMapping("api/signup",
+    @RequestMapping(
+        "api/signup",
         headers = ["Content-Type=application/json"],
-        method = [RequestMethod.POST])
+        method = [RequestMethod.POST]
+    )
     fun createAccountResponse(
         @RequestBody requestAccount: RequestAccountForCertification,
         httpServletResponse: HttpServletResponse
@@ -38,8 +40,10 @@ class AccountController(
         return account
     }
 
-    @PostMapping("api/login",
-        headers = ["Content-Type=application/json"])
+    @PostMapping(
+        "api/login",
+        headers = ["Content-Type=application/json"]
+    )
     fun loginAccountResponse(
         @RequestBody requestAccount: RequestAccountForCertification,
         httpServletResponse: HttpServletResponse

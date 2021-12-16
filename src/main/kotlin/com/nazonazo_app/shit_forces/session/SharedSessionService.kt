@@ -1,12 +1,12 @@
 package com.nazonazo_app.shit_forces.session
 
+import org.apache.commons.lang3.RandomStringUtils
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.util.Date
 import javax.servlet.http.Cookie
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import org.apache.commons.lang3.RandomStringUtils
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 const val ACCOUNT_NAME_COOKIE_KEY = "_sforce_account_name"
 const val SESSION_ID_COOKIE_KEY = "_sforce_login_session"
