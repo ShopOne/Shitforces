@@ -39,7 +39,7 @@ export const PagingElement: React.FC<Props> = memo(
     const pageArr = createPageArr(totalPages, currentPage);
     const params = new URLSearchParams(window.location.search);
     const pathName = useLocation().pathname;
-    const paramPage = params.get('page');
+    const paramPage = parseInt(params.get('page') || '0', 10);
     const history = useHistory();
     const onClick = (page: number) => {
       if (savePaging) {
@@ -49,14 +49,9 @@ export const PagingElement: React.FC<Props> = memo(
       onChange(page);
     };
 
-    if (
-      savePaging &&
-      paramPage !== null &&
-      currentPage.toString() !== paramPage
-    ) {
-      const newPage = parseInt(paramPage, 10);
-      if (!isNaN(newPage)) {
-        onChange(newPage);
+    if (savePaging && currentPage !== paramPage) {
+      if (!isNaN(paramPage)) {
+        onChange(paramPage);
 
         return null;
       }
