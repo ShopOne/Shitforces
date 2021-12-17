@@ -56,7 +56,12 @@ const ContestList = () => {
       setPastContests(pastContestsInfo.contests);
     });
 
-    getAccountRankingInfo(0)
+    const paramPage = parseInt(
+      new URLSearchParams(window.location.search).get('page') || '0',
+      10
+    );
+    const page = isNaN(paramPage) ? 0 : paramPage;
+    getAccountRankingInfo(page)
       .then((res) => {
         setAccounts(res.accounts);
       })
