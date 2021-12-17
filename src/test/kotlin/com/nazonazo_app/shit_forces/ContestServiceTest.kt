@@ -11,12 +11,12 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.impl.annotations.MockK
-import java.sql.Timestamp
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.springframework.boot.test.context.SpringBootTest
+import java.sql.Timestamp
 
 @SpringBootTest
 class ContestServiceTest {
@@ -33,16 +33,20 @@ class ContestServiceTest {
     // ソートなぞなぞコンテスト1,2を元に作成
     @Test
     fun testRatingCalculation0() {
-        val contestInfo0 = ContestInfo("test0", "test0", "",
+        val contestInfo0 = ContestInfo(
+            "test0", "test0", "",
             Timestamp(System.currentTimeMillis()), Timestamp(System.currentTimeMillis()),
             0, 2800, ContestInfo.ContestType.ICPC, false, listOf()
         )
-        val contestInfo1 = ContestInfo("test1", "test1", "",
+        val contestInfo1 = ContestInfo(
+            "test1", "test1", "",
             Timestamp(System.currentTimeMillis()), Timestamp(System.currentTimeMillis()),
             0, 800, ContestInfo.ContestType.ICPC, false, listOf()
         )
-        val names0 = listOf("a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
-            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t")
+        val names0 = listOf(
+            "a", "b", "c", "d", "e", "f", "g", "h", "i", "j",
+            "k", "l", "m", "n", "o", "p", "q", "r", "s", "t"
+        )
         val names1 = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12")
         val ranking0 = names0.mapIndexed { index, name ->
             AccountInfoOnContestStandings(name, 0, 0, listOf(), listOf(), index + 1)
@@ -70,16 +74,18 @@ class ContestServiceTest {
             AccountInfoOnContestStandings("12", 0, 0, listOf(), listOf(), 20)
         )
         names0.forEach {
-            val account = AccountInfo(it, 0.0, 0.0, 0, "", "",
-            0, Timestamp(0)
+            val account = AccountInfo(
+                it, 0.0, 0.0, 0, "", "",
+                0, Timestamp(0)
             )
             every {
                 sharedAccountService.getAccountByName(it)
             } returns account
         }
         names1.forEach {
-            val account = AccountInfo(it, 0.0, 0.0, 0, "", "",
-            0, Timestamp(0)
+            val account = AccountInfo(
+                it, 0.0, 0.0, 0, "", "",
+                0, Timestamp(0)
             )
             every {
                 sharedAccountService.getAccountByName(it)
@@ -98,29 +104,34 @@ class ContestServiceTest {
         every {
             sharedContestService.getContestStandings("test1", null, null)
         } returns
-                ContestStandingsInfo(
-                    ranking1,
-                    listOf(),
-                    listOf(),
-                    20,
-                    null
-                )
+            ContestStandingsInfo(
+                ranking1,
+                listOf(),
+                listOf(),
+                20,
+                null
+            )
         every {
             sharedAccountService.updateAccountRating(any(), any(), any(), any(), any(), any())
         } returns Unit
         val result0 = sharedCalcRatingService.calcAndUpdateRating(contestInfo0)
         result0.forEach {
-            val account = AccountInfo(it.name, it.rating, it.innerRating, 1, "", "",
-                0, Timestamp(0))
+            val account = AccountInfo(
+                it.name, it.rating, it.innerRating, 1, "", "",
+                0, Timestamp(0)
+            )
             every {
                 sharedAccountService.getAccountByName(it.name)
             } returns account
         }
         val result1 = sharedCalcRatingService.calcAndUpdateRating(contestInfo1)
-        val resultCorrectionRate = listOf(147, 147, 147, 330, 740, 113, 74, 760, 42, 34,
-        28, 24, 20, 561, 14, 598, 9, 905, 3)
+        val resultCorrectionRate = listOf(
+            147, 147, 147, 330, 740, 113, 74, 760, 42, 34,
+            28, 24, 20, 561, 14, 598, 9, 905, 3
+        )
         result1.forEachIndexed { index, it ->
-            val account = AccountInfo(it.name, it.rating, it.innerRating,
+            val account = AccountInfo(
+                it.name, it.rating, it.innerRating,
                 if (it.name.toIntOrNull() == null) 2 else 1, "", "",
                 0, Timestamp(0)
             )

@@ -1,9 +1,9 @@
 package com.nazonazo_app.shit_forces.submission
 
-import java.sql.Timestamp
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
+import java.sql.Timestamp
 
 @Repository
 class SubmissionRepository(val jdbcTemplate: JdbcTemplate) {
@@ -15,37 +15,52 @@ class SubmissionRepository(val jdbcTemplate: JdbcTemplate) {
             rs.getString("accountName"),
             rs.getString("statement"),
             rs.getTimestamp("submitTime"),
-            result)
+            result
+        )
     }
     fun findSubmissions(accountName: String, contestId: String): List<SubmissionInfo> {
-        return jdbcTemplate.query("""
+        return jdbcTemplate.query(
+            """
             SELECT contestId, accountName, indexOfContest, statement, submitTime, result FROM submissionInfo 
             WHERE accountName = ? AND contestId = ? ORDER BY submitTime desc
-        """, rowMapper, accountName, contestId)
+        """,
+            rowMapper, accountName, contestId
+        )
     }
     fun addSubmission(submissionInfo: SubmissionInfo) {
-        jdbcTemplate.update("""
+        jdbcTemplate.update(
+            """
             INSERT INTO submissionInfo(contestId, accountName, indexOfContest, result, statement, submitTime)
              VALUES ( ?, ?, ?, ?, ?, ? )
         """,
             submissionInfo.contestId, submissionInfo.accountName, submissionInfo.indexOfContest,
-            submissionInfo.result.state, submissionInfo.statement, submissionInfo.submitTime)
+            submissionInfo.result.state, submissionInfo.statement, submissionInfo.submitTime
+        )
     }
     fun findContestSubmissionInTime(contestId: String, startTime: Timestamp, endTime: Timestamp): List<SubmissionInfo> {
-        return jdbcTemplate.query("""
+        return jdbcTemplate.query(
+            """
             SELECT contestId, accountName, indexOfContest, statement, submitTime, result FROM submissionInfo 
             WHERE contestId = ? AND ? <= submitTime AND submitTime < ?
-        """, rowMapper, contestId, startTime, endTime)
+        """,
+            rowMapper, contestId, startTime, endTime
+        )
     }
     fun findContestSubmission(contestId: String): List<SubmissionInfo> {
-        return jdbcTemplate.query("""
+        return jdbcTemplate.query(
+            """
             SELECT contestId, accountName, indexOfContest, statement, submitTime, result FROM submissionInfo 
             WHERE  contestId = ?
-        """, rowMapper, contestId)
+        """,
+            rowMapper, contestId
+        )
     }
     fun changeNameOfSubmission(prevName: String, newName: String) {
-        jdbcTemplate.update("""
+        jdbcTemplate.update(
+            """
             UPDATE submissionInfo set accountName = ? where accountName = ?
-        """, newName, prevName)
+        """,
+            newName, prevName
+        )
     }
 }

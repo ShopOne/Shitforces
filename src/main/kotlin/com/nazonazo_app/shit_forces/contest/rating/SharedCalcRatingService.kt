@@ -3,9 +3,9 @@ package com.nazonazo_app.shit_forces.contest.rating
 import com.nazonazo_app.shit_forces.account.SharedAccountService
 import com.nazonazo_app.shit_forces.contest.ContestInfo
 import com.nazonazo_app.shit_forces.contest.SharedContestService
+import org.springframework.stereotype.Service
 import kotlin.math.ln
 import kotlin.math.pow
-import org.springframework.stereotype.Service
 
 @Service
 class SharedCalcRatingService(
@@ -104,8 +104,10 @@ class SharedCalcRatingService(
         }
         val participantsResult = calcParticipantsResult(participants, contestInfo.ratedBound)
         participantsResult.forEach {
-            sharedAccountService.updateAccountRating(contestInfo.name, it.name,
-                it.rating, it.innerRating, it.perf.toInt(), it.rank)
+            sharedAccountService.updateAccountRating(
+                contestInfo.name, it.name,
+                it.rating, it.innerRating, it.perf.toInt(), it.rank
+            )
         }
         return participantsResult
     }

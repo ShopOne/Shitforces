@@ -79,6 +79,7 @@ class SharedContestService(
             solvedProblems,
             getFirstAcceptAccounts(submissionList, contestProblems.size),
             standingsList.size,
-            requestAccountRank)
+            requestAccountRank
+        )
     }
 }
