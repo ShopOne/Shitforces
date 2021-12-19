@@ -49,19 +49,19 @@ const ContestList = () => {
       setActiveContests(activeContestsInfo.contests);
     });
 
-    getPastContests(0).then((pastContestsInfo) => {
+    const paramPage = parseInt(
+      new URLSearchParams(window.location.search).get('page') || '0',
+      10
+    );
+    const page = isNaN(paramPage) ? 0 : paramPage;
+    getPastContests(page).then((pastContestsInfo) => {
       setContestPageNum(
         Math.ceil(pastContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
       );
       setPastContests(pastContestsInfo.contests);
     });
 
-    const paramPage = parseInt(
-      new URLSearchParams(window.location.search).get('page') || '0',
-      10
-    );
-    const page = isNaN(paramPage) ? 0 : paramPage;
-    getAccountRankingInfo(page)
+    getAccountRankingInfo(0)
       .then((res) => {
         setAccounts(res.accounts);
       })
