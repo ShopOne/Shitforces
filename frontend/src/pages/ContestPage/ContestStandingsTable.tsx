@@ -1,3 +1,4 @@
+import { Table, Thead, Tbody, Tfoot, Tr, Th, Td } from '@chakra-ui/react';
 import React, {
   ChangeEventHandler,
   FC,
@@ -9,7 +10,6 @@ import React, {
 } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Pagination from 'react-bootstrap/Pagination';
-import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/esm/Button';
 import { createEnglishIndex } from '../../functions/createEnglishIndex';
 import { formatSecondToMMSS } from '../../functions/formatSecondToMMSS';
@@ -43,15 +43,15 @@ const RowTemplate: React.VFC<RowTemplateProps> = ({
   penaltySubmitCountSum,
 }) => (
   <>
-    <td className="align-middle text-center">{rank}</td>
-    <td className="align-middle font-weight-bold">{accountName}</td>
-    <td className="align-middle text-center">
+    <Td className="align-middle text-center">{rank}</Td>
+    <Td className="align-middle font-weight-bold">{accountName}</Td>
+    <Td className="align-middle text-center">
       <span className="font-weight-bold text-primary">{score}</span>
       {penaltySubmitCountSum === 0 ? null : (
         <span className={'wa-color'}>{`(${penaltySubmitCountSum})`}</span>
       )}
       <div className="text-muted">{formatSecondToMMSS(penalty)}</div>
-    </td>
+    </Td>
   </>
 );
 
@@ -67,13 +67,13 @@ const PlayerStatusOfProblem: VFC<PlayerStatusProps> = ({
   time,
   penaltySubmitCount,
 }) => (
-  <td key={problemId} className="align-middle text-center">
+  <Td key={problemId} className="align-middle text-center">
     <span className="font-weight-bold text-success">{point}</span>
     {penaltySubmitCount === 0 ? null : (
       <span className={'wa-color'}>{`(${penaltySubmitCount})`}</span>
     )}
     <div className="text-muted">{formatSecondToMMSS(time)}</div>
-  </td>
+  </Td>
 );
 
 export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> = ({
@@ -83,7 +83,7 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
 }) => {
   //FIXME: Warning: Each child in a list should have a unique "key" prop.
   return (
-    <tr className={isMe ? 'table-info' : undefined}>
+    <Tr className={isMe ? 'table-info' : undefined}>
       <RowTemplate
         rank={account.rank}
         accountName={account.accountName}
@@ -112,9 +112,9 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
           }
 
           return (
-            <td key={problem.id} className="align-middle text-center">
+            <Td key={problem.id} className="align-middle text-center">
               {status}
-            </td>
+            </Td>
           );
         }
 
@@ -129,7 +129,7 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
           />
         );
       })}
-    </tr>
+    </Tr>
   );
 };
 
@@ -302,62 +302,62 @@ const StandingsTable: VFC<StandingsTableProps> = ({
   );
   const firstAcceptRow = useMemo(
     () => (
-      <tr className="small text-center text-nowrap">
-        <th colSpan={3} className="align-middle font-weight-normal">
+      <Tr className="small text-center text-nowrap">
+        <Th colSpan={3} className="align-middle font-weight-normal">
           最速正解者
-        </th>
-        {standings.firstAcceptedList.map((account) => {
+        </Th>
+        {standings.firstAcceptedList.map((account, index) => {
           if (account === null) {
-            return <th />;
+            return <Th key={index} />;
           } else {
             return (
-              <th
+              <Th
                 key={account.name}
                 className="align-middle font-weight-normal"
               >
                 {account.name}
-              </th>
+              </Th>
             );
           }
         })}
-      </tr>
+      </Tr>
     ),
     [standings.firstAcceptedList]
   );
 
   const acPerSubmitRow = useMemo(
     () => (
-      <tr className="small text-center text-nowrap">
-        <th colSpan={3} className="align-middle font-weight-normal">
+      <Tr className="small text-center text-nowrap">
+        <Th colSpan={3} className="align-middle font-weight-normal">
           <span className="font-weight-bold text-success">正解者数</span> /
           提出者数
-        </th>
+        </Th>
         {standings.acPerSubmit.map(({ first, second }, i) => (
-          <th key={i} className="align-middle font-weight-normal">
+          <Th key={i} className="align-middle font-weight-normal">
             <span className="font-weight-bold text-success">{first}</span> /{' '}
             {second}
-          </th>
+          </Th>
         ))}
-      </tr>
+      </Tr>
     ),
     [standings.acPerSubmit]
   );
 
   return (
-    <Table size="sm" striped bordered hover responsive>
-      <thead>
-        <tr className="text-center text-nowrap">
-          <th style={{ minWidth: '3em' }}>順位</th>
-          <th style={{ minWidth: '10em' }}>ユーザ</th>
-          <th style={{ minWidth: '4em' }}>得点</th>
+    <Table size="sm" variant="striped" bordered hover responsive>
+      <Thead>
+        <Tr className="text-center text-nowrap">
+          <Th style={{ minWidth: '3em' }}>順位</Th>
+          <Th style={{ minWidth: '10em' }}>ユーザ</Th>
+          <Th style={{ minWidth: '4em' }}>得点</Th>
           {standings.acPerSubmit.map((_, index) => (
-            <th key={index} style={{ minWidth: '4em' }}>
+            <Th key={index} style={{ minWidth: '4em' }}>
               {createEnglishIndex(index)}
-            </th>
+            </Th>
           ))}
-        </tr>
-      </thead>
-      <tbody>
+        </Tr>
+      </Thead>
+      <Tbody>
         {acPerSubmitRow}
         {paginatedAccounts.map((account, i) => (
           <ContestStandingsTableRow
@@ -368,8 +368,8 @@ const StandingsTable: VFC<StandingsTableProps> = ({
           />
         ))}
         {firstAcceptRow}
-      </tbody>
-      <tfoot>{acPerSubmitRow}</tfoot>
+      </Tbody>
+      <Tfoot>{acPerSubmitRow}</Tfoot>
     </Table>
   );
 };
