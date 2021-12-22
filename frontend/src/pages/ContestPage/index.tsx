@@ -52,10 +52,10 @@ const ContestPage: FC = () => {
         </Button>
       </Link>
       <p id={'contestPage-contestName'}>{contestName}</p>
-      <p>
+      <span>
         {/* FIXME: <pre> cannot appear as a descendant of <p>.*/}
         <pre>{statement}</pre>
-      </p>
+      </span>
       <p id={'contestPage-timeSpan'}>{time}</p>
       {problems && contestName && submissions && contestType && (
         <ProblemsTab

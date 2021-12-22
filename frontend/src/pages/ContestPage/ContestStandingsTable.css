@@ -1,0 +1,16 @@
+.sort-icons {
+  width: 10px;
+  display: inline-block;
+  margin: auto 10px;
+}
+
+.standing-table {
+  width: 100%;
+}
+
+.standing-table th,
+td {
+  text-align: center;
+  border-collapse: collapse;
+  border: 1px solid #e2e8f0;
+}

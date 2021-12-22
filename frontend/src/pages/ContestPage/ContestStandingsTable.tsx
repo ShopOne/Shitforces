@@ -1,3 +1,4 @@
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td } from '@chakra-ui/react';
 import React, {
   ChangeEventHandler,
@@ -18,6 +19,7 @@ import {
   ContestStandingsInfo,
   AccountInfoOnContestStandings,
 } from '../../types';
+import './ContestStandingsTable.css';
 import SearchBar from './SearchBar';
 
 const ACCOUNTS_PER_PAGE = 20;
@@ -81,7 +83,6 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
   isMe,
   problems,
 }) => {
-  //FIXME: Warning: Each child in a list should have a unique "key" prop.
   return (
     <Tr className={isMe ? 'table-info' : undefined}>
       <RowTemplate
@@ -290,6 +291,16 @@ type StandingsTableProps = {
   paginatedAccounts: AccountInfoOnContestStandings[];
   myAccountName: string | null;
 };
+
+const SortIcon: VFC = () => {
+  return (
+    <div className="sort-icons">
+      <TriangleUpIcon className="icon-image" />
+      <TriangleDownIcon className="icon-image" />
+    </div>
+  );
+};
+
 const StandingsTable: VFC<StandingsTableProps> = ({
   standings,
   problems,
@@ -344,15 +355,26 @@ const StandingsTable: VFC<StandingsTableProps> = ({
   );
 
   return (
-    <Table size="sm" variant="striped" bordered hover responsive>
+    <Table
+      size="sm"
+      variant="striped"
+      bordered="true"
+      hover="true"
+      responsive="true"
+      class="standing-table"
+    >
       <Thead>
         <Tr className="text-center text-nowrap">
           <Th style={{ minWidth: '3em' }}>順位</Th>
           <Th style={{ minWidth: '10em' }}>ユーザ</Th>
-          <Th style={{ minWidth: '4em' }}>得点</Th>
+          <Th style={{ minWidth: '4em' }}>
+            得点
+            <SortIcon />
+          </Th>
           {standings.acPerSubmit.map((_, index) => (
             <Th key={index} style={{ minWidth: '4em' }}>
               {createEnglishIndex(index)}
+              <SortIcon />
             </Th>
           ))}
         </Tr>
