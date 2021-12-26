@@ -12,7 +12,10 @@ import React, {
 import Alert from 'react-bootstrap/Alert';
 import Pagination from 'react-bootstrap/Pagination';
 import Button from 'react-bootstrap/esm/Button';
-import { createEnglishIndex } from '../../functions/createEnglishIndex';
+import {
+  createEnglishIndex,
+  createEnglishString,
+} from '../../functions/createEnglishIndex';
 import { formatSecondToMMSS } from '../../functions/formatSecondToMMSS';
 import {
   ProblemInfo,
@@ -141,6 +144,10 @@ const useContestStandingsTable = (
 ) => {
   const [accountNameToSearch, setAccountNameToSearch] = useState('');
   const [paginationIndex, setPaginationIndex] = useState(0);
+  const [sortAccountType, setSortAccountType] = useState<[string, boolean]>([
+    'allPoint',
+    true,
+  ]);
   const onChangeAccountName = useCallback<ChangeEventHandler<HTMLInputElement>>(
     (event) => {
       event.preventDefault();
@@ -163,14 +170,42 @@ const useContestStandingsTable = (
       v.accountName.startsWith(accountNameToSearch)
     );
 
-    const sortedMatchedUser = matchedUser.sort((a, b) => {
-      if (a.rank !== b.rank) return a.rank - b.rank;
+    console.log(matchedUser);
 
-      return a.penalty - b.penalty;
+    const sortedMatchedUser = matchedUser.sort((a, b) => {
+      const sortRev: number = sortAccountType[1] ? 1 : -1;
+      if (sortAccountType[0] == 'allPoint') {
+        if (a.rank !== b.rank) return (a.rank - b.rank) * sortRev;
+
+        return (a.penalty - b.penalty) * sortRev;
+      } else {
+        const problemIndex = createEnglishString(sortAccountType[0]);
+        if (a.acceptList[problemIndex] && !b.acceptList[problemIndex]) {
+          return -1 * sortRev;
+        } else if (!a.acceptList[problemIndex] && b.acceptList[problemIndex]) {
+          return sortRev;
+        } else if (a.acceptList[problemIndex] && b.acceptList[problemIndex]) {
+          const at = a.acceptTimeList[problemIndex] || 0;
+          const bt = b.acceptTimeList[problemIndex] || 0;
+
+          return (at - bt) * sortRev;
+        } else {
+          return (
+            (a.penaltySubmissionCountList[problemIndex] -
+              b.penaltySubmissionCountList[problemIndex]) *
+            sortRev
+          );
+        }
+      }
     });
 
     return sortedMatchedUser;
-  }, [standings.accountStandings, accountNameToSearch]);
+  }, [
+    standings.accountStandings,
+    accountNameToSearch,
+    sortAccountType[0],
+    sortAccountType[1],
+  ]);
 
   const paginationLength = useMemo(
     () => Math.ceil(SearchResult.length / ACCOUNTS_PER_PAGE),
@@ -225,6 +260,8 @@ const useContestStandingsTable = (
     onClickReset,
     paginatedAccounts,
     paginationItems,
+    setSortAccountType,
+    sortAccountType,
   };
 };
 
@@ -246,6 +283,7 @@ export const ContestStandingsTable: FC<Props> = ({
     accountNameToSearch,
     paginatedAccounts,
     paginationItems,
+    setSortAccountType,
   } = useContestStandingsTable(problems, standings, myAccountName);
 
   if (problems.length && problems.length !== standings.acPerSubmit.length) {
@@ -275,6 +313,7 @@ export const ContestStandingsTable: FC<Props> = ({
         problems={problems}
         paginatedAccounts={paginatedAccounts}
         myAccountName={myAccountName}
+        setSortAccountType={setSortAccountType}
       />
 
       <Pagination className="justify-content-center">
@@ -290,13 +329,24 @@ type StandingsTableProps = {
   problems: ProblemInfo[];
   paginatedAccounts: AccountInfoOnContestStandings[];
   myAccountName: string | null;
+  setSortAccountType: ([type, isAsc]: [string, boolean]) => void;
 };
 
-const SortIcon: VFC = () => {
+type SortIconProps = {
+  setSortAccountType: (isAsc: boolean) => void;
+};
+
+const SortIcon: VFC<SortIconProps> = ({ setSortAccountType }) => {
   return (
     <div className="sort-icons">
-      <TriangleUpIcon className="icon-image" />
-      <TriangleDownIcon className="icon-image" />
+      <TriangleUpIcon
+        onClick={() => setSortAccountType(true)}
+        className="icon-image"
+      />
+      <TriangleDownIcon
+        onClick={() => setSortAccountType(false)}
+        className="icon-image"
+      />
     </div>
   );
 };
@@ -306,6 +356,7 @@ const StandingsTable: VFC<StandingsTableProps> = ({
   problems,
   paginatedAccounts,
   myAccountName,
+  setSortAccountType,
 }) => {
   const sortedProblems = useMemo(
     () => problems.sort((a, b) => a.indexOfContest - b.indexOfContest),
@@ -361,7 +412,7 @@ const StandingsTable: VFC<StandingsTableProps> = ({
       bordered="true"
       hover="true"
       responsive="true"
-      class="standing-table"
+      className="standing-table"
     >
       <Thead>
         <Tr className="text-center text-nowrap">
@@ -369,12 +420,20 @@ const StandingsTable: VFC<StandingsTableProps> = ({
           <Th style={{ minWidth: '10em' }}>ユーザ</Th>
           <Th style={{ minWidth: '4em' }}>
             得点
-            <SortIcon />
+            <SortIcon
+              setSortAccountType={(isAsc) =>
+                setSortAccountType(['allPoint', isAsc])
+              }
+            />
           </Th>
           {standings.acPerSubmit.map((_, index) => (
             <Th key={index} style={{ minWidth: '4em' }}>
               {createEnglishIndex(index)}
-              <SortIcon />
+              <SortIcon
+                setSortAccountType={(isAsc) =>
+                  setSortAccountType([createEnglishIndex(index), isAsc])
+                }
+              />
             </Th>
           ))}
         </Tr>

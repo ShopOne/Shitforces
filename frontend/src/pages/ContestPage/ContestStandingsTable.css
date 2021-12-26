@@ -4,6 +4,10 @@
   margin: auto 10px;
 }
 
+.icon-image {
+  cursor: pointer;
+}
+
 .standing-table {
   width: 100%;
 }
