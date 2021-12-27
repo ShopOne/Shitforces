@@ -1,3 +1,4 @@
+import { Text } from '@chakra-ui/react';
 import { VFC, useState } from 'react';
 import { Tabs, Tab } from 'react-bootstrap';
 import { ADMINISTRATOR } from '../../constants';
@@ -7,7 +8,6 @@ import { AccountInformation } from './AccountInformation';
 import { AccountRatingChangeHistory } from './AccountRatingChangeHistory';
 import { CreateContestElement } from './CreateContestElement';
 import { AccountNameChangeForm } from './NameChangeForm';
-
 export interface AccountInfoTabsProps {
   name: string;
   rating: number;
@@ -25,11 +25,10 @@ export const AccountInfoTabs: VFC<AccountInfoTabsProps> = ({
 
   return (
     <div>
-      <div
-        style={{ margin: '24px 0', fontSize: '1.825rem', color: ratingColor }}
-      >
+      <Text my={7} fontSize={'1.825rem'} color={ratingColor}>
         {name}
-      </div>
+      </Text>
+
       <Tabs
         id={'account-info-tab'}
         activeKey={selectedTab}
