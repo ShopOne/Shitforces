@@ -1,8 +1,4 @@
-import {
-  ChakraProvider,
-  useColorMode,
-  useColorModeValue,
-} from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { StrictMode, FC, lazy, Suspense } from 'react';
 import Container from 'react-bootstrap/Container';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';

@@ -24,7 +24,7 @@
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     // "import/no-default-export": "error",
-    "max-lines-per-function": ["warn", 100],
+    // "max-lines-per-function": ["warn", 150],
     "max-depth": ["warn", 3],
     "complexity": "warn",
     "import/order": [

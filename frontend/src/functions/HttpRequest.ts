@@ -24,6 +24,7 @@ type Method =
 export async function httpRequest<T>(
   fetchTo: string,
   method: Method,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params?: any
 ): Promise<T> {
   if (process?.env?.REACT_APP_BACKEND_URL !== undefined) {
@@ -240,6 +241,7 @@ export function createContest(
   penalty: number,
   ratedBound: number,
   contestType: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   creators: any
 ): Promise<void> {
   const param = {
