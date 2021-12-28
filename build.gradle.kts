@@ -36,7 +36,7 @@ repositories {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.6.1")
     implementation("org.apache.logging.log4j:log4j-to-slf4j:2.15.0")
-    implementation("org.apache.logging.log4j:log4j-api:2.15.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.16.0")
     implementation("org.springframework.boot:spring-boot-starter-data-rest:2.6.1")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.6.1")
     implementation("org.springframework.boot:spring-boot-starter-web:2.6.1")
