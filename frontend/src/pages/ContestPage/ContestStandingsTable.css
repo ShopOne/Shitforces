@@ -12,6 +12,13 @@
   width: 100%;
 }
 
+.standings-row:nth-of-type(even) {
+  background-color: #edf2f0;
+}
+
+.standings-row:nth-of-type(odd) {
+  background-color: white;
+}
 .standing-table th,
 td {
   text-align: center;

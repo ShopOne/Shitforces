@@ -87,7 +87,10 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
   problems,
 }) => {
   return (
-    <Tr className={isMe ? 'table-info' : undefined}>
+    <Tr
+      className={isMe ? 'table-info standings-row' : 'standings-row'}
+      _hover={{ background: 'gray.300' }}
+    >
       <RowTemplate
         rank={account.rank}
         accountName={account.accountName}
@@ -190,11 +193,10 @@ const useContestStandingsTable = (
 
           return (at - bt) * sortRev;
         } else {
-          return (
-            (a.penaltySubmissionCountList[problemIndex] -
-              b.penaltySubmissionCountList[problemIndex]) *
-            sortRev
-          );
+          const ap = a.penaltySubmissionCountList[problemIndex];
+          const bp = b.penaltySubmissionCountList[problemIndex];
+
+          return (ap - bp) * sortRev;
         }
       }
     });
@@ -406,14 +408,7 @@ const StandingsTable: VFC<StandingsTableProps> = ({
   );
 
   return (
-    <Table
-      size="sm"
-      variant="striped"
-      bordered="true"
-      hover="true"
-      responsive="true"
-      className="standing-table"
-    >
+    <Table size="sm" responsive="true" className="standing-table">
       <Thead>
         <Tr className="text-center text-nowrap">
           <Th style={{ minWidth: '3em' }}>順位</Th>
