@@ -1,6 +1,5 @@
-import { FormLabel, FormControl, Input, Checkbox } from '@chakra-ui/react';
+import { FormLabel, FormControl, Input } from '@chakra-ui/react';
 import { ChangeEvent, VFC } from 'react';
-import { Form } from 'react-bootstrap';
 
 type SearchBarProps = {
   changeAccountName: (event: ChangeEvent<HTMLInputElement>) => void;
