@@ -408,7 +408,7 @@ const StandingsTable: VFC<StandingsTableProps> = ({
   );
 
   return (
-    <Table size="sm" responsive="true" className="standing-table">
+    <Table responsive="true" className="standing-table">
       <Thead>
         <Tr className="text-center text-nowrap">
           <Th style={{ minWidth: '3em' }}>順位</Th>
