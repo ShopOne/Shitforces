@@ -2,14 +2,16 @@ import { useColorMode } from '@chakra-ui/react';
 import { VFC, useEffect, useState, useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Link } from 'react-router-dom';
+import { AccountRankingTable } from '../components/AccountRankingTable';
 import { ContestTable } from '../components/ContestTable';
 import { PagingElement } from '../components/PagingElement';
 import {
   getUpcomingContests,
   getActiveContests,
   getPastContests,
+  getAccountRankingInfo,
 } from '../functions/HttpRequest';
-import { ContestInfo } from '../types';
+import { ContestInfo, AccountInfo } from '../types';
 
 // import Ranking from './RankingPage';
 // URL: /
@@ -26,6 +28,7 @@ const ContestList = () => {
   const [pastContests, setPastContests] = useState<ContestInfo[] | null>(null);
   const [contestPageNum, setContestPageNum] = useState<number>(0);
   const [contestCurrentPage, setContestCurrentPage] = useState(0);
+  const [accounts, setAccounts] = useState<AccountInfo[]>([]);
 
   const updateContestPage = useCallback(
     (page) => {
@@ -46,12 +49,25 @@ const ContestList = () => {
       setActiveContests(activeContestsInfo.contests);
     });
 
-    getPastContests(0).then((pastContestsInfo) => {
+    const paramPage = parseInt(
+      new URLSearchParams(window.location.search).get('page') || '0',
+      10
+    );
+    const page = isNaN(paramPage) ? 0 : paramPage;
+    getPastContests(page).then((pastContestsInfo) => {
       setContestPageNum(
         Math.ceil(pastContestsInfo.allContestNum / CONTEST_IN_ONE_PAGE)
       );
       setPastContests(pastContestsInfo.contests);
     });
+
+    getAccountRankingInfo(0)
+      .then((res) => {
+        setAccounts(res.accounts);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
   }, []);
 
   const { colorMode, toggleColorMode } = useColorMode();
@@ -79,12 +95,8 @@ const ContestList = () => {
         savePaging={true}
         totalPages={contestPageNum}
       />
-      {/*
-      pageのクエリパラメータを全てで使っているので、同じページに二つPagingElementがあるとページが同期しちゃう
-      というか上位10~20人だけでもいいかも
       <h2>ランキング</h2>
-      <Ranking />
-      */}
+      <AccountRankingTable accounts={accounts} rankStart={1} />
       <Link to={'/ranking'}>
         <Button variant={'primary'}>順位表へ</Button>
       </Link>
