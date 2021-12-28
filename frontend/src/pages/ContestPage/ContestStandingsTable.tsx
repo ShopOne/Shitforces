@@ -140,6 +140,48 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
   );
 };
 
+const userSortComp = (sortAccountType: [string, boolean]) => {
+  return (
+    a: AccountInfoOnContestStandings,
+    b: AccountInfoOnContestStandings
+  ): number => {
+    const sortRev: number = sortAccountType[1] ? 1 : -1;
+    if (sortAccountType[0] == 'allPoint') {
+      if (a.rank !== b.rank) return (a.rank - b.rank) * sortRev;
+
+      return (a.penalty - b.penalty) * sortRev;
+    } else {
+      const problemIndex = createEnglishString(sortAccountType[0]);
+      if (a.acceptList[problemIndex] && !b.acceptList[problemIndex]) {
+        return -1 * sortRev;
+      } else if (!a.acceptList[problemIndex] && b.acceptList[problemIndex]) {
+        return sortRev;
+      } else if (a.acceptList[problemIndex] && b.acceptList[problemIndex]) {
+        const at = a.acceptTimeList[problemIndex] || 0;
+        const bt = b.acceptTimeList[problemIndex] || 0;
+
+        return (at - bt) * sortRev;
+      } else {
+        const ap = a.penaltySubmissionCountList[problemIndex];
+        const bp = b.penaltySubmissionCountList[problemIndex];
+
+        return (ap - bp) * sortRev;
+      }
+    }
+  };
+};
+
+const dedupAccount = (
+  accounts: AccountInfoOnContestStandings[]
+): AccountInfoOnContestStandings[] => {
+  const uniqueAccounts = new Map<string, AccountInfoOnContestStandings>();
+  for (const account of accounts) {
+    uniqueAccounts.set(account.accountName, account);
+  }
+
+  return Array.from(uniqueAccounts.values());
+};
+
 const useContestStandingsTable = (
   problems: ProblemInfo[],
   standings: ContestStandingsInfo,
@@ -162,46 +204,15 @@ const useContestStandingsTable = (
   const onClickReset = useCallback(() => setAccountNameToSearch(''), []);
 
   const SearchResult = useMemo(() => {
-    const uniqueAccounts = new Map<string, AccountInfoOnContestStandings>();
-    for (const account of standings.accountStandings) {
-      uniqueAccounts.set(account.accountName, account);
-    }
-
-    const allUsername = Array.from(uniqueAccounts.values());
+    const allUsername = dedupAccount(standings.accountStandings);
 
     const matchedUser = allUsername.filter((v) =>
       v.accountName.startsWith(accountNameToSearch)
     );
 
-    console.log(matchedUser);
+    const sortedUser = matchedUser.sort(userSortComp(sortAccountType));
 
-    const sortedMatchedUser = matchedUser.sort((a, b) => {
-      const sortRev: number = sortAccountType[1] ? 1 : -1;
-      if (sortAccountType[0] == 'allPoint') {
-        if (a.rank !== b.rank) return (a.rank - b.rank) * sortRev;
-
-        return (a.penalty - b.penalty) * sortRev;
-      } else {
-        const problemIndex = createEnglishString(sortAccountType[0]);
-        if (a.acceptList[problemIndex] && !b.acceptList[problemIndex]) {
-          return -1 * sortRev;
-        } else if (!a.acceptList[problemIndex] && b.acceptList[problemIndex]) {
-          return sortRev;
-        } else if (a.acceptList[problemIndex] && b.acceptList[problemIndex]) {
-          const at = a.acceptTimeList[problemIndex] || 0;
-          const bt = b.acceptTimeList[problemIndex] || 0;
-
-          return (at - bt) * sortRev;
-        } else {
-          const ap = a.penaltySubmissionCountList[problemIndex];
-          const bp = b.penaltySubmissionCountList[problemIndex];
-
-          return (ap - bp) * sortRev;
-        }
-      }
-    });
-
-    return sortedMatchedUser;
+    return sortedUser;
   }, [
     standings.accountStandings,
     accountNameToSearch,
