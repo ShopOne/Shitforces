@@ -5,10 +5,8 @@
   "scripts": {
     "start": "react-scripts start",
     "test": "react-scripts test",
-    "build": "run-s buildreact copydist",
-    "prodbuild": "GENERATE_SOURCEMAP=false run-s buildreact copydist",
-    "buildreact": "react-scripts build",
-    "copydist": "node ./postbuild.js",
+    "build": "BUILD_PATH='../src/main/resources/public' react-scripts build",
+    "prodbuild": "GENERATE_SOURCEMAP=false npm run build",
     "eject": "react-scripts eject",
     "fix": "run-s format lint-fix",
     "format": "sort-package-json && prettier --write \"src/**/{.*/,}*.{css,html,js,json,jsx,md,scss,ts,tsx,yaml,yml}\"",
