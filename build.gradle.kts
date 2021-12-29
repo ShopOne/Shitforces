@@ -3,7 +3,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("org.springframework.boot") version "2.5.7"
+    id("org.springframework.boot") version "2.6.2"
     id("io.spring.dependency-management") version "1.0.11.RELEASE"
     id("org.flywaydb.flyway") version "8.2.2"
     kotlin("jvm") version "1.6.10"
@@ -13,6 +13,7 @@ plugins {
     id("org.jlleitschuh.gradle.ktlint") version "10.2.0"
 }
 
+group = "com.nazonazo_app"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
@@ -33,19 +34,22 @@ repositories {
     mavenCentral()
 }
 
+/*
 springBoot {
     mainClass.set("com.nazonazo_app.shit_forces.ShitforcesApplication")
 }
+*/
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.6.1")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.6.2")
+    implementation("org.springframework.boot:spring-boot-starter:2.6.2")
     implementation("org.apache.logging.log4j:log4j-to-slf4j:2.15.0")
     implementation("org.apache.logging.log4j:log4j-api:2.16.0")
-    implementation("org.springframework.boot:spring-boot-starter-data-rest:2.6.1")
-    implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.6.1")
-    implementation("org.springframework.boot:spring-boot-starter-web:2.6.1")
-    implementation("org.springframework.boot:spring-boot-starter-web-services:2.6.1")
-    implementation("org.springframework.boot:spring-boot-starter-webflux:2.6.1")
+    implementation("org.springframework.boot:spring-boot-starter-data-rest:2.6.2")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.6.2")
+    implementation("org.springframework.boot:spring-boot-starter-web:2.6.2")
+    implementation("org.springframework.boot:spring-boot-starter-web-services:2.6.2")
+    implementation("org.springframework.boot:spring-boot-starter-webflux:2.6.2")
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.1.5")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.10")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10")
@@ -56,10 +60,10 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0")
     implementation("org.flywaydb:flyway-core:8.2.2")
-    developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.1")
+    developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.2")
     runtimeOnly("org.postgresql:postgresql:42.3.1")
     testImplementation("io.mockk:mockk:1.12.1")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.1")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.2")
     testImplementation("io.projectreactor:reactor-test:3.4.13")
     testImplementation("org.junit.jupiter:junit-jupiter:5.8.2")
     testImplementation("org.assertj:assertj-core:3.21.0")
