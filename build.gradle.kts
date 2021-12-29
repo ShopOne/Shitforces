@@ -18,7 +18,7 @@ java.sourceCompatibility = JavaVersion.VERSION_11
 
 tasks.withType<Jar> {
     manifest {
-        attributes["Main-Class"] = "com.nazonazo_app.shit_forces.ShitforcesApplicationKt"
+        attributes["Main-Class"] = "com.nazonazo_app.shit_forces.ShitforcesApplication"
     }
 }
 
