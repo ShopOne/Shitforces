@@ -16,12 +16,6 @@ plugins {
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
-tasks.withType<Jar> {
-    manifest {
-        attributes["Main-Class"] = "com.nazonazo_app.shit_forces.ShitforcesApplication"
-    }
-}
-
 springBoot {
     mainClass.set("com.nazonazo_app.shit_forces.ShitforcesApplicationKt")
 }
@@ -43,14 +37,10 @@ repositories {
     mavenCentral()
 }
 
-springBoot {
-    mainClass.set("com.nazonazo_app.shit_forces.ShitforcesApplication")
-}
-
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.6.1")
-    implementation("org.apache.logging.log4j:log4j-to-slf4j:2.15.0")
-    implementation("org.apache.logging.log4j:log4j-api:2.16.0")
+    implementation("org.apache.logging.log4j:log4j-to-slf4j:2.17.0")
+    implementation("org.apache.logging.log4j:log4j-api:2.17.0")
     implementation("org.springframework.boot:spring-boot-starter-data-rest:2.6.1")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.6.1")
     implementation("org.springframework.boot:spring-boot-starter-web:2.6.1")
@@ -65,7 +55,7 @@ dependencies {
     implementation("javax.validation:validation-api:2.0.1.Final")
     implementation("org.apache.commons:commons-lang3:3.12.0")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.0")
-    implementation("org.flywaydb:flyway-core:8.2.2")
+    implementation("org.flywaydb:flyway-core:8.2.3")
     developmentOnly("org.springframework.boot:spring-boot-devtools:2.6.1")
     runtimeOnly("org.postgresql:postgresql:42.3.1")
     testImplementation("io.mockk:mockk:1.12.1")
