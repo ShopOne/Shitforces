@@ -22,6 +22,10 @@ tasks.withType<Jar> {
     }
 }
 
+springBoot {
+    mainClass.set("com.nazonazo_app.shit_forces.ShitforcesApplication")
+}
+
 configurations {
     compileOnly {
         extendsFrom(configurations.annotationProcessor.get())
