@@ -16,13 +16,11 @@ plugins {
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
-/*
 tasks.withType<Jar> {
     manifest {
-        attributes["Main-Class"] = "com.nazonazo_app.shit_forces.ShitforcesApplication"
+        attributes["Main-Class"] = "com.nazonazo_app.shit_forces.ShitforcesApplicationKt"
     }
 }
- */
 
 springBoot {
     mainClass.set("com.nazonazo_app.shit_forces.ShitforcesApplicationKt")
