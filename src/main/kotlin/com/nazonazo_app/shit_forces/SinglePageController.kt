@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping
 
 @Controller
 class SinglePageController {
-    @GetMapping("/")
+    @GetMapping(".*")
     fun any(): String {
         return "forward:/index.html"
     }
