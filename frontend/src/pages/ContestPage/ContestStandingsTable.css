@@ -11,7 +11,6 @@
 .standing-table {
   width: 100%;
   overflow-x: scroll;
-  display: block;
 }
 
 .standings-row:nth-of-type(even) {
