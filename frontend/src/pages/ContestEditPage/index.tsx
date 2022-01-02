@@ -1,3 +1,12 @@
+import {
+  Button,
+  FormLabel,
+  SimpleGrid,
+  Box,
+  Input,
+  Switch,
+  FormControl,
+} from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { FC, useEffect, useState } from 'react';
 import {
@@ -6,10 +15,6 @@ import {
   Draggable,
   OnDragEndResponder,
 } from 'react-beautiful-dnd';
-import Button from 'react-bootstrap/Button';
-import Col from 'react-bootstrap/Col';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
 import { MutableListElement } from '../../components/MutableListElement';
@@ -127,19 +132,19 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
     );
 
     return (
-      <Form.Row key={problem.id}>
-        <Col>
-          <Form.Label>問題文</Form.Label>
-          <InputGroup className={'mb-3'}>
-            <Form.Control
+      <SimpleGrid columns={5} spacing={10} key={problem.id}>
+        <Box>
+          <FormLabel>問題文</FormLabel>
+          <div className={'mb-3'}>
+            <Input
               as={'textarea'}
               placeholder={'〇〇な△△な〜んだ？'}
               value={problem.statement}
               onChange={(e) => updateProblemStatement(idx, e.target.value)}
             />
-          </InputGroup>
-        </Col>
-        <Col>
+          </div>
+        </Box>
+        <Box>
           <div
             style={{
               height: columnHeight,
@@ -157,8 +162,8 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
               <Button variant={'primary'}>答え編集</Button>
             </OverlayTrigger>
           </div>
-        </Col>
-        <Col>
+        </Box>
+        <Box>
           <div
             style={{
               height: columnHeight,
@@ -167,17 +172,17 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
               justifyContent: 'center',
             }}
           >
-            <InputGroup className={'mb-3'}>
-              <Form.Control
+            <div className={'mb-3'}>
+              <Input
                 type={'number'}
                 value={problem.point}
                 onChange={(e) => updateProblemPoint(idx, e.target.value)}
               />{' '}
-            </InputGroup>
+            </div>
             <p style={{ marginLeft: 12 }}>点</p>
           </div>
-        </Col>
-        <Col>
+        </Box>
+        <Box>
           {' '}
           <div
             style={{
@@ -189,18 +194,17 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
               fontSize: '1.125rem',
             }}
           >
-            <Form.Switch
+            <Switch
               id={`${problem.id} switch`}
-              type={'switch'}
-              label={'Enable Quiz Mode'}
               defaultChecked={problem.isQuiz}
               onChange={(e) => {
                 updateProblemQuizMode(idx, e.target.checked);
               }}
             />
+            <FormLabel>Enable Quiz Mode</FormLabel>
           </div>
-        </Col>
-        <Col>
+        </Box>
+        <Box>
           <div
             style={{
               height: columnHeight,
@@ -209,27 +213,27 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
               justifyContent: 'center',
             }}
           >
-            <button type={'button'} onClick={addProblem}>
+            <Button type={'button'} onClick={addProblem}>
               +
-            </button>
-            <button type={'button'} onClick={() => eraseProblem(idx)}>
+            </Button>
+            <Button type={'button'} onClick={() => eraseProblem(idx)}>
               -
-            </button>
-            <button
+            </Button>
+            <Button
               type={'button'}
               onClick={() => rearrangeProblem(idx, UP_REARRANGE)}
             >
               ↑
-            </button>
-            <button
+            </Button>
+            <Button
               type={'button'}
               onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}
             >
               ↓
-            </button>
+            </Button>
           </div>
-        </Col>
-      </Form.Row>
+        </Box>
+      </SimpleGrid>
     );
   });
 
@@ -416,12 +420,12 @@ const ContestEditPage: FC = () => {
           </p>
         </div>
         <div style={{ width: 'full', marginTop: 50 }}>
-          <Form>
-            <Form.Row>
-              <Col>
-                <Form.Label>コンテスト説明</Form.Label>
-                <InputGroup className={'mb-3'}>
-                  <Form.Control
+          <FormControl>
+            <SimpleGrid columns={2}>
+              <Box>
+                <FormLabel>コンテスト説明</FormLabel>
+                <div className={'mb-3'}>
+                  <Input
                     placeholder={'くそなぞなぞコンテストです\n問題が出ます'}
                     as="textarea"
                     value={statement}
@@ -429,12 +433,12 @@ const ContestEditPage: FC = () => {
                       setStatement(e.target.value);
                     }}
                   />
-                </InputGroup>
-              </Col>
-              <Col>
-                <Form.Label>ペナルティ(秒)</Form.Label>
-                <InputGroup className={'mb-3'}>
-                  <Form.Control
+                </div>
+              </Box>
+              <Box>
+                <FormLabel>ペナルティ(秒)</FormLabel>
+                <div className={'mb-3'}>
+                  <Input
                     placeholder={'300'}
                     value={penalty}
                     type={'number'}
@@ -442,24 +446,20 @@ const ContestEditPage: FC = () => {
                       setPenalty(e.target.value);
                     }}
                   />
-                </InputGroup>
-              </Col>
-            </Form.Row>
+                </div>
+              </Box>
+            </SimpleGrid>
             <div style={{ marginTop: 30 }}>
-              <Form.Row>
-                <Col>
-                  <EditProblemsElement
-                    problems={problems}
-                    setProblems={setProblems}
-                  />
-                </Col>
-              </Form.Row>
+              <EditProblemsElement
+                problems={problems}
+                setProblems={setProblems}
+              />
             </div>
             <br />
             <Button onClick={updateContestInfoFunction} variant={'success'}>
               確定
             </Button>
-          </Form>
+          </FormControl>
         </div>
       </div>
       <div style={{ marginBottom: 20 }}></div>
