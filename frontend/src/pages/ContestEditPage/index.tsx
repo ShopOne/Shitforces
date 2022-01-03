@@ -6,6 +6,9 @@ import {
   Input,
   Switch,
   FormControl,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { FC, useEffect, useState } from 'react';
@@ -15,8 +18,6 @@ import {
   Draggable,
   OnDragEndResponder,
 } from 'react-beautiful-dnd';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Popover from 'react-bootstrap/Popover';
 import { MutableListElement } from '../../components/MutableListElement';
 import {
   getContestInfo,
@@ -118,19 +119,6 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
   };
 
   const listGroups = problems.map((problem, idx) => {
-    const popOver = (
-      <Popover id={'popover-basic'}>
-        <Popover.Content>
-          <MutableListElement
-            items={problem.answer}
-            setItems={(newAnswer: string[]) => {
-              setNewAnswer(idx, newAnswer);
-            }}
-          />
-        </Popover.Content>
-      </Popover>
-    );
-
     return (
       <SimpleGrid columns={5} spacing={10} key={problem.id}>
         <Box>
@@ -153,14 +141,21 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
               justifyContent: 'center',
             }}
           >
-            <OverlayTrigger
-              rootClose={true}
-              trigger={'click'}
-              placement="bottom"
-              overlay={popOver}
-            >
-              <Button variant={'primary'}>答え編集</Button>
-            </OverlayTrigger>
+            <Popover>
+              <PopoverTrigger>
+                <Button variant={'primary'}>答え編集</Button>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div id={'popover-basic'}>
+                  <MutableListElement
+                    items={problem.answer}
+                    setItems={(newAnswer: string[]) => {
+                      setNewAnswer(idx, newAnswer);
+                    }}
+                  />
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </Box>
         <Box>
@@ -462,7 +457,7 @@ const ContestEditPage: FC = () => {
           </FormControl>
         </div>
       </div>
-      <div style={{ marginBottom: 20 }}></div>
+      <div style={{ marginBottom: 20 }} />
     </div>
   );
 };
