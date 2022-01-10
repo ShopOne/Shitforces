@@ -1,3 +1,5 @@
+import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
+import { Table, Thead, Tbody, Tfoot, Tr, Th, Td } from '@chakra-ui/react';
 import React, {
   ChangeEventHandler,
   FC,
@@ -9,15 +11,18 @@ import React, {
 } from 'react';
 import Alert from 'react-bootstrap/Alert';
 import Pagination from 'react-bootstrap/Pagination';
-import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/esm/Button';
-import { createEnglishIndex } from '../../functions/createEnglishIndex';
+import {
+  createEnglishIndex,
+  createEnglishString,
+} from '../../functions/createEnglishIndex';
 import { formatSecondToMMSS } from '../../functions/formatSecondToMMSS';
 import {
   ProblemInfo,
   ContestStandingsInfo,
   AccountInfoOnContestStandings,
 } from '../../types';
+import './ContestStandingsTable.css';
 import SearchBar from './SearchBar';
 
 const ACCOUNTS_PER_PAGE = 20;
@@ -43,15 +48,15 @@ const RowTemplate: React.VFC<RowTemplateProps> = ({
   penaltySubmitCountSum,
 }) => (
   <>
-    <td className="align-middle text-center">{rank}</td>
-    <td className="align-middle font-weight-bold">{accountName}</td>
-    <td className="align-middle text-center">
+    <Td className="align-middle text-center">{rank}</Td>
+    <Td className="align-middle font-weight-bold">{accountName}</Td>
+    <Td className="align-middle text-center">
       <span className="font-weight-bold text-primary">{score}</span>
       {penaltySubmitCountSum === 0 ? null : (
         <span className={'wa-color'}>{`(${penaltySubmitCountSum})`}</span>
       )}
       <div className="text-muted">{formatSecondToMMSS(penalty)}</div>
-    </td>
+    </Td>
   </>
 );
 
@@ -67,13 +72,13 @@ const PlayerStatusOfProblem: VFC<PlayerStatusProps> = ({
   time,
   penaltySubmitCount,
 }) => (
-  <td key={problemId} className="align-middle text-center">
+  <Td key={problemId} className="align-middle text-center">
     <span className="font-weight-bold text-success">{point}</span>
     {penaltySubmitCount === 0 ? null : (
       <span className={'wa-color'}>{`(${penaltySubmitCount})`}</span>
     )}
     <div className="text-muted">{formatSecondToMMSS(time)}</div>
-  </td>
+  </Td>
 );
 
 export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> = ({
@@ -81,9 +86,11 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
   isMe,
   problems,
 }) => {
-  //FIXME: Warning: Each child in a list should have a unique "key" prop.
   return (
-    <tr className={isMe ? 'table-info' : undefined}>
+    <Tr
+      className={isMe ? 'table-info standings-row' : 'standings-row'}
+      _hover={{ background: 'gray.300' }}
+    >
       <RowTemplate
         rank={account.rank}
         accountName={account.accountName}
@@ -112,9 +119,9 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
           }
 
           return (
-            <td key={problem.id} className="align-middle text-center">
+            <Td key={problem.id} className="align-middle text-center">
               {status}
-            </td>
+            </Td>
           );
         }
 
@@ -129,8 +136,50 @@ export const ContestStandingsTableRow: React.FC<ContestStandingsTableRowProps> =
           />
         );
       })}
-    </tr>
+    </Tr>
   );
+};
+
+const userSortComp = (sortAccountType: [string, boolean]) => {
+  return (
+    a: AccountInfoOnContestStandings,
+    b: AccountInfoOnContestStandings
+  ): number => {
+    const sortRev: number = sortAccountType[1] ? 1 : -1;
+    if (sortAccountType[0] == 'allPoint') {
+      if (a.rank !== b.rank) return (a.rank - b.rank) * sortRev;
+
+      return (a.penalty - b.penalty) * sortRev;
+    } else {
+      const problemIndex = createEnglishString(sortAccountType[0]);
+      if (a.acceptList[problemIndex] && !b.acceptList[problemIndex]) {
+        return -1 * sortRev;
+      } else if (!a.acceptList[problemIndex] && b.acceptList[problemIndex]) {
+        return sortRev;
+      } else if (a.acceptList[problemIndex] && b.acceptList[problemIndex]) {
+        const at = a.acceptTimeList[problemIndex] || 0;
+        const bt = b.acceptTimeList[problemIndex] || 0;
+
+        return (at - bt) * sortRev;
+      } else {
+        const ap = a.penaltySubmissionCountList[problemIndex];
+        const bp = b.penaltySubmissionCountList[problemIndex];
+
+        return (ap - bp) * sortRev;
+      }
+    }
+  };
+};
+
+const dedupAccount = (
+  accounts: AccountInfoOnContestStandings[]
+): AccountInfoOnContestStandings[] => {
+  const uniqueAccounts = new Map<string, AccountInfoOnContestStandings>();
+  for (const account of accounts) {
+    uniqueAccounts.set(account.accountName, account);
+  }
+
+  return Array.from(uniqueAccounts.values());
 };
 
 const useContestStandingsTable = (
@@ -140,6 +189,10 @@ const useContestStandingsTable = (
 ) => {
   const [accountNameToSearch, setAccountNameToSearch] = useState('');
   const [paginationIndex, setPaginationIndex] = useState(0);
+  const [sortAccountType, setSortAccountType] = useState<[string, boolean]>([
+    'allPoint',
+    true,
+  ]);
   const onChangeAccountName = useCallback<ChangeEventHandler<HTMLInputElement>>(
     (event) => {
       event.preventDefault();
@@ -151,25 +204,21 @@ const useContestStandingsTable = (
   const onClickReset = useCallback(() => setAccountNameToSearch(''), []);
 
   const SearchResult = useMemo(() => {
-    const uniqueAccounts = new Map<string, AccountInfoOnContestStandings>();
-    for (const account of standings.accountStandings) {
-      uniqueAccounts.set(account.accountName, account);
-    }
-
-    const allUsername = Array.from(uniqueAccounts.values());
+    const allUsername = dedupAccount(standings.accountStandings);
 
     const matchedUser = allUsername.filter((v) =>
       v.accountName.startsWith(accountNameToSearch)
     );
 
-    const sortedMatchedUser = matchedUser.sort((a, b) => {
-      if (a.rank !== b.rank) return a.rank - b.rank;
+    const sortedUser = matchedUser.sort(userSortComp(sortAccountType));
 
-      return a.penalty - b.penalty;
-    });
-
-    return sortedMatchedUser;
-  }, [standings.accountStandings, accountNameToSearch]);
+    return sortedUser;
+  }, [
+    standings.accountStandings,
+    accountNameToSearch,
+    sortAccountType[0],
+    sortAccountType[1],
+  ]);
 
   const paginationLength = useMemo(
     () => Math.ceil(SearchResult.length / ACCOUNTS_PER_PAGE),
@@ -224,6 +273,8 @@ const useContestStandingsTable = (
     onClickReset,
     paginatedAccounts,
     paginationItems,
+    setSortAccountType,
+    sortAccountType,
   };
 };
 
@@ -245,6 +296,7 @@ export const ContestStandingsTable: FC<Props> = ({
     accountNameToSearch,
     paginatedAccounts,
     paginationItems,
+    setSortAccountType,
   } = useContestStandingsTable(problems, standings, myAccountName);
 
   if (problems.length && problems.length !== standings.acPerSubmit.length) {
@@ -274,6 +326,7 @@ export const ContestStandingsTable: FC<Props> = ({
         problems={problems}
         paginatedAccounts={paginatedAccounts}
         myAccountName={myAccountName}
+        setSortAccountType={setSortAccountType}
       />
 
       <Pagination className="justify-content-center">
@@ -289,12 +342,34 @@ type StandingsTableProps = {
   problems: ProblemInfo[];
   paginatedAccounts: AccountInfoOnContestStandings[];
   myAccountName: string | null;
+  setSortAccountType: ([type, isAsc]: [string, boolean]) => void;
 };
+
+type SortIconProps = {
+  setSortAccountType: (isAsc: boolean) => void;
+};
+
+const SortIcon: VFC<SortIconProps> = ({ setSortAccountType }) => {
+  return (
+    <div className="sort-icons">
+      <TriangleUpIcon
+        onClick={() => setSortAccountType(true)}
+        className="icon-image"
+      />
+      <TriangleDownIcon
+        onClick={() => setSortAccountType(false)}
+        className="icon-image"
+      />
+    </div>
+  );
+};
+
 const StandingsTable: VFC<StandingsTableProps> = ({
   standings,
   problems,
   paginatedAccounts,
   myAccountName,
+  setSortAccountType,
 }) => {
   const sortedProblems = useMemo(
     () => problems.sort((a, b) => a.indexOfContest - b.indexOfContest),
@@ -302,62 +377,74 @@ const StandingsTable: VFC<StandingsTableProps> = ({
   );
   const firstAcceptRow = useMemo(
     () => (
-      <tr className="small text-center text-nowrap">
-        <th colSpan={3} className="align-middle font-weight-normal">
+      <Tr className="small text-center text-nowrap">
+        <Th colSpan={3} className="align-middle font-weight-normal">
           最速正解者
-        </th>
-        {standings.firstAcceptedList.map((account) => {
+        </Th>
+        {standings.firstAcceptedList.map((account, index) => {
           if (account === null) {
-            return <th />;
+            return <Th key={index} />;
           } else {
             return (
-              <th
+              <Th
                 key={account.name}
                 className="align-middle font-weight-normal"
               >
                 {account.name}
-              </th>
+              </Th>
             );
           }
         })}
-      </tr>
+      </Tr>
     ),
     [standings.firstAcceptedList]
   );
 
   const acPerSubmitRow = useMemo(
     () => (
-      <tr className="small text-center text-nowrap">
-        <th colSpan={3} className="align-middle font-weight-normal">
+      <Tr className="small text-center text-nowrap">
+        <Th colSpan={3} className="align-middle font-weight-normal">
           <span className="font-weight-bold text-success">正解者数</span> /
           提出者数
-        </th>
+        </Th>
         {standings.acPerSubmit.map(({ first, second }, i) => (
-          <th key={i} className="align-middle font-weight-normal">
+          <Th key={i} className="align-middle font-weight-normal">
             <span className="font-weight-bold text-success">{first}</span> /{' '}
             {second}
-          </th>
+          </Th>
         ))}
-      </tr>
+      </Tr>
     ),
     [standings.acPerSubmit]
   );
 
   return (
-    <Table size="sm" striped bordered hover responsive>
-      <thead>
-        <tr className="text-center text-nowrap">
-          <th style={{ minWidth: '3em' }}>順位</th>
-          <th style={{ minWidth: '10em' }}>ユーザ</th>
-          <th style={{ minWidth: '4em' }}>得点</th>
+    <Table responsive="true" className="standing-table">
+      <Thead>
+        <Tr className="text-center text-nowrap">
+          <Th style={{ minWidth: '3em' }}>順位</Th>
+          <Th style={{ minWidth: '10em' }}>ユーザ</Th>
+          <Th style={{ minWidth: '4em' }}>
+            得点
+            <SortIcon
+              setSortAccountType={(isAsc) =>
+                setSortAccountType(['allPoint', isAsc])
+              }
+            />
+          </Th>
           {standings.acPerSubmit.map((_, index) => (
-            <th key={index} style={{ minWidth: '4em' }}>
+            <Th key={index} style={{ minWidth: '4em' }}>
               {createEnglishIndex(index)}
-            </th>
+              <SortIcon
+                setSortAccountType={(isAsc) =>
+                  setSortAccountType([createEnglishIndex(index), isAsc])
+                }
+              />
+            </Th>
           ))}
-        </tr>
-      </thead>
-      <tbody>
+        </Tr>
+      </Thead>
+      <Tbody>
         {acPerSubmitRow}
         {paginatedAccounts.map((account, i) => (
           <ContestStandingsTableRow
@@ -368,8 +455,8 @@ const StandingsTable: VFC<StandingsTableProps> = ({
           />
         ))}
         {firstAcceptRow}
-      </tbody>
-      <tfoot>{acPerSubmitRow}</tfoot>
+      </Tbody>
+      <Tfoot>{acPerSubmitRow}</Tfoot>
     </Table>
   );
 };

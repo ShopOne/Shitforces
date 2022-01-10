@@ -1,0 +1,28 @@
+.sort-icons {
+  width: 10px;
+  display: inline-block;
+  margin: auto 10px;
+}
+
+.icon-image {
+  cursor: pointer;
+}
+
+.standing-table {
+  width: 100%;
+  overflow-x: scroll;
+}
+
+.standings-row:nth-of-type(even) {
+  background-color: #edf2f0;
+}
+
+.standings-row:nth-of-type(odd) {
+  background-color: white;
+}
+.standing-table th,
+td {
+  text-align: center;
+  border-collapse: collapse;
+  border: 1px solid #e2e8f0;
+}

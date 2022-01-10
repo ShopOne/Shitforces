@@ -52,10 +52,10 @@ const ContestPage: FC = () => {
         </Button>
       </Link>
       <p id={'contestPage-contestName'}>{contestName}</p>
-      <p>
+      <span>
         {/* FIXME: <pre> cannot appear as a descendant of <p>.*/}
         <pre>{statement}</pre>
-      </p>
+      </span>
       <p id={'contestPage-timeSpan'}>{time}</p>
       {problems && contestName && submissions && contestType && (
         <ProblemsTab
@@ -80,10 +80,65 @@ const ContestPage: FC = () => {
             async
             src="https://platform.twitter.com/widgets.js"
             charSet="utf-8"
-          ></script>
+          />
         </div>
       )}
     </div>
+  );
+};
+const ratingUpdate = () => {
+  updateContestRating(findContestIdFromPath())
+    .then(() => {
+      alert('レート更新が完了しました');
+      location.reload();
+    })
+    .catch((e) => {
+      alert('レート更新に失敗しました');
+      console.log(e);
+    });
+};
+
+const request = {
+  contestInfo(contestId: string) {
+    return getContestInfo(contestId);
+  },
+  problems(contestId: string) {
+    return getContestProblems(contestId);
+  },
+  submissions(accountName: string | undefined) {
+    if (accountName === undefined) return [];
+
+    return getSubmission(findContestIdFromPath(), accountName);
+  },
+  accountInfo(contestId: string | undefined) {
+    if (contestId === undefined) return null;
+
+    return getAccountInformation(contestId);
+  },
+};
+
+const fetchResources = (contestId: string, accountName: string | undefined) => {
+  // TODO: standingsをこちらで取得する
+
+  return Promise.all([
+    request.contestInfo(contestId),
+    request.problems(contestId),
+    request.submissions(accountName),
+    request.accountInfo(accountName),
+  ]);
+};
+
+const youCanUpdateRating = (
+  accountInfo: AccountInfo,
+  contestInfo: ContestInfo
+) => {
+  const isRated = (rateBound: number) => rateBound > 0;
+
+  return (
+    accountInfo.auth === ADMINISTRATOR &&
+    !contestInfo.ratingCalculated &&
+    contestInfo.unixEndTime < Date.now() &&
+    isRated(contestInfo.ratedBound)
   );
 };
 
@@ -105,53 +160,8 @@ const useContestPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [ratedBound, setRatedBound] = useState(0);
 
-  const ratingUpdate = () => {
-    updateContestRating(findContestIdFromPath())
-      .then(() => {
-        alert('レート更新が完了しました');
-        location.reload();
-      })
-      .catch((e) => {
-        alert('レート更新に失敗しました');
-        console.log(e);
-      });
-  };
-
   useEffect(() => {
     const contestId = findContestIdFromPath();
-
-    const request = {
-      contestInfo(contestId: string) {
-        return getContestInfo(contestId);
-      },
-      problems(contestId: string) {
-        return getContestProblems(contestId);
-      },
-      submissions(accountName: string | undefined) {
-        if (accountName === undefined) return [];
-
-        return getSubmission(findContestIdFromPath(), accountName);
-      },
-      accountInfo(contestId: string | undefined) {
-        if (contestId === undefined) return null;
-
-        return getAccountInformation(contestId);
-      },
-    };
-
-    const fetchResources = (
-      contestId: string,
-      accountName: string | undefined
-    ) => {
-      // TODO: standingsをこちらで取得する
-
-      return Promise.all([
-        request.contestInfo(contestId),
-        request.problems(contestId),
-        request.submissions(accountName),
-        request.accountInfo(accountName),
-      ]);
-    };
 
     const fetchData = async () => {
       const cookieArray = getCookie();
@@ -182,20 +192,6 @@ const useContestPage = () => {
       setRatedBound(contestInfo.ratedBound);
 
       if (accountInfo) {
-        const youCanUpdateRating = (
-          accountInfo: AccountInfo,
-          contestInfo: ContestInfo
-        ) => {
-          const isRated = (rateBound: number) => rateBound > 0;
-
-          return (
-            accountInfo.auth === ADMINISTRATOR &&
-            !contestInfo.ratingCalculated &&
-            contestInfo.unixEndTime < Date.now() &&
-            isRated(contestInfo.ratedBound)
-          );
-        };
-
         if (youCanUpdateRating(accountInfo, contestInfo)) {
           setRatingUpdateButtonStyle({ display: 'block' });
         }
