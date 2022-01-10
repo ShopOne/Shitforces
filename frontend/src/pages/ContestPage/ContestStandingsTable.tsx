@@ -419,44 +419,46 @@ const StandingsTable: VFC<StandingsTableProps> = ({
   );
 
   return (
-    <Table responsive="true" className="standing-table">
-      <Thead>
-        <Tr className="text-center text-nowrap">
-          <Th style={{ minWidth: '3em' }}>順位</Th>
-          <Th style={{ minWidth: '10em' }}>ユーザ</Th>
-          <Th style={{ minWidth: '4em' }}>
-            得点
-            <SortIcon
-              setSortAccountType={(isAsc) =>
-                setSortAccountType(['allPoint', isAsc])
-              }
-            />
-          </Th>
-          {standings.acPerSubmit.map((_, index) => (
-            <Th key={index} style={{ minWidth: '4em' }}>
-              {createEnglishIndex(index)}
+    <div style={{ overflowX: 'scroll' }}>
+      <Table responsive="true" className="standing-table">
+        <Thead>
+          <Tr className="text-center text-nowrap">
+            <Th style={{ minWidth: '3em' }}>順位</Th>
+            <Th style={{ minWidth: '10em' }}>ユーザ</Th>
+            <Th style={{ minWidth: '4em' }}>
+              得点
               <SortIcon
                 setSortAccountType={(isAsc) =>
-                  setSortAccountType([createEnglishIndex(index), isAsc])
+                  setSortAccountType(['allPoint', isAsc])
                 }
               />
             </Th>
+            {standings.acPerSubmit.map((_, index) => (
+              <Th key={index} style={{ minWidth: '4em' }}>
+                {createEnglishIndex(index)}
+                <SortIcon
+                  setSortAccountType={(isAsc) =>
+                    setSortAccountType([createEnglishIndex(index), isAsc])
+                  }
+                />
+              </Th>
+            ))}
+          </Tr>
+        </Thead>
+        <Tbody>
+          {acPerSubmitRow}
+          {paginatedAccounts.map((account, i) => (
+            <ContestStandingsTableRow
+              key={i}
+              account={account}
+              problems={sortedProblems}
+              isMe={account.accountName === myAccountName}
+            />
           ))}
-        </Tr>
-      </Thead>
-      <Tbody>
-        {acPerSubmitRow}
-        {paginatedAccounts.map((account, i) => (
-          <ContestStandingsTableRow
-            key={i}
-            account={account}
-            problems={sortedProblems}
-            isMe={account.accountName === myAccountName}
-          />
-        ))}
-        {firstAcceptRow}
-      </Tbody>
-      <Tfoot>{acPerSubmitRow}</Tfoot>
-    </Table>
+          {firstAcceptRow}
+        </Tbody>
+        <Tfoot>{acPerSubmitRow}</Tfoot>
+      </Table>
+    </div>
   );
 };
