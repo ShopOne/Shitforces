@@ -3,12 +3,17 @@ import {
   FormLabel,
   SimpleGrid,
   Box,
-  Input,
   Switch,
   FormControl,
   Popover,
   PopoverTrigger,
   PopoverContent,
+  Textarea,
+  NumberInput,
+  NumberInputField,
+  NumberInputStepper,
+  NumberIncrementStepper,
+  NumberDecrementStepper,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { FC, useEffect, useState } from 'react';
@@ -124,8 +129,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
         <Box>
           <FormLabel>問題文</FormLabel>
           <div className={'mb-3'}>
-            <Input
-              as={'textarea'}
+            <Textarea
               placeholder={'〇〇な△△な〜んだ？'}
               value={problem.statement}
               onChange={(e) => updateProblemStatement(idx, e.target.value)}
@@ -143,7 +147,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
           >
             <Popover>
               <PopoverTrigger>
-                <Button variant={'primary'}>答え編集</Button>
+                <Button colorScheme={'blue'}>答え編集</Button>
               </PopoverTrigger>
               <PopoverContent>
                 <div id={'popover-basic'}>
@@ -168,11 +172,32 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
             }}
           >
             <div className={'mb-3'}>
-              <Input
-                type={'number'}
+              <NumberInput
                 value={problem.point}
-                onChange={(e) => updateProblemPoint(idx, e.target.value)}
-              />{' '}
+                onChange={(value) => {
+                  updateProblemPoint(idx, value);
+                }}
+              >
+                <NumberInputField />
+                <NumberInputStepper>
+                  <NumberIncrementStepper
+                    onClick={() =>
+                      updateProblemPoint(
+                        idx,
+                        ((problem?.point || 0) + 1).toString()
+                      )
+                    }
+                  />
+                  <NumberDecrementStepper
+                    onClick={() =>
+                      updateProblemPoint(
+                        idx,
+                        ((problem?.point || 0) - 1).toString()
+                      )
+                    }
+                  />
+                </NumberInputStepper>
+              </NumberInput>
             </div>
             <p style={{ marginLeft: 12 }}>点</p>
           </div>
@@ -277,7 +302,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
                       height: columnHeight,
                     }}
                   >
-                    <h4>{list}</h4>
+                    <h4 className={'problems-column'}>{list}</h4>{' '}
                   </div>
                 )}
               </Draggable>
@@ -418,29 +443,33 @@ const ContestEditPage: FC = () => {
           <FormControl>
             <SimpleGrid columns={2}>
               <Box>
-                <FormLabel>コンテスト説明</FormLabel>
-                <div className={'mb-3'}>
-                  <Input
-                    placeholder={'くそなぞなぞコンテストです\n問題が出ます'}
-                    as="textarea"
-                    value={statement}
-                    onChange={(e) => {
-                      setStatement(e.target.value);
-                    }}
-                  />
+                <div className={'problem-abstract'}>
+                  <FormLabel>コンテスト説明</FormLabel>
+                  <div className={'mb-3'}>
+                    <Textarea
+                      className={'problems-abstract-input'}
+                      placeholder={'くそなぞなぞコンテストです\n問題が出ます'}
+                      as="textarea"
+                      value={statement}
+                      onChange={(e) => {
+                        setStatement(e.target.value);
+                      }}
+                    />
+                  </div>
                 </div>
               </Box>
               <Box>
-                <FormLabel>ペナルティ(秒)</FormLabel>
-                <div className={'mb-3'}>
-                  <Input
-                    placeholder={'300'}
-                    value={penalty}
-                    type={'number'}
-                    onChange={(e) => {
-                      setPenalty(e.target.value);
-                    }}
-                  />
+                <div className={'problem-penalty'}>
+                  <FormLabel>ペナルティ(秒)</FormLabel>
+                  <div className={'mb-3'}>
+                    <NumberInput
+                      placeholder={'300'}
+                      value={penalty}
+                      onChange={setPenalty}
+                    >
+                      <NumberInputField />
+                    </NumberInput>
+                  </div>
                 </div>
               </Box>
             </SimpleGrid>
@@ -451,7 +480,7 @@ const ContestEditPage: FC = () => {
               />
             </div>
             <br />
-            <Button onClick={updateContestInfoFunction} variant={'success'}>
+            <Button onClick={updateContestInfoFunction} colorScheme={'green'}>
               確定
             </Button>
           </FormControl>
