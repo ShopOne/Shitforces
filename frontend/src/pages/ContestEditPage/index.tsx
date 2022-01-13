@@ -68,7 +68,7 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
   problems,
   setProblems,
 }) => {
-  const columnHeight = isMobile() ? 150 : 100;
+  const columnHeight = isMobile() ? 150 : 120;
   const updateProblemStatement = (idx: number, statement: string) => {
     const newProblems = [...problems];
     newProblems[idx].statement = statement;
