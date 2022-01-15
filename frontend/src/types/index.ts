@@ -223,3 +223,24 @@ export type ContestType = ContestTypes[keyof ContestTypes];
 // export const atcoder: ContestType = 'ATCODER';
 // export const omc: ContestType = 'OMC';
 // export const icfpc: ContestType = 'icfpc';
+
+export class EditProblemInfo {
+  statement: string;
+  id: number;
+  point: number | undefined;
+  answer: string[];
+  isQuiz: boolean;
+  constructor(
+    statement: string,
+    id: number,
+    point: number,
+    answer: string[],
+    izQuiz: boolean
+  ) {
+    this.statement = statement;
+    this.id = id;
+    this.point = point;
+    this.answer = answer;
+    this.isQuiz = izQuiz;
+  }
+}
