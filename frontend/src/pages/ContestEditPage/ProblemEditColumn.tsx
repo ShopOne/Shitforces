@@ -18,14 +18,14 @@ import { VFC } from 'react';
 import { MutableListElement } from '../../components/MutableListElement';
 import { EditProblemInfo } from '../../types';
 
-interface ProblemEditColumnPCProps {
+interface ProblemEditColumnProps {
   problems: EditProblemInfo[];
   setProblems(problems: EditProblemInfo[]): void;
   idx: number;
   height: number;
 }
 
-const ProblemEditColumnPC: VFC<ProblemEditColumnPCProps> = ({
+const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
   idx,
   setProblems,
   problems,
@@ -89,7 +89,7 @@ const ProblemEditColumnPC: VFC<ProblemEditColumnPCProps> = ({
   };
 
   return (
-    <SimpleGrid columns={1} spacing={10}>
+    <SimpleGrid columns={5} spacing={10} key={problem.id}>
       <Box>
         <FormLabel>問題文</FormLabel>
         <div className={'mb-3'}>
@@ -221,4 +221,4 @@ const ProblemEditColumnPC: VFC<ProblemEditColumnPCProps> = ({
   );
 };
 
-export default ProblemEditColumnPC;
+export default ProblemEditColumn;

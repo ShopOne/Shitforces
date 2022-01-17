@@ -28,9 +28,9 @@ import { getCookie } from '../../functions/getCookie';
 import { isMobile } from '../../functions/isMobile';
 import { ContestCreator, ProblemInfo, EditProblemInfo } from '../../types';
 import './ContestEditPage.css';
-import ProblemEditColumnMobile from './ProblemEditColumnMobile';
-import ProblemEditColumnPC from './ProblemEditColumnPC';
+import ProblemEditColumn from './ProblemEditColumn';
 
+// TODO レスポンシブ対応
 // URL: /contest/$contestName/edit
 
 interface EditProblemsElementProps {
@@ -45,27 +45,15 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
   const columnHeight = isMobile() ? 150 : 120;
 
   const listGroups = problems.map((problem, idx) => {
-    if (isMobile()) {
-      return (
-        <ProblemEditColumnMobile
-          key={problem.id}
-          idx={idx}
-          setProblems={setProblems}
-          problems={problems}
-          height={columnHeight}
-        />
-      );
-    } else {
-      return (
-        <ProblemEditColumnPC
-          key={problem.id}
-          idx={idx}
-          setProblems={setProblems}
-          problems={problems}
-          height={columnHeight}
-        />
-      );
-    }
+    return (
+      <ProblemEditColumn
+        key={problem.id}
+        idx={idx}
+        setProblems={setProblems}
+        problems={problems}
+        height={columnHeight}
+      />
+    );
   });
 
   const onDragEnd: OnDragEndResponder = (result) => {
