@@ -2,11 +2,6 @@ import {
   Box,
   Button,
   FormLabel,
-  NumberDecrementStepper,
-  NumberIncrementStepper,
-  NumberInput,
-  NumberInputField,
-  NumberInputStepper,
   Popover,
   PopoverContent,
   PopoverTrigger,
@@ -16,25 +11,16 @@ import {
 } from '@chakra-ui/react';
 import { VFC } from 'react';
 import { MutableListElement } from '../../components/MutableListElement';
+import { NumberSetStepper } from '../../components/NumberSet';
 import { EditProblemInfo } from '../../types';
 
-interface ProblemEditColumnProps {
-  problems: EditProblemInfo[];
-  setProblems(problems: EditProblemInfo[]): void;
-  idx: number;
-  height: number;
-}
+const UP_REARRANGE = 'UP';
+const DOWN_REARRANGE = 'DOWN';
 
-const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
-  idx,
-  setProblems,
-  problems,
-  height,
-}) => {
-  const problem = problems[idx];
-  const UP_REARRANGE = 'UP';
-  const DOWN_REARRANGE = 'DOWN';
-
+const useUsefulHooks = (
+  problems: EditProblemInfo[],
+  setProblems: (p: EditProblemInfo[]) => void
+) => {
   const updateProblemStatement = (idx: number, statement: string) => {
     const newProblems = [...problems];
     newProblems[idx].statement = statement;
@@ -54,22 +40,70 @@ const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
     newProblems[idx].point = newPoint;
     setProblems(newProblems);
   };
-  const eraseProblem = (idx: number) => {
-    if (problems.length === 1) {
-      return;
-    }
-    const newProblems = problems.filter((_, problemIdx) => problemIdx !== idx);
+  const setNewAnswer = (idx: number, newAnswer: string[]) => {
+    const newProblems = [...problems];
+    newProblems[idx].answer = newAnswer;
     setProblems(newProblems);
   };
+
+  return {
+    updateProblemStatement,
+    updateProblemQuizMode,
+    updateProblemPoint,
+    setNewAnswer,
+  };
+};
+
+interface EditAnswerProps {
+  problem: EditProblemInfo;
+  setNewAnswer(idx: number, newAnswer: string[]): void;
+  idx: number;
+}
+
+const EditAnswer: VFC<EditAnswerProps> = ({ problem, setNewAnswer, idx }) => {
+  return (
+    <Popover>
+      <PopoverTrigger>
+        <Button colorScheme={'blue'}>答え編集</Button>
+      </PopoverTrigger>
+      <PopoverContent>
+        <div id={'popover-basic'}>
+          <MutableListElement
+            items={problem.answer}
+            setItems={(newAnswer: string[]) => {
+              setNewAnswer(idx, newAnswer);
+            }}
+          />
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+interface ChangeProblemsButtonProps {
+  height: number;
+  setProblems(problems: EditProblemInfo[]): void;
+  problems: EditProblemInfo[];
+  idx: number;
+}
+const ChangeProblemsButtons: VFC<ChangeProblemsButtonProps> = ({
+  height,
+  setProblems,
+  problems,
+  idx,
+}) => {
   const addProblem = () => {
     const newProblems = [...problems];
     const newId = problems.slice(-1)[0].id + 1;
     newProblems.push(new EditProblemInfo('', newId, 1, [''], false));
     setProblems(newProblems);
   };
-  const setNewAnswer = (idx: number, newAnswer: string[]) => {
-    const newProblems = [...problems];
-    newProblems[idx].answer = newAnswer;
+
+  const eraseProblem = (idx: number) => {
+    if (problems.length === 1) {
+      return;
+    }
+    const newProblems = problems.filter((_, problemIdx) => problemIdx !== idx);
     setProblems(newProblems);
   };
 
@@ -87,6 +121,59 @@ const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
     }
     setProblems(newProblems);
   };
+
+  return (
+    <div
+      style={{
+        height,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Button type={'button'} onClick={addProblem}>
+        +
+      </Button>
+      <Button type={'button'} onClick={() => eraseProblem(idx)}>
+        -
+      </Button>
+      <Button
+        type={'button'}
+        onClick={() => rearrangeProblem(idx, UP_REARRANGE)}
+      >
+        ↑
+      </Button>
+      <Button
+        type={'button'}
+        onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}
+      >
+        ↓
+      </Button>
+    </div>
+  );
+};
+
+interface ProblemEditColumnProps {
+  problems: EditProblemInfo[];
+  setProblems(problems: EditProblemInfo[]): void;
+  idx: number;
+  height: number;
+}
+
+const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
+  idx,
+  setProblems,
+  problems,
+  height,
+}) => {
+  const problem = problems[idx];
+  const {
+    updateProblemStatement,
+    updateProblemQuizMode,
+    updateProblemPoint,
+    setNewAnswer,
+  } = useUsefulHooks(problems, setProblems);
+  const strPoint = problem.point === undefined ? '' : problem.point.toString();
 
   return (
     <SimpleGrid columns={5} spacing={10} key={problem.id}>
@@ -109,21 +196,7 @@ const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
             justifyContent: 'center',
           }}
         >
-          <Popover>
-            <PopoverTrigger>
-              <Button colorScheme={'blue'}>答え編集</Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <div id={'popover-basic'}>
-                <MutableListElement
-                  items={problem.answer}
-                  setItems={(newAnswer: string[]) => {
-                    setNewAnswer(idx, newAnswer);
-                  }}
-                />
-              </div>
-            </PopoverContent>
-          </Popover>
+          <EditAnswer problem={problem} idx={idx} setNewAnswer={setNewAnswer} />
         </div>
       </Box>
       <Box>
@@ -136,32 +209,10 @@ const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
           }}
         >
           <div className={'mb-3'}>
-            <NumberInput
-              value={problem.point}
-              onChange={(value) => {
-                updateProblemPoint(idx, value);
-              }}
-            >
-              <NumberInputField />
-              <NumberInputStepper>
-                <NumberIncrementStepper
-                  onClick={() =>
-                    updateProblemPoint(
-                      idx,
-                      ((problem?.point || 0) + 1).toString()
-                    )
-                  }
-                />
-                <NumberDecrementStepper
-                  onClick={() =>
-                    updateProblemPoint(
-                      idx,
-                      ((problem?.point || 0) - 1).toString()
-                    )
-                  }
-                />
-              </NumberInputStepper>
-            </NumberInput>
+            <NumberSetStepper
+              value={strPoint}
+              onChange={(v) => updateProblemPoint(idx, v)}
+            />
           </div>
           <p style={{ marginLeft: 12 }}>点</p>
         </div>
@@ -189,33 +240,12 @@ const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
         </div>
       </Box>
       <Box>
-        <div
-          style={{
-            height,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Button type={'button'} onClick={addProblem}>
-            +
-          </Button>
-          <Button type={'button'} onClick={() => eraseProblem(idx)}>
-            -
-          </Button>
-          <Button
-            type={'button'}
-            onClick={() => rearrangeProblem(idx, UP_REARRANGE)}
-          >
-            ↑
-          </Button>
-          <Button
-            type={'button'}
-            onClick={() => rearrangeProblem(idx, DOWN_REARRANGE)}
-          >
-            ↓
-          </Button>
-        </div>
+        <ChangeProblemsButtons
+          idx={idx}
+          problems={problems}
+          setProblems={setProblems}
+          height={height}
+        />
       </Box>
     </SimpleGrid>
   );

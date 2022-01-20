@@ -5,8 +5,6 @@ import {
   Box,
   FormControl,
   Textarea,
-  NumberInput,
-  NumberInputField,
 } from '@chakra-ui/react';
 import PropTypes from 'prop-types';
 import { FC, useEffect, useState } from 'react';
@@ -16,6 +14,7 @@ import {
   Draggable,
   OnDragEndResponder,
 } from 'react-beautiful-dnd';
+import { NumberSet } from '../../components/NumberSet';
 import {
   getContestInfo,
   getContestProblems,
@@ -113,9 +112,119 @@ const EditProblemsElement: FC<EditProblemsElementProps> = ({
     </DragDropContext>
   );
 };
+
 EditProblemsElement.propTypes = {
   problems: PropTypes.array.isRequired,
   setProblems: PropTypes.func.isRequired,
+};
+
+interface SetContestEditInfoProps {
+  setStatement(statement: string): void;
+  setPenalty(penalty: string): void;
+  setProblems(problems: EditProblemInfo[]): void;
+  setIsValidAccess(valid: boolean): void;
+  setStartTime(startTime: number): void;
+}
+
+const setContestEditInfo = async ({
+  setStatement,
+  setPenalty,
+  setProblems,
+  setIsValidAccess,
+  setStartTime,
+}: SetContestEditInfoProps) => {
+  const contestId = findContestIdFromPath();
+  const contestInfo = await getContestInfo(contestId).catch(() => null);
+  const contestProblems = await getContestProblems(contestId).catch(() => null);
+  const cookie = getCookie();
+  const accountName = cookie['_sforce_account_name'] ?? null;
+
+  if (
+    !contestInfo ||
+    !contestProblems ||
+    !contestInfo.contestCreators.find(
+      (creator: ContestCreator) => creator.accountName === accountName
+    )
+  ) {
+    return;
+  }
+  const answers: string[][] = await Promise.all(
+    contestProblems.map((problem) => {
+      return getProblemAnswer(problem.id);
+    })
+  );
+  const problems = contestProblems.map((problem: ProblemInfo, idx: number) => {
+    if (answers[idx].length === 0) {
+      answers[idx].push('');
+    }
+
+    return new EditProblemInfo(
+      problem.statement,
+      idx,
+      problem.point,
+      answers[idx],
+      problem.quiz
+    );
+  });
+  if (problems.length === 0) {
+    problems.push(new EditProblemInfo('', 0, 1, [''], false));
+  }
+  setStatement(contestInfo.statement);
+  setPenalty(contestInfo.penalty.toString());
+  setProblems(problems);
+  setIsValidAccess(true);
+  setStartTime(contestInfo.unixStartTime);
+};
+
+interface UpdateContestInfoFunctionProps {
+  problems: EditProblemInfo[];
+  startTime: number;
+  penalty: string;
+  statement: string;
+}
+
+const updateContestInfoFunction = ({
+  problems,
+  startTime,
+  penalty,
+  statement,
+}: UpdateContestInfoFunctionProps) => {
+  const nowDate = new Date();
+  const nowTime = nowDate.getTime();
+  const updateFunction = (() => {
+    if (nowTime < startTime) {
+      return putContestInfo;
+    } else {
+      return patchContestInfo;
+    }
+  })();
+  const sendProblems = problems.map((problem) => {
+    let point = problem.point;
+    if (point === undefined) {
+      point = 0;
+    }
+
+    return {
+      statement: problem.statement,
+      point: point,
+      answer: problem.answer,
+      isQuiz: problem.isQuiz,
+    };
+  });
+  updateFunction(
+    findContestIdFromPath(),
+    parseInt(penalty),
+    statement,
+    sendProblems
+  )
+    .then(() => {
+      alert('コンテストの編集が完了しました');
+      window.location.href = `/contest/${findContestIdFromPath()}`;
+    })
+    .catch((e) => {
+      alert('コンテストの編集に失敗しました');
+      console.log(e);
+    });
 };
 
 const ContestEditPage: FC = () => {
@@ -126,96 +235,17 @@ const ContestEditPage: FC = () => {
   const [startTime, setStartTime] = useState<number>(0);
 
   useEffect(() => {
-    (async () => {
-      const contestId = findContestIdFromPath();
-      const contestInfo = await getContestInfo(contestId).catch(() => null);
-      const contestProblems = await getContestProblems(contestId).catch(
-        () => null
-      );
-      const cookie = getCookie();
-      const accountName = cookie['_sforce_account_name'] ?? null;
-
-      if (
-        !contestInfo ||
-        !contestProblems ||
-        !contestInfo.contestCreators.find(
-          (creator: ContestCreator) => creator.accountName === accountName
-        )
-      ) {
-        return;
-      }
-      const answers: string[][] = await Promise.all(
-        contestProblems.map((problem) => {
-          return getProblemAnswer(problem.id);
-        })
-      );
-      const problems = contestProblems.map(
-        (problem: ProblemInfo, idx: number) => {
-          if (answers[idx].length === 0) {
-            answers[idx].push('');
-          }
-
-          return new EditProblemInfo(
-            problem.statement,
-            idx,
-            problem.point,
-            answers[idx],
-            problem.quiz
-          );
-        }
-      );
-      if (problems.length === 0) {
-        problems.push(new EditProblemInfo('', 0, 1, [''], false));
-      }
-      setStatement(contestInfo.statement);
-      setPenalty(contestInfo.penalty.toString());
-      setProblems(problems);
-      setIsValidAccess(true);
-      setStartTime(contestInfo.unixStartTime);
-    })();
+    setContestEditInfo({
+      setStatement,
+      setPenalty,
+      setStartTime,
+      setIsValidAccess,
+      setProblems,
+    });
   }, []);
   if (!isValidAccess) {
     return null;
   }
-
-  const updateContestInfoFunction = () => {
-    const nowDate = new Date();
-    const nowTime = nowDate.getTime();
-    const updateFunction = (() => {
-      if (nowTime < startTime) {
-        return putContestInfo;
-      } else {
-        return patchContestInfo;
-      }
-    })();
-    const sendProblems = problems.map((problem) => {
-      let point = problem.point;
-      if (point === undefined) {
-        point = 0;
-      }
-
-      return {
-        statement: problem.statement,
-        point: point,
-        answer: problem.answer,
-        isQuiz: problem.isQuiz,
-      };
-    });
-    updateFunction(
-      findContestIdFromPath(),
-      parseInt(penalty),
-      statement,
-      sendProblems
-    )
-      .then(() => {
-        alert('コンテストの編集が完了しました');
-        window.location.href = `/contest/${findContestIdFromPath()}`;
-      })
-      .catch((e) => {
-        alert('コンテストの編集に失敗しました');
-        console.log(e);
-      });
-  };
 
   return (
     <div style={{ width: 'inherit' }}>
@@ -261,13 +291,11 @@ const ContestEditPage: FC = () => {
                 <div className={'problem-penalty'}>
                   <FormLabel>ペナルティ(秒)</FormLabel>
                   <div className={'mb-3'}>
-                    <NumberInput
+                    <NumberSet
                       placeholder={'300'}
                       value={penalty}
                       onChange={setPenalty}
-                    >
-                      <NumberInputField />
-                    </NumberInput>
+                    />
                   </div>
                 </div>
               </Box>
@@ -279,7 +307,17 @@ const ContestEditPage: FC = () => {
               />
             </div>
             <br />
-            <Button onClick={updateContestInfoFunction} colorScheme={'green'}>
+            <Button
+              onClick={() =>
+                updateContestInfoFunction({
+                  startTime,
+                  statement,
+                  penalty,
+                  problems,
+                })
+              }
+              colorScheme={'green'}
+            >
               確定
             </Button>
           </FormControl>
