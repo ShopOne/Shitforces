@@ -11,7 +11,7 @@ import {
 } from '@chakra-ui/react';
 import { VFC } from 'react';
 import { MutableListElement } from '../../components/MutableListElement';
-import { NumberSetStepper } from '../../components/NumberSet';
+import { NumberSet } from '../../components/NumberSet';
 import { EditProblemInfo } from '../../types';
 
 const UP_REARRANGE = 'UP';
@@ -209,7 +209,7 @@ const ProblemEditColumn: VFC<ProblemEditColumnProps> = ({
           }}
         >
           <div className={'mb-3'}>
-            <NumberSetStepper
+            <NumberSet
               value={strPoint}
               onChange={(v) => updateProblemPoint(idx, v)}
             />

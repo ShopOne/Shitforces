@@ -14,7 +14,7 @@ import {
   Draggable,
   OnDragEndResponder,
 } from 'react-beautiful-dnd';
-import { NumberSet } from '../../components/NumberSet';
+import { NumberSetStepper } from '../../components/NumberSet';
 import {
   getContestInfo,
   getContestProblems,
@@ -291,7 +291,7 @@ const ContestEditPage: FC = () => {
                 <div className={'problem-penalty'}>
                   <FormLabel>ペナルティ(秒)</FormLabel>
                   <div className={'mb-3'}>
-                    <NumberSet
+                    <NumberSetStepper
                       placeholder={'300'}
                       value={penalty}
                       onChange={setPenalty}
