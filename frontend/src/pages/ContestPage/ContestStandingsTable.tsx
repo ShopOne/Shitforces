@@ -14,7 +14,7 @@ import Pagination from 'react-bootstrap/Pagination';
 import Button from 'react-bootstrap/esm/Button';
 import {
   createEnglishIndex,
-  createEnglishString,
+  decodeEnglishIndex,
 } from '../../functions/createEnglishIndex';
 import { formatSecondToMMSS } from '../../functions/formatSecondToMMSS';
 import {
@@ -40,6 +40,7 @@ type RowTemplateProps = {
   penalty: number;
   penaltySubmitCountSum: number;
 };
+
 const RowTemplate: React.VFC<RowTemplateProps> = ({
   rank,
   accountName,
@@ -151,7 +152,7 @@ const userSortComp = (sortAccountType: [string, boolean]) => {
 
       return (a.penalty - b.penalty) * sortRev;
     } else {
-      const problemIndex = createEnglishString(sortAccountType[0]);
+      const problemIndex = decodeEnglishIndex(sortAccountType[0]);
       if (a.acceptList[problemIndex] && !b.acceptList[problemIndex]) {
         return -1 * sortRev;
       } else if (!a.acceptList[problemIndex] && b.acceptList[problemIndex]) {

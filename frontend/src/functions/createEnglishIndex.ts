@@ -12,10 +12,10 @@ export const createEnglishIndex = (index: number): string => {
 
   return alpha.split('').reverse().join('');
 };
-export const createEnglishString = (problem: string): number => {
-  let index = 0;
+export const decodeEnglishIndex = (problem: string): number => {
+  let index = -1;
   for (let i = 0; i < problem.length; i++) {
-    index = index * ALPHABETS_NUM + problem.charCodeAt(i) - 65;
+    index = (index + 1) * ALPHABETS_NUM + problem.charCodeAt(i) - 65;
   }
 
   return index;
