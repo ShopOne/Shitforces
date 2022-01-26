@@ -4,3 +4,29 @@
 textarea {
   resize: both;
 }
+
+.problem-abstract {
+  margin: 10px;
+}
+
+.problem-penalty {
+  margin: 10px;
+}
+
+.problems-abstract-input {
+  height: 100px;
+}
+
+.problems-column {
+  height: 100%;
+  padding: 20px;
+}
+
+.problems-abstract-input {
+  height: 100px;
+}
+
+.problems-column {
+  height: 100%;
+  padding: 20px;
+}
