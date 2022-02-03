@@ -1,5 +1,5 @@
 import { TriangleDownIcon, TriangleUpIcon } from '@chakra-ui/icons';
-import { Table, Thead, Tbody, Tfoot, Tr, Th, Td } from '@chakra-ui/react';
+import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, Box } from '@chakra-ui/react';
 import React, {
   ChangeEventHandler,
   FC,
@@ -352,16 +352,16 @@ type SortIconProps = {
 
 const SortIcon: VFC<SortIconProps> = ({ setSortAccountType }) => {
   return (
-    <div className="sort-icons">
+    <Box display={'inline-block'} mx={'10px'} width={'10px'}>
       <TriangleUpIcon
         onClick={() => setSortAccountType(true)}
-        className="icon-image"
+        cursor={'pointer'}
       />
       <TriangleDownIcon
         onClick={() => setSortAccountType(false)}
-        className="icon-image"
+        cursor={'pointer'}
       />
-    </div>
+    </Box>
   );
 };
 
@@ -421,7 +421,12 @@ const StandingsTable: VFC<StandingsTableProps> = ({
 
   return (
     <div style={{ overflowX: 'scroll' }}>
-      <Table responsive="true" className="standing-table">
+      <Table
+        responsive="true"
+        className="standing-table"
+        width={'100%'}
+        overflowX={'scroll'}
+      >
         <Thead>
           <Tr className="text-center text-nowrap">
             <Th style={{ minWidth: '3em' }}>順位</Th>
