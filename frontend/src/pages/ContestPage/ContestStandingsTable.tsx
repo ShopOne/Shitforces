@@ -387,12 +387,12 @@ const StandingsTable: VFC<StandingsTableProps> = ({
             return <Th key={index} />;
           } else {
             return (
-              <Th
+              <th
                 key={account.name}
-                className="align-middle font-weight-normal"
+                className="align-middle font-weight-normal first-accepted"
               >
                 {account.name}
-              </Th>
+              </th>
             );
           }
         })}

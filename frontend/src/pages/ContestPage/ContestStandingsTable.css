@@ -11,3 +11,8 @@ td {
   border-collapse: collapse;
   border: 1px solid #e2e8f0;
 }
+
+.first-accepted {
+  color: #4a5568;
+  font-size: 0.75rem;
+}
