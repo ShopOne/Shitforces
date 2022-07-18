@@ -40,7 +40,12 @@ class ContestController(
         @PathVariable("contest-id") contestId: String,
         httpServletRequest: HttpServletRequest
     ) {
-        contestService.updateRating(contestId, httpServletRequest)
+        try {
+            contestService.updateRating(contestId, httpServletRequest)
+        } catch (e: Throwable) {
+            println(e)
+            throw e
+        }
     }
 
     @GetMapping("api/contests/{contest-id}/standings")
