@@ -1,0 +1,1 @@
+ALTER TABLE accountratingchangehistory ALTER COLUMN contestName TYPE VARCHAR(127);
