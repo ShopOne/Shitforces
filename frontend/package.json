@@ -5,6 +5,7 @@
   "scripts": {
     "start": "react-scripts start",
     "test": "react-scripts test",
+    "develop": "NODE_OPTIONS='--openssl-legacy-provider' gatsby develop",
     "build": "run-s buildreact copydist",
     "prodbuild": "GENERATE_SOURCEMAP=false run-s buildreact copydist",
     "buildreact": "react-scripts build",
