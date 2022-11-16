@@ -100,7 +100,7 @@ export const ContestStandingsTableForRaid: FC<Props> = ({
         </th>
         {standings.firstAcceptedList.map((account) => {
           if (account === null) {
-            return <th />;
+            return <th key={'null-name'} />;
           } else {
             return (
               <th

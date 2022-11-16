@@ -76,11 +76,7 @@ const ContestPage: FC = () => {
           >
             コンテストの通知をツイート
           </a>
-          <script
-            async
-            src="https://platform.twitter.com/widgets.js"
-            charSet="utf-8"
-          />
+          <script async src="https://platform.twitter.com/widgets.js" />
         </div>
       )}
     </div>
