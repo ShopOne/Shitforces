@@ -216,6 +216,11 @@ export interface ContestTypes {
   INVALID: 'INVALID';
 }
 
+export interface FavInfo {
+  accountName: string;
+  problemId: number;
+}
+
 export type ContestType = ContestTypes[keyof ContestTypes];
 
 //TODO: ContestTypeが正常に動作するtestに追加

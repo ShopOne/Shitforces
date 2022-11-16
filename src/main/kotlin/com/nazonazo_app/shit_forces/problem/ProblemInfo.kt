@@ -23,3 +23,7 @@ data class PutRequestProblem(
     val isQuiz: Boolean,
     val answer: List<String>
 )
+data class FavInfo(
+    val accountName: String,
+    val problemId: Int
+)

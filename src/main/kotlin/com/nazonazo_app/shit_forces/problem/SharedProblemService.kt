@@ -48,4 +48,8 @@ class SharedProblemService(private val problemRepository: ProblemRepository) {
     fun getAnswersById(id: Int): List<String> {
         return problemRepository.findAnswersById(id)
     }
+
+    fun getFavCount(problemId: Int): Int {
+        return problemRepository.countFavNum(problemId)
+    }
 }

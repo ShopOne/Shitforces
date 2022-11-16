@@ -1,5 +1,6 @@
 package com.nazonazo_app.shit_forces.account
 
+import com.nazonazo_app.shit_forces.problem.FavInfo
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
@@ -20,6 +21,12 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
             rs.getString("accountName"), rs.getString("contestName"),
             rs.getInt("indexOfParticipation"), rs.getDouble("prevRating"),
             rs.getDouble("newRating"), rs.getInt("performance"), rs.getInt("rank")
+        )
+    }
+    private val rowMapperForFavHistory = RowMapper { rs, _ ->
+        FavInfo(
+            rs.getString("accountName"),
+            rs.getInt("problemId")
         )
     }
 
@@ -94,6 +101,32 @@ class AccountInfoRepository(private val jdbcTemplate: JdbcTemplate) {
 
     fun findAllAccount(): List<AccountInfo> {
         return jdbcTemplate.query("""SELECT * FROM accountInfo""", rowMapperForAccountInfo)
+    }
+
+    fun findFavProblemId(accountName: String): List<FavInfo> {
+        return jdbcTemplate.query(
+            """SELECT problemId FROM favHistory where accountName = ?""",
+            rowMapperForFavHistory, accountName
+        )
+    }
+
+    fun findFavAccountsByProblemId(problemId: Int): List<FavInfo> {
+        return jdbcTemplate.query(
+            """SELECT accountName FROM favHistory where problemId = ?""",
+            rowMapperForFavHistory, problemId
+        )
+    }
+
+    fun switchFavProblem(accountName: String, problemId: Int) {
+        jdbcTemplate.update(
+            """
+                IF EXISTS (SELECT * FROM favHistory where accountName = ? and problemId = ?) THEN
+                    DELETE FROM favHistory where accountName = ? and problemId = ?
+                ELSE
+                    INSERT INTO favHistory(accountName, problemId) VALUES(?, ?)
+            """,
+            accountName, problemId, accountName, problemId, accountName, problemId
+        )
     }
 
     fun addLockCount(accountName: String) {

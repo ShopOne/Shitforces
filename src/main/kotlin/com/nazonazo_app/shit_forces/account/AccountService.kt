@@ -1,5 +1,7 @@
 package com.nazonazo_app.shit_forces.account
 
+import com.nazonazo_app.shit_forces.problem.ProblemInfo
+import com.nazonazo_app.shit_forces.problem.SharedProblemService
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import com.nazonazo_app.shit_forces.submission.SharedSubmissionService
 import org.springframework.http.HttpStatus
@@ -18,7 +20,8 @@ const val LOCK_COUNT = 10
 class AccountService(
     val accountInfoRepository: AccountInfoRepository,
     val sharedSubmissionService: SharedSubmissionService,
-    val sharedSessionService: SharedSessionService
+    val sharedSessionService: SharedSessionService,
+    val sharedProblemService: SharedProblemService
 ) {
 
     private fun createConnectedPassword(accountName: String, password: String): String {
@@ -101,5 +104,11 @@ class AccountService(
 
     fun getAccountContestResultHistory(name: String): List<AccountRatingChangeHistory> {
         return accountInfoRepository.getAccountHistory(name)
+    }
+
+    fun getAccountFavList(name: String): List<ProblemInfo> {
+        return accountInfoRepository.findFavProblemId(name).mapNotNull {
+            sharedProblemService.getProblemById(it.problemId)
+        }
     }
 }

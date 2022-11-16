@@ -9,6 +9,7 @@ import type {
   SubmissionResult,
   AccountContestPartHistory,
   ContestSubmissionOfRaid,
+  FavInfo,
 } from '../types';
 
 type Method =
@@ -353,4 +354,9 @@ export function getContestSubmissionsOfRaid(
       index_of_contest: indexOfContest,
     }
   );
+}
+
+export function getFavAccounts(problemId: string): Promise<string[]> {
+  // TODO: 未実装なので作る
+  return httpRequest<string[]>(`/api/`, 'GET');
 }

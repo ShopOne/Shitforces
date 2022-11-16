@@ -52,6 +52,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.4")
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:2.0.1")
     implementation("org.flywaydb:flyway-core")
+    implementation("io.github.redouane59.twitter:twittered:2.21")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     runtimeOnly("org.postgresql:postgresql")
     testImplementation("io.mockk:mockk:1.10.5")

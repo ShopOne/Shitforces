@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.server.ResponseStatusException
 import java.sql.Timestamp
+import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -31,7 +32,7 @@ class ContestService(
 ) {
     // コンテスト前 -> ADMIN かコンテスト関係者なら提出可能
     // コンテスト開始後 -> 誰でも
-    // ただし、提出制限に引っかかっている場合は出来ない
+    // ADMINとコンテスト関係者以外は、提出制限に引っかかっている場合は出来ない
     private fun haveAuthOfSubmit(
         sessionAccount: AccountInfo,
         contestCreators: List<ContestCreator>,
@@ -42,12 +43,10 @@ class ContestService(
             .maxByOrNull { it.submitTime }
         val isEnoughInterval = latestSubmit == null ||
             nowTimeStamp.time - latestSubmit.submitTime.time > SUBMIT_INTERVAL_TIME
-        return isEnoughInterval &&
-            (
-                contest.startTime <= nowTimeStamp ||
-                    sessionAccount.authority == AccountInfo.AccountAuthority.ADMINISTER ||
-                    contestCreators.find { it.accountName == sessionAccount.name } != null
-                )
+
+        return (contest.startTime <= nowTimeStamp && isEnoughInterval) ||
+            sessionAccount.authority == AccountInfo.AccountAuthority.ADMINISTER ||
+            contestCreators.find { it.accountName == sessionAccount.name } != null
     }
 
     // コンテスト前 -> ADMIN かコンテスト関係者なら閲覧可能
@@ -194,7 +193,7 @@ class ContestService(
             else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST)
         }
         val creators = requestContest.creators.map {
-            val position = when (it.position.toUpperCase()) {
+            val position = when (it.position.uppercase(Locale.getDefault())) {
                 "COORDINATOR" -> ContestCreator.ContestPosition.COORDINATOR
                 "WRITER" -> ContestCreator.ContestPosition.WRITER
                 else -> throw ResponseStatusException(HttpStatus.BAD_REQUEST)

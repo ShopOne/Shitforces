@@ -204,6 +204,7 @@ const useProblemsTab = (
   const [nowSubmissions, setNowSubmission] = useState<SubmissionInfo[]>([]);
   const [standingsVersion, setStandingsVersion] = useState(0);
   const [myScore, setMyScore] = useState(0);
+  const [myAccountFavs, setMyAccountFavs] = useState<boolean[]>([]);
   const TAB_ID = 'tabId';
 
   if (
@@ -258,57 +259,60 @@ const useProblemsTab = (
   };
 
   useEffect(() => {
-    const getSubmitResultArray = () => {
-      //初期化時はprops、そうでない場合nowSubmissionsが新しい値 更新されている場合、要素数が多い
-      const useSubmissions =
-        nowSubmissions.length < submissions.length
-          ? submissions
-          : nowSubmissions;
+    (async () => {
+      const getSubmitResultArray = () => {
+        //初期化時はprops、そうでない場合nowSubmissionsが新しい値 更新されている場合、要素数が多い
+        const useSubmissions =
+          nowSubmissions.length < submissions.length
+            ? submissions
+            : nowSubmissions;
 
-      const submissionResults: (SubmissionResultType | 'NO_SUB')[] = new Array(
-        problems.length
-      ).fill('NO_SUB');
-      useSubmissions.map((submit: SubmissionInfo) => {
-        if (submit.result === 'ACCEPTED') {
-          submissionResults[submit.indexOfContest] = 'ACCEPTED';
-        } else if (submit.result === 'WRONG_ANSWER') {
-          if (submissionResults[submit.indexOfContest] === 'NO_SUB') {
-            submissionResults[submit.indexOfContest] = 'WRONG_ANSWER';
+        const submissionResults: (
+          | SubmissionResultType
+          | 'NO_SUB'
+        )[] = new Array(problems.length).fill('NO_SUB');
+        useSubmissions.map((submit: SubmissionInfo) => {
+          if (submit.result === 'ACCEPTED') {
+            submissionResults[submit.indexOfContest] = 'ACCEPTED';
+          } else if (submit.result === 'WRONG_ANSWER') {
+            if (submissionResults[submit.indexOfContest] === 'NO_SUB') {
+              submissionResults[submit.indexOfContest] = 'WRONG_ANSWER';
+            }
           }
-        }
-      });
+        });
 
-      return submissionResults;
-    };
+        return submissionResults;
+      };
 
-    let sumScore = 0;
-    const setColor = () => {
-      const submitResult = getSubmitResultArray();
-      problems.map((problemInfo: ProblemInfo, index: number) => {
-        const element = document.getElementById(`${TAB_ID}-tab-${index}`);
-        element?.classList.remove('bg-success', 'text-white', 'bg-warning');
+      let sumScore = 0;
+      const setColor = () => {
+        const submitResult = getSubmitResultArray();
+        problems.map((problemInfo: ProblemInfo, index: number) => {
+          const element = document.getElementById(`${TAB_ID}-tab-${index}`);
+          element?.classList.remove('bg-success', 'text-white', 'bg-warning');
 
-        switch (submitResult[index]) {
-          case 'ACCEPTED':
-            element?.classList.add('bg-success');
-            element?.classList.add('text-white');
-            sumScore += problemInfo.point;
-            break;
-          case 'WRONG_ANSWER':
-            element?.classList.add('bg-warning');
-            element?.classList.add('text-white');
-            break;
-        }
-      });
-    };
-    setColor();
-    setChangeColor(false);
-    setFirstTabRender(false);
-    setMyScore(sumScore);
-    //初期化時のみ
-    if (nowSubmissions.length === 0) {
-      setNowSubmission(submissions);
-    }
+          switch (submitResult[index]) {
+            case 'ACCEPTED':
+              element?.classList.add('bg-success');
+              element?.classList.add('text-white');
+              sumScore += problemInfo.point;
+              break;
+            case 'WRONG_ANSWER':
+              element?.classList.add('bg-warning');
+              element?.classList.add('text-white');
+              break;
+          }
+        });
+      };
+      setColor();
+      setChangeColor(false);
+      setFirstTabRender(false);
+      setMyScore(sumScore);
+      //初期化時のみ
+      if (nowSubmissions.length === 0) {
+        setNowSubmission(submissions);
+      }
+    })();
   }, [changeColor, firstTabRender]);
   useEffect(() => {
     const ele = answerInput.current;

@@ -30,4 +30,7 @@ class SharedAccountService(private val accountInfoRepository: AccountInfoReposit
             performance, newAccount.calcCorrectionRate(), rank
         )
     }
+
+    fun getFavAccountsByProblemId(problemId: Int) {
+    }
 }

@@ -1,6 +1,7 @@
 package com.nazonazo_app.shit_forces.account
 
 import com.nazonazo_app.shit_forces.EmptyResponse
+import com.nazonazo_app.shit_forces.problem.ProblemInfo
 import com.nazonazo_app.shit_forces.session.SharedSessionService
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -76,6 +77,11 @@ class AccountController(
     @GetMapping("api/ranking")
     fun getAccountsRankingResponse(@RequestParam("page") page: Int): ResponseAccountRanking {
         return accountService.getAccountRanking(page)
+    }
+
+    @GetMapping("api/account/{accountName}/fav")
+    fun getAccountFavListResponse(@PathVariable accountName: String): List<ProblemInfo> {
+        return accountService.getAccountFavList(accountName)
     }
 
     @GetMapping("api/account/{accountName}/history")

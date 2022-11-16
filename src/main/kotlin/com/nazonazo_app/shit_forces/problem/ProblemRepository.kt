@@ -29,7 +29,7 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
         jdbcTemplate.query(
             """
                 SELECT * FROM problemInfo WHERE contestId = ?
-                ORDER BY indexOfContest asc;
+                ORDER BY indexOfContest;
             """,
             rowMapperForProblem, contestId
         )
@@ -37,7 +37,7 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
         val problem = jdbcTemplate.query(
             """
                 SELECT * FROM problemInfo 
-                WHERE contestId = ? AND indexOfContest = ? order by indexOfContest asc
+                WHERE contestId = ? AND indexOfContest = ? order by indexOfContest
             """,
             rowMapperForProblem, contestId, indexOfContest
         )
@@ -108,10 +108,18 @@ class ProblemRepository(private val jdbcTemplate: JdbcTemplate) {
         if (problem.size == 0) return null
         return problem[0]
     }
+
     fun findAnswersById(id: Int): List<String> {
         return jdbcTemplate.query(
             "SELECT answer from answerInfo WHERE id = ?",
             rowMapperForAnswer, id
+        )
+    }
+
+    fun countFavNum(id: Int): Int {
+        return jdbcTemplate.queryForObject(
+            """SELECT COUNT(*) FROM favHistory where problemId = ?""",
+            Int::class.java, id
         )
     }
 }
