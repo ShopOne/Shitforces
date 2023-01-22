@@ -26,6 +26,8 @@ const RankingPage = lazy(() => import('./pages/RankingPage'));
 const SignUpPage = lazy(() => import('./pages/SignUpPage'));
 
 export const App: FC = () => {
+  console.log(Container);
+
   return (
     <StrictMode>
       <ChakraProvider theme={theme} resetCSS={false}>

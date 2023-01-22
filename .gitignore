@@ -36,6 +36,8 @@ out/
 
 ### react file ###
 /src/main/resources/public/
+/src/main/resources/static/*.js
+/src/main/resources/static/*.LICENSE.txt
 
 db.mv.db
 db.trace.db
